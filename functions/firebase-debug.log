@@ -1,0 +1,31 @@
+[debug] [2020-02-06T05:59:31.642Z] ----------------------------------------------------------------------
+[debug] [2020-02-06T05:59:31.644Z] Command:       /home/kairos/.nvm/versions/node/v10.15.0/bin/node /home/kairos/.nvm/versions/node/v10.15.0/bin/firebase serve --only functions
+[debug] [2020-02-06T05:59:31.645Z] CLI Version:   7.12.1
+[debug] [2020-02-06T05:59:31.645Z] Platform:      linux
+[debug] [2020-02-06T05:59:31.645Z] Node Version:  v10.15.0
+[debug] [2020-02-06T05:59:31.645Z] Time:          Thu Feb 06 2020 14:59:31 GMT+0900 (Korean Standard Time)
+[debug] [2020-02-06T05:59:31.645Z] ----------------------------------------------------------------------
+[debug] [2020-02-06T05:59:31.645Z] 
+[debug] [2020-02-06T05:59:31.652Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-02-06T05:59:31.652Z] > authorizing via signed-in user
+[debug] [2020-02-06T05:59:31.652Z] [iam] checking project mlvclab-intranet-khu for permissions ["firebase.projects.get"]
+[debug] [2020-02-06T05:59:31.653Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/mlvclab-intranet-khu:testIamPermissions  
+
+[debug] [2020-02-06T05:59:32.591Z] <<< HTTP RESPONSE 200
+[debug] [2020-02-06T05:59:32.595Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/mlvclab-intranet-khu  
+ 
+[debug] [2020-02-06T05:59:33.263Z] <<< HTTP RESPONSE 200
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "10"
+[info] ✔  functions: Emulator started at http://localhost:5000
+[info] i  functions: Watching "/home/kairos/Develop/mlvc-intranet/frontend/functions" for Cloud Functions...
+[debug] [2020-02-06T05:59:33.588Z] [worker-pool] addWorker(~diagnostic~)
+[debug] [2020-02-06T05:59:33.588Z] [worker-pool] Adding worker with key ~diagnostic~, total=1
+[debug] [2020-02-06T05:59:33.588Z] [worker-pool] submitWork(triggerId=)
+[debug] [2020-02-06T05:59:33.590Z] [worker-~diagnostic~-0b02cecc-7cba-4821-850c-e0eee186697f]: Assigning socketPath: /tmp/fire_emu_22009.sock
+[debug] [2020-02-06T05:59:33.590Z] [worker-~diagnostic~-0b02cecc-7cba-4821-850c-e0eee186697f]: BUSY
+[debug] [2020-02-06T05:59:33.853Z] [runtime-status] [22009] Functions runtime initialized. {"cwd":"/home/kairos/Develop/mlvc-intranet/frontend/functions","node_version":"10.15.0"}
+[debug] [2020-02-06T05:59:33.855Z] [runtime-status] [22009] Disabled runtime features: {"functions_config_helper":true,"network_filtering":true,"timeout":true,"memory_limiting":true,"admin_stubs":true,"pubsub_emulator":true}
+[debug] [2020-02-06T05:59:33.857Z] [runtime-status] [22009] Resolved module firebase-admin {"declared":true,"installed":true,"version":"8.9.2","resolution":"/home/kairos/Develop/mlvc-intranet/frontend/functions/node_modules/firebase-admin/lib/index.js"}
+[debug] [2020-02-06T05:59:33.859Z] [runtime-status] [22009] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/kairos/Develop/mlvc-intranet/frontend/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-02-06T05:59:33.861Z] [runtime-status] [22009] Resolved module firebase-functions {"declared":true,"installed":true,"version":"3.3.0","resolution":"/home/kairos/Develop/mlvc-intranet/frontend/functions/node_modules/firebase-functions/lib/index.js"}
+[debug] [2020-02-06T05:59:33.908Z] [worker-~diagnostic~-0b02cecc-7cba-4821-850c-e0eee186697f]: IDLE
