@@ -22,3 +22,18 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Firebase Config file
+**./firebase.config.js**
+```js
+export default {
+  apiKey: '...',
+  authDomain: 'xxx.firebaseapp.com',
+  databaseURL: 'https://xxx.firebaseio.com',
+  projectId: 'xxx',
+  storageBucket: 'xxx.appspot.com',
+  messagingSenderId: '...',
+  appId: '...'
+}
+```
