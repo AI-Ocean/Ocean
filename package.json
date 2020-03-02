@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
     "core-js": "^3.4.4",
     "express": "^4.17.1",
     "firebase": "^7.8.1",

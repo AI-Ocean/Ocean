@@ -134,21 +134,21 @@
                   <v-spacer></v-spacer>
                   <v-btn
                     color="gray"
-                    @click="dialog_new_instance = false"
+                    @click="cancle"
                   >
                     Cancle
                   </v-btn>
                   <v-btn
                     v-if="instance_is_edit === false"
                     color="success"
-                    @click="dialog_new_instance = false"
+                    @click="add_instance"
                   >
                     Create
                   </v-btn>
                   <v-btn
                     v-if="instance_is_edit === true"
                     color="success"
-                    @click="dialog_new_instance = false"
+                    @click="edit_instance"
                   >
                     Update
                   </v-btn>
@@ -373,20 +373,20 @@ export default {
     // form
     cancle () {
       this.instance_is_edit = false
-      this.instance_name = ''
-      this.instance_cpus = ''
-      this.instance_memory = ''
-      this.instance_gpus = ''
-      this.instance_volume = ''
+      this.instance_name = null
+      this.instance_cpus = null
+      this.instance_memory = null
+      this.instance_gpus = null
+      this.instance_volume = null
       this.dialog_new_instance = false
     },
     add_instance () {
       this.instance_is_edit = false
-      this.instance_name = ''
-      this.instance_cpus = ''
-      this.instance_memory = ''
-      this.instance_gpus = ''
-      this.instance_volume = ''
+      this.instance_name = null
+      this.instance_cpus = null
+      this.instance_memory = null
+      this.instance_gpus = null
+      this.instance_volume = null
       this.dialog_new_instance = true
     },
     edit_instance (id) {
