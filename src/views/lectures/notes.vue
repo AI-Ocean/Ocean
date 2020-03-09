@@ -171,10 +171,8 @@ export default {
           title, content, id: v.id
         })
       })
-      console.log(this.items)
     },
     async put (id) {
-      console.log(id)
       await this.$firebase.firestore().collection('notes').doc(id).set({
         title: this.title,
         content: this.content
@@ -182,7 +180,6 @@ export default {
       await this.get()
     },
     async del (id) {
-      console.log(id)
       await this.$firebase.firestore().collection('notes').doc(id).delete()
       await this.get()
     }
