@@ -9,7 +9,7 @@ app.use(cors())
 app.use(require('../middlewares/verifyToken'))
 
 app.get('/', async (req, res) => {
-  const r = await db.collection('users').doc(req.query.uid).get()
+  const r = await db.collection('users').doc(req.claims.uid).get()
   res.send(r.data())
 })
 

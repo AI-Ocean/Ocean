@@ -9,7 +9,7 @@ const adminCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (!store.state.user.emailVerified) return next('/userProfile')
+    if (!store.state.user.emailVerified) return next('/profile')
     if (store.state.claims.level > 0) throw Error('Only allow to Admin.')
     next()
   }
@@ -19,7 +19,7 @@ const userCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (!store.state.user.emailVerified) return next('/userProfile')
+    if (!store.state.user.emailVerified) return next('/profile')
     if (store.state.claims.level > 1) throw Error('Only allow to User.')
     next()
   }
@@ -29,7 +29,7 @@ const guestCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (!store.state.user.emailVerified) return next('/userProfile')
+    if (!store.state.user.emailVerified) return next('/profile')
     if (store.state.claims.level > 2) throw Error('Only allow to Guest.')
     next()
   }

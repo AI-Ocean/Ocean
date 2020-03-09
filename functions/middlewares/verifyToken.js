@@ -8,5 +8,4 @@ module.exports = (req, res, next) => {
     console.log(e)
     res.status(403).send(e)
   })
-  // next()
 }

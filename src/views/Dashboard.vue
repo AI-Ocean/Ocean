@@ -247,11 +247,7 @@ export default {
 
     // user limits
     async getUserLimits () {
-      const { data } = await this.$axios.get('/profile', {
-        params: {
-          uid: this.$store.state.user.uid
-        }
-      })
+      const { data } = await this.$axios.get('/profile')
       this.gpu_limit = data.gpus
       this.cpu_limit = data.cpus
       this.memory_limit = data.mem
@@ -265,9 +261,7 @@ export default {
       this.instances = []
 
       // get instances
-      console.log('request instances')
       const { data } = await this.$axios.get('/api/instances')
-      console.log(data)
 
       data.pods.forEach(element => {
         const { name, status, nodePort, limits, volumes } = element
@@ -283,7 +277,6 @@ export default {
         volumes.forEach(element => {
           pod.volumes.push(element.persistentVolumeClaim.claimName)
         })
-        console.log(pod)
         this.instances.push(pod)
       })
 
@@ -297,9 +290,7 @@ export default {
       this.volumes = []
 
       // get volumes
-      console.log('request volumes')
       const { data } = await this.$axios.get('/api/volumes')
-      console.log(data)
 
       data.volumes.forEach(element => {
         const { name, capacity, status } = element // add to status
@@ -308,7 +299,6 @@ export default {
           capacity,
           status
         }
-        console.log(vol)
         this.volumes.push(vol)
       })
 

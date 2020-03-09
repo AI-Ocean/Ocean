@@ -72,7 +72,7 @@ export default {
       await user.getIdToken()
       await this.$store.dispatch('getUser', user)
       if (this.$store.state.claims.level === undefined) {
-        return this.$router.push('/userProfile')
+        return this.$router.push('/profile')
       }
       this.$router.push('/')
     }

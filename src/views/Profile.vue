@@ -93,15 +93,11 @@
 <script>
 export default {
   data: () => ({
-    userData: undefined
+    userData: {}
   }),
   methods: {
     async getUserInfo () {
-      const r = await this.$axios.get('/profile', {
-        params: {
-          uid: this.$store.state.user.uid
-        }
-      })
+      const r = await this.$axios.get('/profile')
       this.userData = r.data
     }
   },
