@@ -14,8 +14,16 @@
               :server-items-length="totalCount"
               :loading="loading"
               :footer-props="footerProps"
-              class="elevation-1"
-            ></v-data-table>
+            >
+              <template v-slot:item.level="{ item }">
+                <v-select
+                  v-model="item.level"
+                  :items="[0, 1, 2]"
+                  chips
+                >
+                </v-select>
+              </template>
+            </v-data-table>
           </v-card-text>
         </v-card>
       </v-col>
@@ -29,8 +37,11 @@ export default {
     headers: [
       { text: 'Email', value: 'email' },
       { text: 'Name', value: 'displayName' },
-      { text: 'photo', value: 'photoURL' },
-      { text: 'UID', value: 'uid' }
+      { text: 'UID', value: 'uid' },
+      { text: 'CPUs', value: 'cpus' },
+      { text: 'Memory', value: 'mem' },
+      { text: 'GPUs', value: 'gpus' },
+      { text: 'level', value: 'level', width: 70 }
     ],
     items: [],
     options: {
@@ -59,6 +70,9 @@ export default {
       this.totalCount = data.totalCount
       this.loading = false
       return data
+    },
+    async changeLevel (level) {
+      
     }
   },
   watch: {

@@ -83,36 +83,12 @@
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
-          <v-list-item link to="/admin/users">
+          <v-list-item v-if="$store.state.claims.level === 0" link to="/admin/users">
             <v-list-item-icon>
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Users</v-list-item-title>
           </v-list-item>
-          <v-list-group
-            no-action
-            sub-group
-            value="true"
-          >
-            <template v-slot:activator>
-              <v-list-item-content>
-                <v-list-item-title>Test</v-list-item-title>
-              </v-list-item-content>
-            </template>
-
-            <v-list-item
-              v-for="(test, i) in tests"
-              :key="i"
-              link
-              :to="test.to"
-            >
-              <v-list-item-title v-text="test.text"></v-list-item-title>
-              <v-list-item-icon>
-                <v-icon>mdi-cellphone-information</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </v-list-group>
-
         </v-list>
       </v-navigation-drawer>
     </div>
@@ -155,25 +131,6 @@ export default {
         text: 'About',
         icon: 'mdi-information',
         to: '/about'
-      },
-      {
-        text: 'About2',
-        icon: 'mdi-information',
-        to: '/about2'
-      }
-    ],
-    tests: [
-      {
-        text: 'lv0',
-        to: '/test/lv0'
-      },
-      {
-        text: 'lv1',
-        to: '/test/lv1'
-      },
-      {
-        text: 'lv2',
-        to: '/test/lv2'
       }
     ]
   }),

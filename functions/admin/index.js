@@ -33,6 +33,14 @@ app.get('/users', async (req, res) => {
   res.send(r)
 })
 
+app.patch('/users/:uid', async (req, res) => {
+  const { uid } = req.params
+  const { level } = req.body
+  if (level) await admin.auth().setCustomUserClaims(uid, { level: level })
+  const t = await db.collection('users').doc(uid).set(req.body)
+  res.send(t)
+})
+
 app.use(require('../middlewares/error'))
 
 module.exports = app
