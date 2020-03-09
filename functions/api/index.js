@@ -22,11 +22,6 @@ const kube = axios.create({
   })
 })
 
-// TODO DELETE LATER
-const url = 'https://mlvc.khu.ac.kr:6443/api/v1/namespaces/ml-instance'
-const pvcurl = url + '/persistentvolumeclaims'
-// TODO
-
 // instances
 app.get('/instances', async (req, res) => {
   // get pods data
@@ -74,7 +69,7 @@ app.get('/instances', async (req, res) => {
 app.post('/instances', async (req, res) => {
   var name = req.body.name
   var cpu = req.body.cpu_request
-  var memory = req.body.memory_request + 'Gi'
+  var memory = req.body.memory_request
   var gpu = req.body.gpu_request
   var claimName = req.body.volume_name
 
@@ -216,11 +211,11 @@ app.get('/volumes', async (req, res) => {
 // Create volume
 app.post('/volumes', async (req, res) => {
   var name = req.body.name
-  var storage = req.body.storage_request + 'Gi'
+  var storage = req.body.storage_request
 
   const metadata = { name }
   const spec = {
-    storageClassName: name,
+    storageClassName: 'nfs',
     accessModes: [ 'ReadWriteOnce' ],
     resources: { requests: { storage } }
   }

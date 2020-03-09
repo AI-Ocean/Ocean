@@ -1,20 +1,33 @@
 <template>
-  <div>
-  </div>
+  <v-container grid-list-md fluid>
+    <v-row>
+      <v-col md="6">
+        <notice-card/>
+      </v-col>
+      <v-col md="6">
+        <schedules-card/>
+      </v-col>
+      <v-col md="6">
+        <schedules-card/>
+      </v-col>
+      <v-col md="6">
+        <schedules-card/>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import NoticeCard from '@/components/home/notice'
+import SchedulesCard from '@/components/home/schedules'
+
 export default {
   name: 'home',
   data: () => ({
-    item: 1,
-    items: [
-      { text: 'Real-Time', icon: 'mdi-clock' },
-      { text: 'Audience', icon: 'mdi-account' },
-      { text: 'Conversions', icon: 'mdi-flag' }
-    ]
   }),
   components: {
+    NoticeCard,
+    SchedulesCard
   }
 }
 </script>

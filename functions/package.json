@@ -12,6 +12,7 @@
     "node": "8"
   },
   "dependencies": {
+    "express-async-errors": "^3.1.1",
     "firebase-admin": "^8.6.0",
     "firebase-functions": "^3.3.0"
   },

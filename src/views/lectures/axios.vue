@@ -53,28 +53,25 @@ export default {
     textCreate: ''
   }),
   methods: {
-    http (type) {
+    async http (type) {
       console.log(type)
       if (type === 'create') {
-        this.$axios.post('http://localhost:5000/mlvclab-intranet-khu/us-central1/test')
-          .then(r => {
-            this.items[0].model = r.data
-          })
-          .catch(e => console.error(e))
+        const r = await this.$axios.post('test')
+        this.items[0].model = r.data
       } else if (type === 'update') {
-        this.$axios.put('http://localhost:5000/mlvclab-intranet-khu/us-central1/test/123')
+        this.$axios.put('test/123')
           .then(r => {
             this.items[1].model = r.data
           })
           .catch(e => console.error(e))
       } else if (type === 'read') {
-        this.$axios.get('http://localhost:5000/mlvclab-intranet-khu/us-central1/test/123')
+        this.$axios.get('test/123')
           .then(r => {
             this.items[2].model = r.data
           })
           .catch(e => console.error(e))
       } else if (type === 'delete') {
-        this.$axios.delete('http://localhost:5000/mlvclab-intranet-khu/us-central1/test/123')
+        this.$axios.delete('test/123')
           .then(r => {
             this.items[3].model = r.data
           })
