@@ -21,15 +21,15 @@ exports.createUser = functions.auth.user().onCreate(async (user) => {
   const gpus = 2
   const mem = 32
 
-  // 일반 사용자의 클레임
+  // common user
   let customClaims = {
     level: 2
   }
-  // Admin일 경우 처리
+  // admin user
   if (functions.config().admin.email === user.email && user.emailVerified) {
     customClaims.level = 0
   }
-  // 커스텀 클레임 등록
+  // set custom claims
   await admin.auth().setCustomUserClaims(uid, customClaims).then(() => {
   })
 
@@ -60,7 +60,7 @@ exports.decrementUserCount = functions.firestore
     )
   })
 
-// infos users에 데이터가 없으면 0으로 초기화
+// if infos.users is not setted set to 0
 db.collection('infos').doc('users').get().then(s => {
   if (!s.exists) db.collection('infos').doc('users').set({ counter: 0 })
 })

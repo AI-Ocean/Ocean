@@ -2,11 +2,13 @@ const app = require('express')()
 const cors = require('cors')
 const axios = require('axios')
 const https = require('https')
-const bodyParser = require('body-parser')
+// const bodyParser = require('body-parser')
 
 app.use(cors())
 
-app.use(bodyParser.json())
+app.use(require('../middlewares/verifyToken'))
+
+// app.use(bodyParser.json())
 
 // kube api endpoint
 const kube = axios.create({
@@ -22,11 +24,23 @@ const kube = axios.create({
   })
 })
 
+const getUserID = (claims) => {
+  return claims.email.split('@')[0]
+}
+const getSelector = (claims) => {
+  if (claims.level <= 0) return {}
+  return {
+    params: {
+      labelSelector: 'user=' + getUserID(claims)
+    }
+  }
+}
+
 // instances
 app.get('/instances', async (req, res) => {
   // get pods data
-  const { data } = await kube.get('/pods')
-  var servicedata = await kube.get('/services')
+  const { data } = await kube.get('/pods', getSelector(req.claims))
+  var servicedata = await kube.get('/services', getSelector(req.claims))
   servicedata = servicedata.data
 
   // final response
@@ -74,8 +88,11 @@ app.post('/instances', async (req, res) => {
   var claimName = req.body.volume_name
 
   const metadata = {
-    labels: { app: name },
-    name
+    name,
+    labels: {
+      app: name,
+      user: getUserID(req.claims)
+    }
   }
 
   const volumes = [
@@ -158,7 +175,7 @@ app.post('/instances', async (req, res) => {
 // Get specific pod
 app.get('/instances/:id', async (req, res) => {
   var podname = req.params.id
-  const response = await kube.get('/pods/' + podname)
+  const response = await kube.get('/pods/' + podname, getSelector(req.claims))
   const pod = response.data
 
   const limits = pod.spec.containers[0].resources.limits
@@ -181,12 +198,13 @@ app.get('/instances/:id', async (req, res) => {
 app.delete('/instances/:id', async (req, res) => {
   var podname = req.params.id
   const response = await kube.delete('/pods/' + podname)
+  await kube.delete('/services/' + podname)
   res.send(response.data)
 })
 
 // Get volumes
 app.get('/volumes', async (req, res) => {
-  const { data } = await kube.get('/persistentvolumeclaims')
+  const { data } = await kube.get('/persistentvolumeclaims', getSelector(req.claims))
   const response = {
     volumes: []
   }
@@ -211,9 +229,14 @@ app.get('/volumes', async (req, res) => {
 // Create volume
 app.post('/volumes', async (req, res) => {
   var name = req.body.name
-  var storage = req.body.storage_request
+  var storage = req.body.storage_request + 'Gi'
 
-  const metadata = { name }
+  const metadata = {
+    name,
+    labels: {
+      user: getUserID(req.claims)
+    }
+  }
   const spec = {
     storageClassName: 'nfs',
     accessModes: [ 'ReadWriteOnce' ],
@@ -234,7 +257,7 @@ app.post('/volumes', async (req, res) => {
 // Get specific volume
 app.get('/volumes/:id', async (req, res) => {
   var volumename = req.params.id
-  const response = await kube.get('/persistentvolumeclaims/' + volumename)
+  const response = await kube.get('/persistentvolumeclaims/' + volumename, getSelector(req.claims))
   const data = response.data
 
   const volume = {
