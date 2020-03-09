@@ -116,9 +116,23 @@
               <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
             </template>
             <template v-slot:item.delete="{ item }">
-              <v-btn icon @click="deleteInstance(item.name)">
+              <v-edit-dialog>
                 <v-icon>mdi-trash-can</v-icon>
-              </v-btn>
+                <template v-slot:input>
+                  <v-card-title>
+                    Delete Instance
+                  </v-card-title>
+                  <v-card-text>
+                    Are you sure to delete <code flat> {{ item.name }} </code>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color='red' @click="deleteInstance(item.name)">
+                      Delete
+                    </v-btn>
+                  </v-card-actions>
+                </template>
+              </v-edit-dialog>
             </template>
           </v-data-table>
         </v-card>
@@ -161,9 +175,23 @@
             hide-default-footer
           >
             <template v-slot:item.delete="{ item }">
-              <v-btn icon @click="deleteVolume(item.name)">
+              <v-edit-dialog>
                 <v-icon>mdi-trash-can</v-icon>
-              </v-btn>
+                <template v-slot:input>
+                  <v-card-title>
+                    Delete Volume
+                  </v-card-title>
+                  <v-card-text>
+                    Are you sure to delete <code flat> {{ item.name }} </code>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color='red' @click="deleteVolume(item.name)">
+                      Delete
+                    </v-btn>
+                  </v-card-actions>
+                </template>
+              </v-edit-dialog>
             </template>
           </v-data-table>
         </v-card>
@@ -216,9 +244,9 @@ export default {
     dialog_new_instance: false,
     dialog_new_volume: false,
 
-    loadingInstances: false,
-    loadingVolumes: false
-
+    // delete dialog switch
+    dialogDeleteInstance: false,
+    dialogDeleteVolume: false
   }),
   mounted () {
     this.getUserLimits()
@@ -403,5 +431,10 @@ export default {
 
 .Failed {
   color: red;
+}
+
+.highlight {
+  color: pink;
+  background-color: gray;
 }
 </style>
