@@ -37,7 +37,7 @@ app.patch('/users/:uid', async (req, res) => {
   const { uid } = req.params
   const { level } = req.body
   if (level) await admin.auth().setCustomUserClaims(uid, { level: level })
-  const t = await db.collection('users').doc(uid).set(req.body)
+  const t = await db.collection('users').doc(uid).update(req.body)
   res.send(t)
 })
 

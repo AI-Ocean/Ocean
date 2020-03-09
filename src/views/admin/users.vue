@@ -15,14 +15,68 @@
               :loading="loading"
               :footer-props="footerProps"
             >
-              <template v-slot:item.level="{ item }">
-                <v-select
-                  v-model="item.level"
-                  :items="[0, 1, 2]"
-                  chips
-                >
-                </v-select>
+              <template v-slot:item.cpus="{ item }">
+                <v-edit-dialog
+                  :return-value.sync="item.cpus"
+                  @save="changeCpus(item.uid, item.cpus)"
+                > {{ item.cpus }}
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="item.cpus"
+                      :rules="[cpuRules]"
+                      label="Edit"
+                      single-line
+                      type="number"
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
               </template>
+              <template v-slot:item.mem="{ item }">
+                <v-edit-dialog
+                  :return-value.sync="item.mem"
+                  @save="changeMemory(item.uid, item.mem)"
+                > {{ item.mem }}
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="item.mem"
+                      :rules="[memRules]"
+                      label="Edit"
+                      single-line
+                      type="number"
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
+              </template>
+              <template v-slot:item.gpus="{ item }">
+                <v-edit-dialog
+                  :return-value.sync="item.gpus"
+                  @save="changeGpus(item.uid, item.gpus)"
+                > {{ item.gpus }}
+                  <template v-slot:input>
+                    <v-text-field
+                      v-model="item.gpus"
+                      :rules="[gpuRules]"
+                      label="Edit"
+                      single-line
+                      type="number"
+                    ></v-text-field>
+                  </template>
+                </v-edit-dialog>
+              </template>
+              <template v-slot:item.level="{ item }">
+                <v-edit-dialog
+                  :return-value="item.level"
+                  @save="changeLevel(item.uid, item.level)"
+                > {{ levelToName(item.level) }}
+                  <template v-slot:input>
+                    <v-select
+                      v-model="item.level"
+                      :items="select"
+                    ></v-select>
+                  </template>
+                </v-edit-dialog>
+              </template>
+
             </v-data-table>
           </v-card-text>
         </v-card>
@@ -41,8 +95,16 @@ export default {
       { text: 'CPUs', value: 'cpus' },
       { text: 'Memory', value: 'mem' },
       { text: 'GPUs', value: 'gpus' },
-      { text: 'level', value: 'level', width: 70 }
+      { text: 'level', value: 'level', width: 120 }
     ],
+    select: [
+      { text: 'Admin', value: 0 },
+      { text: 'User', value: 1 },
+      { text: 'Guest', value: 2 }
+    ],
+    cpuRules: v => v <= 64 & v >= 0 || 'Input range must be between 0 to 64',
+    memRules: v => v <= 128 & v >= 0 || 'Input range must be between 0 to 128',
+    gpuRules: v => v <= 32 & v >= 0 || 'Input range must be between 0 to 32',
     items: [],
     options: {
       itemsPerPage: 20,
@@ -71,8 +133,26 @@ export default {
       this.loading = false
       return data
     },
-    async changeLevel (level) {
-      
+    levelToName (level) {
+      if (level === 0) return 'Admin'
+      else if (level === 1) return 'User'
+      else return 'Guest'
+    },
+    async changeCpus (uid, cpus) {
+      await this.$axios.patch('/admin/users/' + uid, { cpus })
+      this.$toasted.show('CPUs changed.')
+    },
+    async changeMemory (uid, mem) {
+      await this.$axios.patch('/admin/users/' + uid, { mem })
+      this.$toasted.show('Memory changed.')
+    },
+    async changeGpus (uid, gpus) {
+      await this.$axios.patch('/admin/users/' + uid, { gpus })
+      this.$toasted.show('GPUs changed.')
+    },
+    async changeLevel (uid, level) {
+      await this.$axios.patch('/admin/users/' + uid, { level })
+      this.$toasted.show('Level changed.')
     }
   },
   watch: {

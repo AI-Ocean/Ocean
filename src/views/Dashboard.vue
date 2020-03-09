@@ -68,7 +68,7 @@
 
     <v-row>
       <!-- Instances Table -->
-      <v-col lg="6" md="12">
+      <v-col md="12">
         <v-card>
           <v-toolbar color="blue" flat dark>
             <v-toolbar-title>
@@ -78,7 +78,7 @@
             <v-btn icon @click="getInstances()">
               <v-icon color="white">mdi-refresh</v-icon>
             </v-btn>
-            <v-btn icon @click="dialog_new_instance = true">
+            <v-btn icon @click="dialog_new_instance=true">
               <v-icon color="white">mdi-plus-box</v-icon>
             </v-btn>
             <v-dialog
@@ -126,7 +126,7 @@
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
-      <v-col lg="6" md="12">
+      <v-col md="12">
         <v-card>
           <v-toolbar color="blue" flat dark>
               <v-toolbar-title>
