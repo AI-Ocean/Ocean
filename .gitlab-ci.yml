@@ -12,9 +12,13 @@ default:
     - npm install
     - cd ..
 
-build_and_deploy:
+build:
   stage: build
+  script:
+    - npm run build
+
+build_and_deploy:
+  stage: deploy
   script: 
     - npm run build
-    - firebase use --token $FIREBASE_TOKEN production
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token "$FIREBASE_TOKEN"
