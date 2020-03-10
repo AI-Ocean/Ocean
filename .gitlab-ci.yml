@@ -8,7 +8,6 @@ stages:
 install_dependency:
   stage: .pre
   script:
-    - apt-get install --no-install-recommends yarn
     - npm install -g firebase-tools
     - yarn
     - cd functions
