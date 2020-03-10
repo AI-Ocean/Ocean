@@ -68,7 +68,7 @@
 
     <v-row>
       <!-- Instances Table -->
-      <v-col lg="6" md="12">
+      <v-col md="12">
         <v-card>
           <v-toolbar color="blue" flat dark>
             <v-toolbar-title>
@@ -78,7 +78,7 @@
             <v-btn icon @click="getInstances()">
               <v-icon color="white">mdi-refresh</v-icon>
             </v-btn>
-            <v-btn icon @click="dialog_new_instance = true">
+            <v-btn icon @click="dialog_new_instance=true">
               <v-icon color="white">mdi-plus-box</v-icon>
             </v-btn>
             <v-dialog
@@ -116,9 +116,23 @@
               <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
             </template>
             <template v-slot:item.delete="{ item }">
-              <v-btn icon @click="deleteInstance(item.name)">
+              <v-edit-dialog>
                 <v-icon>mdi-trash-can</v-icon>
-              </v-btn>
+                <template v-slot:input>
+                  <v-card-title>
+                    Delete Instance
+                  </v-card-title>
+                  <v-card-text>
+                    Are you sure to delete <code flat> {{ item.name }} </code>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color='red' @click="deleteInstance(item.name)">
+                      Delete
+                    </v-btn>
+                  </v-card-actions>
+                </template>
+              </v-edit-dialog>
             </template>
           </v-data-table>
         </v-card>
@@ -126,7 +140,7 @@
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
-      <v-col lg="6" md="12">
+      <v-col md="12">
         <v-card>
           <v-toolbar color="blue" flat dark>
               <v-toolbar-title>
@@ -161,9 +175,23 @@
             hide-default-footer
           >
             <template v-slot:item.delete="{ item }">
-              <v-btn icon @click="deleteVolume(item.name)">
+              <v-edit-dialog>
                 <v-icon>mdi-trash-can</v-icon>
-              </v-btn>
+                <template v-slot:input>
+                  <v-card-title>
+                    Delete Volume
+                  </v-card-title>
+                  <v-card-text>
+                    Are you sure to delete <code flat> {{ item.name }} </code>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color='red' @click="deleteVolume(item.name)">
+                      Delete
+                    </v-btn>
+                  </v-card-actions>
+                </template>
+              </v-edit-dialog>
             </template>
           </v-data-table>
         </v-card>
@@ -216,9 +244,9 @@ export default {
     dialog_new_instance: false,
     dialog_new_volume: false,
 
-    loadingInstances: false,
-    loadingVolumes: false
-
+    // delete dialog switch
+    dialogDeleteInstance: false,
+    dialogDeleteVolume: false
   }),
   mounted () {
     this.getUserLimits()
@@ -403,5 +431,10 @@ export default {
 
 .Failed {
   color: red;
+}
+
+.highlight {
+  color: pink;
+  background-color: gray;
 }
 </style>
