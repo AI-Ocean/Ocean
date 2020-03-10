@@ -2,11 +2,10 @@ image: "node:10.15.0"
 
 default:
   before_script:
-    - pwd
-    - ls
     - node --version
     - yarn --version
     - npm --version
+    - npm install -g @vue/cli
     - npm install -g firebase-tools
     - yarn
     - cd functions
