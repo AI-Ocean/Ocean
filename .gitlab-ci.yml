@@ -1,21 +1,17 @@
 image: "node:10.15.0"
-  
-install_dependency:
-  script:
+
+default:
+  before_script:
+    - node --version
+    - yarn --version
+    - npm --version
     - npm install -g firebase-tools
     - yarn
     - cd functions
     - npm install
     - cd ..
 
-check_version:
+build_and_deploy:
   script: 
-    - node --version
-    - yarn --version
-    - npm --version
-
-build:
-  script: vue-cli-service build
-
-deploy:
-  script: firebase deploy
+    - vue-cli-service build
+    - firebase deploy
