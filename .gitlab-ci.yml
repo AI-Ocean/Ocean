@@ -14,5 +14,5 @@ default:
 
 build_and_deploy:
   script: 
-    - vue-cli-service build
+    - npm run build
     - firebase deploy
