@@ -84,7 +84,7 @@ app.get('/instances', async (req, res) => {
 app.post('/instances', async (req, res) => {
   var name = req.body.name
   var cpu = req.body.cpu_request
-  var memory = req.body.memory_request
+  var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
   var claimName = req.body.volume_name
 
@@ -111,8 +111,9 @@ app.post('/instances', async (req, res) => {
       name,
       image: 'mlvclab/pytorch:1.4-cuda10.1-cudnn7-devel',
       imagePullPolicy: 'Always',
-      resources: { requests: { memory, cpu, 'nvidia.com/gpu': gpu },
-        limits: { memory: '20Gi', cpu: 10, 'nvidia.com/gpu': 1 }
+      resources: { 
+        limits: { memory, cpu, 'nvidia.com/gpu': gpu },
+        requests: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu }
       },
       ports: [ { name: 'ssh', containerPort: 22 } ],
       volumeMounts: [

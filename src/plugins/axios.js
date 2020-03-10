@@ -4,7 +4,7 @@ import store from '../store'
 
 const firebaseAPI = axios.create({
   baseURL: process.env.NODE_ENV === 'production'
-    ? 'http://us-central1-mlvclab-intranet-khu.cloudfunctions.net/us-central1/'
+    ? 'https://us-central1-mlvclab-intranet-khu.cloudfunctions.net/us-central1/'
     : 'http://localhost:5000/mlvclab-intranet-khu/us-central1/',
   timeout: 5000,
   headers: {

@@ -18,6 +18,7 @@ exports.createUser = functions.auth.user().onCreate(async (user) => {
   const cpus = 8
   const gpus = 2
   const mem = 32
+  const capacity = 100
   let level = 2
 
   // admin user
@@ -28,7 +29,7 @@ exports.createUser = functions.auth.user().onCreate(async (user) => {
   await admin.auth().setCustomUserClaims(uid, { level: level })
 
   const d = {
-    uid, email, displayName, emailVerified, photoURL, disabled, cpus, gpus, mem, level
+    uid, email, displayName, emailVerified, photoURL, disabled, cpus, gpus, mem, capacity, level
   }
   const r = await db.collection('users').doc(uid).set(d)
   return r
