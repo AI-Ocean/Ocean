@@ -2,6 +2,8 @@ image: "node:10.15.0"
 
 default:
   before_script:
+    - pwd
+    - ls
     - node --version
     - yarn --version
     - npm --version
