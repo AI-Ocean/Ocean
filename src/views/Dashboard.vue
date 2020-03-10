@@ -69,198 +69,67 @@
     <v-row>
       <!-- Instances Table -->
       <v-col md="12">
-        <v-card>
-          <v-toolbar color="blue" flat dark>
-            <v-toolbar-title>
-              Instances
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="getInstances()">
-              <v-icon color="white">mdi-refresh</v-icon>
-            </v-btn>
-            <v-btn icon @click="dialog_new_instance=true">
-              <v-icon color="white">mdi-plus-box</v-icon>
-            </v-btn>
-            <v-dialog
-              v-model="dialog_new_instance"
-              max-width="500"
-            >
-              <instances-form
-                :cpu_limit="this.cpu_limit"
-                :cpu_using="this.cpu_using"
-                :memory_limit="this.memory_limit"
-                :memory_using="this.memory_using"
-                :gpu_limit="this.gpu_limit"
-                :gpu_using="this.gpu_using"
-                :volumes="this.volumes.map(x=>x.name)"
-                :instancesNames="this.instances.map(v => v.name)"
-                @create="createInstanceForm"
-                @cancle="cancleInstanceForm"
-              >
-              </instances-form>
-            </v-dialog>
-          </v-toolbar>
-
-          <v-data-table
-            :headers="instancesHeader"
-            :items="instances"
-            :loading="loadingInstances"
-            hide-default-footer
-          >
-            <template v-slot:item.status="{ item }">
-              <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
-            </template>
-            <template v-slot:item.memory="{ item }">
-              {{ item.memory }} Gi
-            </template>
-            <template v-slot:item.volumes="{ item }">
-              <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
-            </template>
-            <template v-slot:item.delete="{ item }">
-              <v-edit-dialog>
-                <v-icon>mdi-trash-can</v-icon>
-                <template v-slot:input>
-                  <v-card-title>
-                    Delete Instance
-                  </v-card-title>
-                  <v-card-text>
-                    Are you sure to delete <code flat> {{ item.name }} </code>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color='red' @click="deleteInstance(item.name)">
-                      Delete
-                    </v-btn>
-                  </v-card-actions>
-                </template>
-              </v-edit-dialog>
-            </template>
-          </v-data-table>
-        </v-card>
+        <instances
+          :loading="loadingInstances"
+          :resources="resources"
+          :instances="instances"
+          :volumes="volumes.map(v => v.name)"
+          @get="getInstances"
+          @create="createInstance"
+          @delete="deleteInstance"
+        ></instances>
       </v-col>
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
       <v-col md="12">
-        <v-card>
-          <v-toolbar color="blue" flat dark>
-              <v-toolbar-title>
-              Volumes
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="getVolumes()">
-              <v-icon color="white">mdi-refresh</v-icon>
-            </v-btn>
-            <v-btn icon @click="dialog_new_volume = true">
-              <v-icon color="white">mdi-plus-box</v-icon>
-            </v-btn>
-            <v-dialog
-              v-model="dialog_new_volume"
-              max-width="500"
-            >
-              <volumes-form
-                :gpu_limit="this.gpu_limit"
-                :gpu_using="this.gpu_using"
-                :capacity_limit="this.capacity_limit"
-                :capacity_using="this.capacity_using"
-                :volumesNames="this.volumes.map(v => v.name)"
-                @create="createVolumeForm"
-                @cancle="cancleVolumeForm"
-              >
-              </volumes-form>
-            </v-dialog>
-          </v-toolbar>
-          <v-data-table
-            :headers="volumesHeader"
-            :items="volumes"
-            :loading="loadingVolumes"
-            hide-default-footer
-          >
-            <template v-slot:item.name="{ item }">
-              <v-chip class="ma-1">{{ item.name }}</v-chip>
-            </template>
-            <template v-slot:item.delete="{ item }">
-              <v-edit-dialog v-if="item.name !== 'dataset-pvc'">
-                <v-icon>mdi-trash-can</v-icon>
-                <template v-slot:input>
-                  <v-card-title>
-                    Delete Volume
-                  </v-card-title>
-                  <v-card-text>
-                    Are you sure to delete <code flat> {{ item.name }} </code>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color='red' @click="deleteVolume(item.name)">
-                      Delete
-                    </v-btn>
-                  </v-card-actions>
-                </template>
-              </v-edit-dialog>
-            </template>
-          </v-data-table>
-        </v-card>
+        <volumes
+          :loading="loadingVolumes"
+          :resources="resources"
+          :volumes="volumes"
+          @get="getVolumes"
+          @create="createVolume"
+          @delete="deleteVolume"
+        ></volumes>
       <!-- END Volumnes Table -->
-
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import InstancesForm from '@/components/dashboard/InstancesForm'
-import VolumesForm from '@/components/dashboard/VolumesForm'
+import Instances from '@/components/dashboard/Instances'
+import Volumes from '@/components/dashboard/Volumes'
 
 export default {
   components: {
-    InstancesForm,
-    VolumesForm
+    Instances,
+    Volumes
   },
   data: () => ({
     // top status
     cpu_limit: 0,
     memory_limit: 0,
     gpu_limit: 0,
-    capacity_limit: 50, // TODO
+    capacity_limit: 0,
+
+    resources: {
+      cpus: { using: 0, limit: 0 },
+      memory: { using: 0, limit: 0 },
+      gpus: { using: 0, limit: 0 },
+      capacity: { using: 0, limit: 0 }
+    },
 
     // instances
-    instancesHeader: [
-      { text: 'Status', value: 'status', width: 80, sortable: false, filterable: false },
-      { text: 'Name', value: 'name', width: 200, sortable: false, filterable: false },
-      { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'SSH port', value: 'port', sortable: false, filterable: false },
-      { text: 'Volumes', value: 'volumes', sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
-    ],
     instances: [],
+    loadingInstances: false,
 
     // volumes
-    volumesHeader: [
-      { text: 'Name', value: 'name', sortable: false, filterable: false },
-      { text: 'Capacity', value: 'capacity', sortable: false, filterable: false },
-      { text: 'Status', value: 'status', sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
-    ],
     volumes: [],
-
-    // loading
-    loadingInstances: false,
-    loadingVolumes: false,
-
-    // dialog switch
-    dialog_new_instance: false,
-    dialog_new_volume: false,
-
-    // delete dialog switch
-    dialogDeleteInstance: false,
-    dialogDeleteVolume: false
+    loadingVolumes: false
   }),
   mounted () {
     this.getUserLimits()
-    this.getInstances()
-    this.getVolumes()
   },
   methods: {
     // computed methods
@@ -274,25 +143,30 @@ export default {
         return a + b
       }, 0)
     },
-
-    // stataus icon
-    getStatusIcon (status) {
-      if (status === 'Running') return 'mdi-check-circle'
-      else if (status === 'Pending') return 'mdi-loading'
-      else return 'mdi-alert-circle'
+    calcUsage (type) {
+      let base = this.instances
+      if (type === 'capacity') base = this.volumes
+      return base
+        .map(v => Number(v[type]))
+        .reduce((a, b) => a + b, 0)
     },
 
     // user limits
     async getUserLimits () {
       const { data } = await this.$axios.get('/profile')
+      // TODO delete
       this.gpu_limit = Number(data.gpus)
       this.cpu_limit = Number(data.cpus)
       this.memory_limit = Number(data.mem)
+      // end delete
+      this.resources.cpus.limit = Number(data.cpus)
+      this.resources.memory.limit = Number(data.mem)
+      this.resources.gpus.limit = Number(data.gpus)
+      this.resources.capacity.limit = Number(data.capacity)
     },
 
-    // get
+    /// Instances
     async getInstances () {
-      // loading
       this.loadingInstances = true
       //  init
       this.instances = []
@@ -300,6 +174,7 @@ export default {
       // get instances
       const { data } = await this.$axios.get('/api/instances')
 
+      // update instances
       data.pods.forEach(element => {
         const { name, status, nodePort, limits, volumes } = element
         const pod = {
@@ -317,11 +192,22 @@ export default {
         this.instances.push(pod)
       })
 
-      // end loading
+      // update using resources
+      this.resources.cpus.using = this.calcUsage('cpus')
+      this.resources.memory.using = this.calcUsage('memory')
+      this.resources.gpus.using = this.calcUsage('gpus')
+
       this.loadingInstances = false
     },
+    async createInstance (data) {
+      await this.$axios.post('/api/instances', data)
+    },
+    async deleteInstance (name) {
+      await this.$axios.delete('/api/instances/' + name)
+    },
+
+    /// Volumes
     async getVolumes () {
-      // loading
       this.loadingVolumes = true
       // init
       this.volumes = []
@@ -333,56 +219,21 @@ export default {
         const { name, capacity, status } = element // add to status
         const vol = {
           name,
-          capacity,
+          capacity: capacity.slice(0, -2),
           status
         }
         this.volumes.push(vol)
       })
+      // update using resources
+      this.resources.capacity.using = this.calcUsage('capacity')
 
-      // loading end
       this.loadingVolumes = false
     },
-
-    cancleInstanceForm () {
-      this.dialog_new_instance = false
-    },
-    async createInstanceForm (data) {
-      this.dialog_new_instance = false
-
-      // request create pods
-      const requestData = {
-        name: data.name,
-        cpu_request: data.cpus,
-        memory_request: data.memory,
-        gpu_request: data.gpus,
-        volume_name: data.volume
-      }
-      await this.$axios.post('/api/instances', requestData)
-      // refresh
-      this.getInstances()
-    },
-    cancleVolumeForm () {
-      this.dialog_new_volume = false
-    },
-    async createVolumeForm (data) {
-      this.dialog_new_volume = false
-
-      // request create pods
-      const requestData = {
-        name: data.name,
-        storage_request: data.capacity
-      }
-      await this.$axios.post('/api/volumes/', requestData)
-      // refresh
-      this.getVolumes()
-    },
-    async deleteInstance (name) {
-      await this.$axios.delete('/api/instances/' + name)
-      this.getInstances()
+    async createVolume (data) {
+      await this.$axios.post('/api/volumes/', data)
     },
     async deleteVolume (name) {
       await this.$axios.delete('/api/volumes/' + name)
-      this.getVolumes()
     }
   },
   computed: {
@@ -411,14 +262,12 @@ export default {
     capacity_using () {
       return 0
       // TODO
-      // return this.sum(this.to_value_list())
     }
   }
 }
 </script>
 
 <style scoped>
-
 .Running {
   color: green;
 }
