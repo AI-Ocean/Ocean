@@ -7,8 +7,6 @@ admin.initializeApp({
 
 const db = admin.firestore()
 
-exports.test = functions.https.onRequest(require('./test'))
-
 exports.api = functions.https.onRequest(require('./api'))
 
 exports.admin = functions.https.onRequest(require('./admin'))
@@ -20,21 +18,17 @@ exports.createUser = functions.auth.user().onCreate(async (user) => {
   const cpus = 8
   const gpus = 2
   const mem = 32
+  let level = 2
 
-  // common user
-  let customClaims = {
-    level: 2
-  }
   // admin user
   if (functions.config().admin.email === user.email && user.emailVerified) {
-    customClaims.level = 0
+    level = 0
   }
   // set custom claims
-  await admin.auth().setCustomUserClaims(uid, customClaims).then(() => {
-  })
+  await admin.auth().setCustomUserClaims(uid, { level: level })
 
   const d = {
-    uid, email, displayName, emailVerified, photoURL, disabled, cpus, gpus, mem
+    uid, email, displayName, emailVerified, photoURL, disabled, cpus, gpus, mem, level
   }
   const r = await db.collection('users').doc(uid).set(d)
   return r
