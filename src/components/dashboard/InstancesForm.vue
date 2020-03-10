@@ -12,14 +12,16 @@
       >
         <v-text-field
           v-model.trim="name"
-          counter="20"
+          counter="30"
           :rules="this.name_rules"
           label="Name"
+          :prefix="getPrefix"
           required
         >
         </v-text-field>
         <v-text-field
           v-model.number="cpus"
+          type="number"
           :rules="this.cpu_rules"
           label="CPUs"
           required
@@ -28,6 +30,7 @@
         </v-text-field>
         <v-text-field
           v-model.number="memory"
+          type="number"
           :rules="this.memory_rules"
           label="Memory"
           required
@@ -37,6 +40,7 @@
         <v-text-field
           v-model.number="gpus"
           :rules="this.gpu_rules"
+          type="number"
           label="GPUs"
           required
           :suffix="' / ' + (this.gpu_limit - this.gpu_using)"
@@ -57,7 +61,7 @@
       <v-btn color="gray" @click="cancle">
         Cancle
       </v-btn>
-      <v-btn color="success" @click="create">
+      <v-btn color="success" @click="create" :disabled="!valid">
         Create
       </v-btn>
     </v-card-actions>
@@ -94,6 +98,9 @@ export default {
     },
     volumes: {
       type: Array
+    },
+    instancesNames: {
+      type: Array
     }
   },
   data: () => ({
@@ -113,7 +120,7 @@ export default {
     },
     create () {
       this.$emit('create', {
-        name: this.name,
+        name: this.getPrefix + this.name,
         cpus: this.cpus,
         memory: this.memory,
         gpus: this.gpus,
@@ -124,13 +131,18 @@ export default {
     }
   },
   computed: {
+    getPrefix () {
+      let prefix = this.$store.state.user.email.split('@')[0]
+      prefix = prefix.replace(/[^\w\s]/gi, '') + '-'
+      return prefix
+    },
     // rule
     name_rules () {
       return [
         v => !!v || 'Name is required',
-        v => v.length <= 20 || 'Name must be less then 20 characters',
-        v => /^[a-z]+/.test(v) || 'Name must start with lowercase alphabet',
-        v => /^[a-z]+[a-z0-1-]*$/.test(v) || 'Name only can containing lowercase alphabet, number and -'
+        v => (v && v.length <= 30) || 'Name must be less then 30 characters',
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.getPrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.instancesNames.includes(this.getPrefix + v) || 'Name already exist'
       ]
     },
     cpu_rules () {

@@ -12,7 +12,8 @@
       >
         <v-text-field
           v-model.trim="name"
-          counter="20"
+          counter="30"
+          :prefix="getPrefix"
           :rules="this.name_rules"
           label="Name"
           required
@@ -21,6 +22,7 @@
         <v-text-field
           v-model.number="capacity"
           :rules="this.cap_rules"
+          type="number"
           label="Capacity"
           suffix=" Gi"
           required
@@ -33,7 +35,7 @@
       <v-btn color="gray" @click="cancle">
         Cancle
       </v-btn>
-      <v-btn color="success" @click="create">
+      <v-btn color="success" @click="create" :disabled="!valid">
         Create
       </v-btn>
     </v-card-actions>
@@ -51,6 +53,9 @@ export default {
     capacity_using: {
       type: Number,
       default: 0
+    },
+    volumesNames: {
+      type: Array
     }
   },
   data: () => ({
@@ -67,7 +72,7 @@ export default {
     },
     create () {
       this.$emit('create', {
-        name: this.name,
+        name: this.getPrefix + this.name,
         capacity: this.capacity
       })
       this.$refs.form.reset()
@@ -75,13 +80,18 @@ export default {
     }
   },
   computed: {
+    getPrefix () {
+      let prefix = this.$store.state.user.email.split('@')[0]
+      prefix = prefix.replace(/[^\w\s]/gi, '') + '-'
+      return prefix
+    },
     // rule
     name_rules () {
       return [
         v => !!v || 'Name is required',
-        v => v.length <= 20 || 'Name must be less then 20 characters',
-        v => /^[a-z]+/.test(v) || 'Name must start with lowercase alphabet',
-        v => /^[a-z0-1-]*$/.test(v) || 'Name only can containing lowercase alphabet, number and -'
+        v => (v && v.length <= 30) || 'Name must be less then 30 characters',
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.getPrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.volumesNames.includes(this.getPrefix + v) || 'Name already exist'
       ]
     },
     cap_rules () {

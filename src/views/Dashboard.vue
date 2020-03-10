@@ -93,6 +93,7 @@
                 :gpu_limit="this.gpu_limit"
                 :gpu_using="this.gpu_using"
                 :volumes="this.volumes.map(x=>x.name)"
+                :instancesNames="this.instances.map(v => v.name)"
                 @create="createInstanceForm"
                 @cancle="cancleInstanceForm"
               >
@@ -162,6 +163,7 @@
                 :gpu_using="this.gpu_using"
                 :capacity_limit="this.capacity_limit"
                 :capacity_using="this.capacity_using"
+                :volumesNames="this.volumes.map(v => v.name)"
                 @create="createVolumeForm"
                 @cancle="cancleVolumeForm"
               >
@@ -174,8 +176,11 @@
             :loading="loadingVolumes"
             hide-default-footer
           >
+            <template v-slot:item.name="{ item }">
+              <v-chip class="ma-1">{{ item.name }}</v-chip>
+            </template>
             <template v-slot:item.delete="{ item }">
-              <v-edit-dialog>
+              <v-edit-dialog v-if="item.name !== 'dataset-pvc'">
                 <v-icon>mdi-trash-can</v-icon>
                 <template v-slot:input>
                   <v-card-title>
@@ -240,6 +245,10 @@ export default {
     ],
     volumes: [],
 
+    // loading
+    loadingInstances: false,
+    loadingVolumes: false,
+
     // dialog switch
     dialog_new_instance: false,
     dialog_new_volume: false,
@@ -276,9 +285,9 @@ export default {
     // user limits
     async getUserLimits () {
       const { data } = await this.$axios.get('/profile')
-      this.gpu_limit = data.gpus
-      this.cpu_limit = data.cpus
-      this.memory_limit = data.mem
+      this.gpu_limit = Number(data.gpus)
+      this.cpu_limit = Number(data.cpus)
+      this.memory_limit = Number(data.mem)
     },
 
     // get
