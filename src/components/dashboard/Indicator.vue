@@ -41,7 +41,6 @@ export default {
       ]
     },
     getText (type) {
-      console.log(this.resources)
       const { using, limit } = this.resources[type]
       return using + ' / ' + limit
     }
