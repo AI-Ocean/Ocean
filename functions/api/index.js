@@ -27,6 +27,7 @@ const kube = axios.create({
 const getUserID = (claims) => {
   return claims.email.split('@')[0]
 }
+
 const getSelector = (claims) => {
   if (claims.level <= 0) return {}
   return {

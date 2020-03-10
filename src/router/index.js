@@ -40,7 +40,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home,
-    beforeEnter: guestCheck
+    beforeEnter: userCheck
   },
   {
     path: '/sign',
@@ -55,7 +55,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue'),
-    beforeEnter: guestCheck
+    beforeEnter: userCheck
   },
   {
     path: '/profile',
@@ -73,52 +73,10 @@ const routes = [
     beforeEnter: adminCheck
   },
   {
-    path: '/test/lv0',
-    name: 'lv0',
-    component: () => import(/* webpackChunkName: "about" */ '../views/test/lv0.vue'),
-    beforeEnter: adminCheck
-  },
-  {
-    path: '/test/lv1',
-    name: 'lv1',
-    component: () => import(/* webpackChunkName: "about" */ '../views/test/lv1.vue'),
-    beforeEnter: userCheck
-  },
-  {
-    path: '/test/lv2',
-    name: 'lv2',
-    component: () => import(/* webpackChunkName: "about" */ '../views/test/lv2.vue'),
-    beforeEnter: guestCheck
-  },
-  {
-    path: '/axios',
-    name: 'axios',
-    component: () => import(/* webpackChunkName: "about" */ '../views/lectures/axios.vue')
-  },
-  {
-    path: '/vuex',
-    name: 'vuex',
-    component: () => import(/* webpackChunkName: "about" */ '../views/lectures/vuex.vue')
-  },
-  {
     path: '/about',
     name: 'about',
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
-  {
-    path: '/card',
-    name: 'card',
-    component: () => import('../views/lectures/card')
-  },
-  {
-    path: '/layout',
-    name: 'layout',
-    component: () => import('../views/lectures/layout')
-  },
-  {
-    path: '/notes',
-    name: 'notes',
-    component: () => import('../views/lectures/notes')
+    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    beforeEnter: guestCheck
   },
   {
     path: '/*',
