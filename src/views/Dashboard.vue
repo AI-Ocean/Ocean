@@ -2,67 +2,12 @@
   <v-container fluid grid-list-md>
     <!-- Top Indicator Cards -->
     <v-row>
-      <v-col md="2">
-        <v-card>
-          <v-toolbar color="green" flat dark>
-            <v-toolbar-title>
-              Instances
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-title primary-title>
-            {{ run_instances }} / {{ total_instances }}
-          </v-card-title>
-        </v-card>
-      </v-col>
-      <v-col md="2">
-        <v-card>
-          <v-toolbar color="green" flat dark>
-            <v-toolbar-title>
-              Volumes
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-title primary-title>
-            {{ total_volumes }}
-          </v-card-title>
-        </v-card>
-      </v-col>
-      <v-spacer></v-spacer>
-      <v-col md="2">
-        <v-card>
-          <v-toolbar color="orange" flat dark>
-            <v-toolbar-title>
-              CPUs
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-title primary-title>
-            {{ cpu_using }} / {{ cpu_limit }}
-          </v-card-title>
-        </v-card>
-      </v-col>
-      <v-col md="2">
-        <v-card>
-          <v-toolbar color="orange" flat dark>
-            <v-toolbar-title>
-              Memory
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-title primary-title>
-            {{ memory_using }} / {{ memory_limit }} Gi
-          </v-card-title>
-        </v-card>
-      </v-col>
-      <v-col md="2">
-        <v-card>
-          <v-toolbar color="orange" flat dark>
-            <v-toolbar-title>
-              GPUs
-            </v-toolbar-title>
-          </v-toolbar>
-          <v-card-title primary-title>
-            {{ gpu_using }} / {{ gpu_limit }}
-          </v-card-title>
-        </v-card>
-      </v-col>
+      <indicator
+        :resources="resources"
+        :totalInstances="totalInstances"
+        :runningInstances="runningInstances"
+        :totalVolumes="totalVolumes"
+      ></indicator>
     </v-row>
     <!-- END Top Indicator Cards -->
 
@@ -98,11 +43,13 @@
 </template>
 
 <script>
+import Indicator from '@/components/dashboard/Indicator'
 import Instances from '@/components/dashboard/Instances'
 import Volumes from '@/components/dashboard/Volumes'
 
 export default {
   components: {
+    Indicator,
     Instances,
     Volumes
   },
@@ -154,11 +101,7 @@ export default {
     // user limits
     async getUserLimits () {
       const { data } = await this.$axios.get('/profile')
-      // TODO delete
-      this.gpu_limit = Number(data.gpus)
-      this.cpu_limit = Number(data.cpus)
-      this.memory_limit = Number(data.mem)
-      // end delete
+
       this.resources.cpus.limit = Number(data.cpus)
       this.resources.memory.limit = Number(data.mem)
       this.resources.gpus.limit = Number(data.gpus)
@@ -238,30 +181,16 @@ export default {
   },
   computed: {
     // top
-    total_instances () {
+    totalInstances () {
       return this.instances.length
     },
-    run_instances () {
+    runningInstances () {
       return this.instances.filter((item) => {
         return item.status === 'Running'
       }).length
     },
-    total_volumes () {
+    totalVolumes () {
       return this.volumes.length
-    },
-
-    cpu_using () {
-      return this.sum(this.to_value_list('cpus'))
-    },
-    memory_using () {
-      return this.sum(this.to_value_list('memory'))
-    },
-    gpu_using () {
-      return this.sum(this.to_value_list('gpus'))
-    },
-    capacity_using () {
-      return 0
-      // TODO
     }
   }
 }

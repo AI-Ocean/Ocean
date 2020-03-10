@@ -8,8 +8,6 @@ cache:
 
 default:
   before_script:
-    - npm install -g @vue/cli
-    - npm install -g firebase-tools
     - yarn
     - cd functions
     - npm install
@@ -27,4 +25,5 @@ build_and_deploy:
     - master
   script: 
     - npm run build
+    - npm install -g firebase-tools
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token "$FIREBASE_TOKEN"
