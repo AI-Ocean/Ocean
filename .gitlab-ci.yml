@@ -15,4 +15,4 @@ default:
 build_and_deploy:
   script: 
     - npm run build
-    - firebase deploy
+    - firebase deploy --token "$FIREBASE_TOKEN"
