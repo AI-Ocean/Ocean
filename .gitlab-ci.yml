@@ -1,8 +1,5 @@
 image: "node:10.15.0"
 
-stage:
-  - build
-
 default:
   before_script:
     - node --version
