@@ -1,12 +1,6 @@
 image: "node:10.15.0"
-
-stages:
-  - .pre
-  - build
-  - deploy
   
 install_dependency:
-  stage: .pre
   script:
     - npm install -g firebase-tools
     - yarn
@@ -15,16 +9,13 @@ install_dependency:
     - cd ..
 
 check_version:
-  stage: .pre
   script: 
     - node --version
     - yarn --version
     - npm --version
 
 build:
-  stage: build
   script: vue-cli-service build
 
 deploy:
-  stage: deploy
   script: firebase deploy
