@@ -3,10 +3,8 @@
     <!-- Top Indicator Cards -->
     <v-row>
       <indicator
-        :resources="resources"
-        :totalInstances="totalInstances"
-        :runningInstances="runningInstances"
-        :totalVolumes="totalVolumes"
+        :header="header"
+        :items="items"
       ></indicator>
     </v-row>
     <!-- END Top Indicator Cards -->
@@ -55,10 +53,15 @@ export default {
   },
   data: () => ({
     // top status
-    cpu_limit: 0,
-    memory_limit: 0,
-    gpu_limit: 0,
-    capacity_limit: 0,
+    header: [
+      { title: 'Instances', color: 'green' },
+      { title: 'Volumes', color: 'green' },
+      { title: 'CPUs', color: 'orange' },
+      { title: 'Memory', color: 'orange' },
+      { title: 'GPUs', color: 'orange' },
+      { title: 'Capacity', color: 'orange' }
+    ],
+    // items: [],
 
     resources: {
       cpus: { using: 0, limit: 0 },
@@ -79,23 +82,34 @@ export default {
     this.getUserLimits()
   },
   methods: {
-    // computed methods
-    to_value_list (key) {
-      return this.instances.map((item) => {
-        return Number(item[key])
-      })
-    },
-    sum (list) {
-      return list.reduce((a, b) => {
-        return a + b
-      }, 0)
-    },
     calcUsage (type) {
       let base = this.instances
       if (type === 'capacity') base = this.volumes
       return base
         .map(v => Number(v[type]))
         .reduce((a, b) => a + b, 0)
+    },
+
+    // indicator
+    getText (type) {
+      const { using, limit } = this.resources[type]
+      console.log(type)
+      console.log(using)
+      console.log(limit)
+      return using + ' / ' + limit
+    },
+    update () {
+      this.updateItems()
+    },
+    updateItems () {
+      this.items = [
+        { text: this.instances.filter(v => v.status === 'Running').length + ' / ' + this.instances.length },
+        { text: this.volumes.length },
+        { text: this.getText('cpus') + ' Cores' },
+        { text: this.getText('memory') + ' Gi' },
+        { text: this.getText('gpus') + ' Cores' },
+        { text: this.getText('capacity') + ' Gi' }
+      ]
     },
 
     // user limits
@@ -106,6 +120,8 @@ export default {
       this.resources.memory.limit = Number(data.mem)
       this.resources.gpus.limit = Number(data.gpus)
       this.resources.capacity.limit = Number(data.capacity)
+
+      // this.updateItems()
     },
 
     /// Instances
@@ -140,6 +156,8 @@ export default {
       this.resources.memory.using = this.calcUsage('memory')
       this.resources.gpus.using = this.calcUsage('gpus')
 
+      // this.updateItems()
+
       this.loadingInstances = false
     },
     async createInstance (data) {
@@ -170,6 +188,8 @@ export default {
       // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
 
+      // this.updateItems()
+
       this.loadingVolumes = false
     },
     async createVolume (data) {
@@ -181,16 +201,15 @@ export default {
   },
   computed: {
     // top
-    totalInstances () {
-      return this.instances.length
-    },
-    runningInstances () {
-      return this.instances.filter((item) => {
-        return item.status === 'Running'
-      }).length
-    },
-    totalVolumes () {
-      return this.volumes.length
+    items () {
+      return [
+        { text: this.instances.filter(v => v.status === 'Running').length + ' / ' + this.instances.length },
+        { text: this.volumes.length },
+        { text: this.getText('cpus') },
+        { text: this.getText('memory') + ' Gi' },
+        { text: this.getText('gpus') },
+        { text: this.getText('capacity') + ' Gi' }
+      ]
     }
   }
 }
