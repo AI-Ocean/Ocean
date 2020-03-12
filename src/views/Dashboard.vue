@@ -3,15 +3,16 @@
     <!-- Top Indicator Cards -->
     <v-row>
       <indicator
-        :header="header"
-        :items="items"
+        :instances="instances"
+        :volumes="volumes"
+        :resources="resources"
       ></indicator>
     </v-row>
     <!-- END Top Indicator Cards -->
 
     <v-row>
       <!-- Instances Table -->
-      <v-col md="12">
+      <v-col md="12" lg="8">
         <instances
           :loading="loadingInstances"
           :resources="resources"
@@ -25,7 +26,7 @@
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
-      <v-col md="12">
+      <v-col md="12" lg="4">
         <volumes
           :loading="loadingVolumes"
           :resources="resources"
@@ -54,8 +55,6 @@ export default {
   data: () => ({
     // top status
     header: [
-      { title: 'Instances', color: 'green' },
-      { title: 'Volumes', color: 'green' },
       { title: 'CPUs', color: 'orange' },
       { title: 'Memory', color: 'orange' },
       { title: 'GPUs', color: 'orange' },
@@ -93,9 +92,6 @@ export default {
     // indicator
     getText (type) {
       const { using, limit } = this.resources[type]
-      console.log(type)
-      console.log(using)
-      console.log(limit)
       return using + ' / ' + limit
     },
     update () {
@@ -103,8 +99,6 @@ export default {
     },
     updateItems () {
       this.items = [
-        { text: this.instances.filter(v => v.status === 'Running').length + ' / ' + this.instances.length },
-        { text: this.volumes.length },
         { text: this.getText('cpus') + ' Cores' },
         { text: this.getText('memory') + ' Gi' },
         { text: this.getText('gpus') + ' Cores' },
