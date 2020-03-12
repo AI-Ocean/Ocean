@@ -53,15 +53,6 @@ export default {
     Volumes
   },
   data: () => ({
-    // top status
-    header: [
-      { title: 'CPUs', color: 'orange' },
-      { title: 'Memory', color: 'orange' },
-      { title: 'GPUs', color: 'orange' },
-      { title: 'Capacity', color: 'orange' }
-    ],
-    // items: [],
-
     resources: {
       cpus: { using: 0, limit: 0 },
       memory: { using: 0, limit: 0 },
@@ -87,23 +78,6 @@ export default {
       return base
         .map(v => Number(v[type]))
         .reduce((a, b) => a + b, 0)
-    },
-
-    // indicator
-    getText (type) {
-      const { using, limit } = this.resources[type]
-      return using + ' / ' + limit
-    },
-    update () {
-      this.updateItems()
-    },
-    updateItems () {
-      this.items = [
-        { text: this.getText('cpus') + ' Cores' },
-        { text: this.getText('memory') + ' Gi' },
-        { text: this.getText('gpus') + ' Cores' },
-        { text: this.getText('capacity') + ' Gi' }
-      ]
     },
 
     // user limits
