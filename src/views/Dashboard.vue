@@ -3,17 +3,16 @@
     <!-- Top Indicator Cards -->
     <v-row>
       <indicator
+        :instances="instances"
+        :volumes="volumes"
         :resources="resources"
-        :totalInstances="totalInstances"
-        :runningInstances="runningInstances"
-        :totalVolumes="totalVolumes"
       ></indicator>
     </v-row>
     <!-- END Top Indicator Cards -->
 
     <v-row>
       <!-- Instances Table -->
-      <v-col md="12">
+      <v-col md="12" lg="8">
         <instances
           :loading="loadingInstances"
           :resources="resources"
@@ -27,7 +26,7 @@
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
-      <v-col md="12">
+      <v-col md="12" lg="4">
         <volumes
           :loading="loadingVolumes"
           :resources="resources"
@@ -54,12 +53,6 @@ export default {
     Volumes
   },
   data: () => ({
-    // top status
-    cpu_limit: 0,
-    memory_limit: 0,
-    gpu_limit: 0,
-    capacity_limit: 0,
-
     resources: {
       cpus: { using: 0, limit: 0 },
       memory: { using: 0, limit: 0 },
@@ -79,17 +72,6 @@ export default {
     this.getUserLimits()
   },
   methods: {
-    // computed methods
-    to_value_list (key) {
-      return this.instances.map((item) => {
-        return Number(item[key])
-      })
-    },
-    sum (list) {
-      return list.reduce((a, b) => {
-        return a + b
-      }, 0)
-    },
     calcUsage (type) {
       let base = this.instances
       if (type === 'capacity') base = this.volumes
@@ -106,6 +88,8 @@ export default {
       this.resources.memory.limit = Number(data.mem)
       this.resources.gpus.limit = Number(data.gpus)
       this.resources.capacity.limit = Number(data.capacity)
+
+      // this.updateItems()
     },
 
     /// Instances
@@ -140,6 +124,8 @@ export default {
       this.resources.memory.using = this.calcUsage('memory')
       this.resources.gpus.using = this.calcUsage('gpus')
 
+      // this.updateItems()
+
       this.loadingInstances = false
     },
     async createInstance (data) {
@@ -170,6 +156,8 @@ export default {
       // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
 
+      // this.updateItems()
+
       this.loadingVolumes = false
     },
     async createVolume (data) {
@@ -181,16 +169,15 @@ export default {
   },
   computed: {
     // top
-    totalInstances () {
-      return this.instances.length
-    },
-    runningInstances () {
-      return this.instances.filter((item) => {
-        return item.status === 'Running'
-      }).length
-    },
-    totalVolumes () {
-      return this.volumes.length
+    items () {
+      return [
+        { text: this.instances.filter(v => v.status === 'Running').length + ' / ' + this.instances.length },
+        { text: this.volumes.length },
+        { text: this.getText('cpus') },
+        { text: this.getText('memory') + ' Gi' },
+        { text: this.getText('gpus') },
+        { text: this.getText('capacity') + ' Gi' }
+      ]
     }
   }
 }
