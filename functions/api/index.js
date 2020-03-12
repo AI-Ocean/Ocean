@@ -4,7 +4,7 @@ const axios = require('axios')
 const https = require('https')
 // const bodyParser = require('body-parser')
 
-app.use(cors())
+app.use(cors({ origin: true }))
 
 app.use(require('../middlewares/verifyToken'))
 

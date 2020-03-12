@@ -4,7 +4,7 @@ const cors = require('cors')
 const admin = require('firebase-admin')
 
 const db = admin.firestore()
-app.use(cors())
+app.use(cors({ origin: true }))
 
 app.use(require('../middlewares/verifyToken'))
 
