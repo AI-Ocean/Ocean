@@ -2,13 +2,13 @@ const app = require('express')()
 const cors = require('cors')
 const axios = require('axios')
 const https = require('https')
-const bodyParser = require('body-parser')
-const fs = require('fs')
-const yaml = require('js-yaml')
+// const bodyParser = require('body-parser')
 
 app.use(cors())
 
-app.use(bodyParser.json())
+app.use(require('../middlewares/verifyToken'))
+
+// app.use(bodyParser.json())
 
 // kube api endpoint
 const kube = axios.create({
@@ -24,15 +24,25 @@ const kube = axios.create({
   })
 })
 
-// TODO DELETE LATER
-const url = 'https://mlvc.khu.ac.kr:6443/api/v1/namespaces/ml-instance'
-const pvcurl = url + '/persistentvolumeclaims'
-// TODO
+const getUserID = (claims) => {
+  return claims.email.split('@')[0]
+}
+
+const getSelector = (claims) => {
+  if (claims.level <= 0) return {}
+  return {
+    params: {
+      labelSelector: 'user=' + getUserID(claims)
+    }
+  }
+}
 
 // instances
 app.get('/instances', async (req, res) => {
   // get pods data
-  const { data } = await kube.get('/pods')
+  const { data } = await kube.get('/pods', getSelector(req.claims))
+  var servicedata = await kube.get('/services', getSelector(req.claims))
+  servicedata = servicedata.data
 
   // final response
   const response = {
@@ -45,6 +55,13 @@ app.get('/instances', async (req, res) => {
     const limits = pod.spec.containers[0].resources.limits
     const requests = pod.spec.containers[0].resources.requests
     const { name, labels } = pod.metadata
+    var nodePort = 0
+
+    servicedata.items.forEach(service => {
+      if (service.metadata.name === name) {
+        nodePort = service.spec.ports[0].nodePort
+      }
+    })
 
     // pod data
     const podData = {
@@ -54,7 +71,8 @@ app.get('/instances', async (req, res) => {
       node_name: pod.spec.nodeName,
       limits,
       requests,
-      volumes: pod.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined) // filter only pvc
+      volumes: pod.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
+      nodePort
     }
 
     response.pods.push(podData)
@@ -64,7 +82,6 @@ app.get('/instances', async (req, res) => {
 
 // Create pod
 app.post('/instances', async (req, res) => {
-  console.log(req.body.name)
   var name = req.body.name
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
@@ -72,8 +89,11 @@ app.post('/instances', async (req, res) => {
   var claimName = req.body.volume_name
 
   const metadata = {
-    labels: { app: name },
-    name
+    name,
+    labels: {
+      app: name,
+      user: getUserID(req.claims)
+    }
   }
 
   const volumes = [
@@ -91,8 +111,9 @@ app.post('/instances', async (req, res) => {
       name,
       image: 'mlvclab/pytorch:1.4-cuda10.1-cudnn7-devel',
       imagePullPolicy: 'Always',
-      resources: { requests: { memory, cpu, 'nvidia.com/gpu': gpu },
-        limits: { memory: '20Gi', cpu: 10, 'nvidia.com/gpu': 1 }
+      resources: { 
+        limits: { memory, cpu, 'nvidia.com/gpu': gpu },
+        requests: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu }
       },
       ports: [ { name: 'ssh', containerPort: 22 } ],
       volumeMounts: [
@@ -121,14 +142,42 @@ app.post('/instances', async (req, res) => {
     spec
   }
 
+  const selector = { app: name }
+  const ports = [{
+    port: 22,
+    targetPort: 22,
+    protocol: 'TCP',
+    name: 'ssh'
+  }]
+
+  const servicespec = {
+    type: 'NodePort',
+    selector,
+    ports
+  }
+
+  const serviceData = {
+    apiVersion: 'v1',
+    kind: 'Service',
+    metadata,
+    spec: servicespec
+  }
+
   const { data } = await kube.post('/pods', podData)
-  res.send(data)
+  var servicedata = await kube.post('/services', serviceData)
+  servicedata = servicedata.data
+
+  var response = []
+  response.push(data)
+  response.push(servicedata)
+
+  res.send(response)
 })
 
 // Get specific pod
 app.get('/instances/:id', async (req, res) => {
   var podname = req.params.id
-  const response = await kube.get('/pods/' + podname)
+  const response = await kube.get('/pods/' + podname, getSelector(req.claims))
   const pod = response.data
 
   const limits = pod.spec.containers[0].resources.limits
@@ -151,12 +200,13 @@ app.get('/instances/:id', async (req, res) => {
 app.delete('/instances/:id', async (req, res) => {
   var podname = req.params.id
   const response = await kube.delete('/pods/' + podname)
+  await kube.delete('/services/' + podname)
   res.send(response.data)
 })
 
 // Get volumes
 app.get('/volumes', async (req, res) => {
-  const { data } = await kube.get('/persistentvolumeclaims')
+  const { data } = await kube.get('/persistentvolumeclaims', getSelector(req.claims))
   const response = {
     volumes: []
   }
@@ -165,11 +215,13 @@ app.get('/volumes', async (req, res) => {
     const name = volume.metadata.name
     const labels = volume.metadata.labels
     const capacity = volume.status.capacity.storage
+    const status = volume.status.phase
 
     const volumeData = {
       name,
       labels,
-      capacity
+      capacity,
+      status
     }
     response.volumes.push(volumeData)
   })
@@ -181,9 +233,14 @@ app.post('/volumes', async (req, res) => {
   var name = req.body.name
   var storage = req.body.storage_request + 'Gi'
 
-  const metadata = { name }
+  const metadata = {
+    name,
+    labels: {
+      user: getUserID(req.claims)
+    }
+  }
   const spec = {
-    storageClassName: name,
+    storageClassName: 'nfs',
     accessModes: [ 'ReadWriteOnce' ],
     resources: { requests: { storage } }
   }
@@ -202,13 +259,14 @@ app.post('/volumes', async (req, res) => {
 // Get specific volume
 app.get('/volumes/:id', async (req, res) => {
   var volumename = req.params.id
-  const response = await kube.get('/persistentvolumeclaims/' + volumename)
+  const response = await kube.get('/persistentvolumeclaims/' + volumename, getSelector(req.claims))
   const data = response.data
 
   const volume = {
     name: data.metadata.name,
     labels: data.metadata.labels,
-    capacity: data.status.capacity.storage
+    capacity: data.status.capacity.storage,
+    status: data.status.phase
   }
 
   res.send(volume)

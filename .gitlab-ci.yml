@@ -1,0 +1,29 @@
+image: "node:10.15.0"
+
+cache:
+  paths:
+    - node_modules/
+    - functions/node_modules/
+    - dist/
+
+default:
+  before_script:
+    - yarn
+    - cd functions
+    - npm install
+    - cd ..
+
+build:
+  stage: build
+  script:
+    - npm run build
+
+build_and_deploy:
+  stage: deploy
+  environment: Production
+  only:
+    - master
+  script: 
+    - npm run build
+    - npm install -g firebase-tools
+    - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token "$FIREBASE_TOKEN"

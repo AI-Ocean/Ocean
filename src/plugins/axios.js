@@ -1,4 +1,22 @@
 import Vue from 'vue'
 import axios from 'axios'
+import store from '../store'
 
-Vue.prototype.$axios = axios
+const firebaseAPI = axios.create({
+  baseURL: process.env.NODE_ENV === 'production'
+    ? 'https://us-central1-mlvclab-intranet-khu.cloudfunctions.net/us-central1/'
+    : 'http://localhost:5000/mlvclab-intranet-khu/us-central1/',
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+firebaseAPI.interceptors.request.use((req) => {
+  req.headers.authorization = store.state.token
+  return req
+}, (error) => {
+  return Promise.reject(error)
+})
+
+Vue.prototype.$axios = firebaseAPI
