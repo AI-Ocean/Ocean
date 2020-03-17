@@ -8,8 +8,11 @@
         >
           <div class="d-flex flex-no-wrap justify-space-between">
             <div>
-              <v-card-title class="headline">{{ this.userData.displayName }}</v-card-title>
-              <v-card-subtitle>{{ this.userData.email }}</v-card-subtitle>
+              <v-card-title class="headline">{{ userData.displayName }}</v-card-title>
+              <v-card-subtitle>
+                {{ userData.email }}<br />
+                {{ role }}
+              </v-card-subtitle>
               <v-card-text>
                 <v-divider class="mb-4"></v-divider>
                 <!-- cips -->
@@ -68,7 +71,7 @@
 
     <v-content>
       <vue-progress-bar/>
-      <v-container grid-list-md v-if="!this.userData">
+      <v-container grid-list-md v-if="!userData">
         <v-row align="center" justify="center">
             <v-card color="transparent" flat>
               <v-card-text class="text-center">
@@ -99,10 +102,16 @@ export default {
     async getUserInfo () {
       const r = await this.$axios.get('/profile')
       this.userData = r.data
+      console.log(this.userData)
     }
   },
   mounted () {
     this.getUserInfo()
+  },
+  computed: {
+    role () {
+      return this.userData.level <= 0 ? 'Admin' : this.userData.level <= 1 ? 'User' : 'Guest'
+    }
   }
 }
 </script>
