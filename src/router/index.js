@@ -45,7 +45,7 @@ const routes = [
   {
     path: '/sign',
     name: 'sign',
-    component: () => import(/* webpackChunkName: "sign" */ '../views/sign.vue'),
+    component: () => import(/* webpackChunkName: "sign" */ '../views/Sign.vue'),
     beforeEnter: (to, from, next) => {
       if (store.state.user) return next('/')
       next()
@@ -69,7 +69,7 @@ const routes = [
   {
     path: '/admin/users',
     name: 'users',
-    component: () => import(/* webpackChunkName: "about" */ '../views/admin/users.vue'),
+    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Users.vue'),
     beforeEnter: adminCheck
   },
   {
