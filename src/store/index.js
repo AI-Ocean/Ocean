@@ -41,6 +41,9 @@ export default new Vuex.Store({
       commit('setFirebaseLoaded', true)
     }
   },
-  modules: {
+  getters: {
+    userID (state) {
+      return state.user.email.split('@')[0]
+    }
   }
 })

@@ -2,13 +2,10 @@ const app = require('express')()
 const cors = require('cors')
 const axios = require('axios')
 const https = require('https')
-// const bodyParser = require('body-parser')
 
 app.use(cors({ origin: true }))
 
 app.use(require('../middlewares/verifyToken'))
-
-// app.use(bodyParser.json())
 
 // kube api endpoint
 const kube = axios.create({
