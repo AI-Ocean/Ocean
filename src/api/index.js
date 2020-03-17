@@ -31,6 +31,8 @@ const getInstances = async () => {
   var servicedata = await kube.get('/services', getSelector())
   servicedata = servicedata.data
 
+  console.log(data)
+
   // final response
   const response = {
     podNumber: data.items.length,
