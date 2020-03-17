@@ -83,7 +83,7 @@
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
-          <v-list-item v-if="$store.state.claims.level === 0" link to="/admin/users">
+          <v-list-item v-if="$store.state.claims && $store.state.claims.level === 0" link to="/admin/users">
             <v-list-item-icon>
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
@@ -95,7 +95,7 @@
 
     <v-content>
       <vue-progress-bar/>
-      <v-container grid-list-md v-if="!$store.state.firebaseLoaded">
+      <v-container v-if="!$store.state.firebaseLoaded" grid-list-md>
         <v-row align="center" justify="center">
             <v-card color="transparent" flat>
               <v-card-text class="text-center">
