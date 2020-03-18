@@ -29,6 +29,7 @@
               v-model="valid"
               lazy-validation
             >
+              TODO NEED TO FIX PREFIX
               <v-text-field
                 v-model.trim="name"
                 counter="30"

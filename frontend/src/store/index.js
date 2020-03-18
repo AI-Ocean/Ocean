@@ -46,7 +46,7 @@ export default new Vuex.Store({
       return state.user.email.split('@')[0]
     },
     namePrefix (state) {
-      return state.userID.replace(/[^\w\s]/gi, '') + '-'
+      return state.user.email.split('@')[0].replace(/[^\w\s]/gi, '') + '-'
     }
   }
 })

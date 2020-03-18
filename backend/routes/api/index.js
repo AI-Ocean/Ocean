@@ -73,75 +73,65 @@ app.post('/instances', async (req, res) => {
     name,
     labels: {
       app: name,
-      user: getUserID(req.claims)
+      user: utils.getUserID(req.claims)
     }
-  }
-
-  const volumes = [
-    {
-      name: 'main-storage',
-      persistentVolumeClaim: { claimName }
-    },
-    {
-      name: 'dataset',
-      persistentVolumeClaim: { claimName: 'dataset-pvc' }
-    }
-  ]
-  const containers = [
-    {
-      name,
-      image: 'mlvclab/pytorch:1.4-cuda10.1-cudnn7-devel',
-      imagePullPolicy: 'Always',
-      resources: { 
-        limits: { memory, cpu, 'nvidia.com/gpu': gpu },
-        requests: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu }
-      },
-      ports: [ { name: 'ssh', containerPort: 22 } ],
-      volumeMounts: [
-        {
-          name: 'main-storage',
-          mountPath: '/workspace'
-        },
-        {
-          name: 'dataset',
-          mountPath: '/dataset',
-          readOnly: true
-        }
-      ]
-    }
-  ]
-
-  const spec = {
-    volumes,
-    containers
   }
 
   const podData = {
     kind: 'Pod',
     apiVersion: 'v1',
     metadata,
-    spec
-  }
-
-  const selector = { app: name }
-  const ports = [{
-    port: 22,
-    targetPort: 22,
-    protocol: 'TCP',
-    name: 'ssh'
-  }]
-
-  const servicespec = {
-    type: 'NodePort',
-    selector,
-    ports
+    spec: {
+      volumes: [
+        {
+          name: 'main-storage',
+          persistentVolumeClaim: { claimName }
+        },
+        {
+          name: 'dataset',
+          persistentVolumeClaim: { claimName: 'dataset-pvc' }
+        }
+      ],
+      containers: [
+        {
+          name,
+          image: 'mlvclab/pytorch:1.4-cuda10.1-cudnn7-devel',
+          imagePullPolicy: 'Always',
+          resources: { 
+            limits: { memory, cpu, 'nvidia.com/gpu': gpu },
+            requests: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu }
+          },
+          ports: [ { name: 'ssh', containerPort: 22 } ],
+          volumeMounts: [
+            {
+              name: 'main-storage',
+              mountPath: '/workspace'
+            },
+            {
+              name: 'dataset',
+              mountPath: '/dataset',
+              readOnly: true
+            }
+          ]
+        }
+      ]
+    }
   }
 
   const serviceData = {
     apiVersion: 'v1',
     kind: 'Service',
     metadata,
-    spec: servicespec
+    spec: {
+      type: 'NodePort',
+      selector: { app: name },
+      ports: [{
+        port: 22,
+        targetPort: 22,
+        protocol: 'TCP',
+        name: 'ssh'
+      }]
+    }
   }
 
   const { data } = await kube.post('/pods', podData)
