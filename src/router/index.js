@@ -110,7 +110,7 @@ router.beforeEach((to, from, next) => {
   Vue.prototype.$Progress.start()
   waitFirebase().then(() => {
     next()
-  }).catch(e => Vue.prototype.$toasted.global.error(e.message))
+  }).catch(e => Vue.prototype.$toasted.error(e.message))
 })
 
 router.afterEach((to, from) => {
@@ -119,7 +119,7 @@ router.afterEach((to, from) => {
 
 router.onError(e => {
   Vue.prototype.$Progress.finish()
-  Vue.prototype.$toasted.global.error(e.message)
+  Vue.prototype.$toasted.error(e.message)
 })
 
 export default router

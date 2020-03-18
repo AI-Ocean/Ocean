@@ -32,15 +32,15 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :prefix="namePrefix"
-                :rules="this.name_rules"
+                :prefix="$store.namePrefix"
+                :rules="name_rules"
                 label="Name"
                 required
               >
               </v-text-field>
               <v-text-field
                 v-model.number="capacity"
-                :rules="this.cap_rules"
+                :rules="cap_rules"
                 type="number"
                 label="Capacity"
                 required
@@ -139,7 +139,7 @@ export default {
     },
     onCreate () {
       this.$emit('create', {
-        name: this.namePrefix + this.name,
+        name: this.$store.namePrefix + this.name,
         storage_request: this.capacity
       })
       this.$emit('get')
@@ -163,18 +163,13 @@ export default {
     }
   },
   computed: {
-    namePrefix () {
-      let prefix = this.$store.state.user.email.split('@')[0]
-      prefix = prefix.replace(/[^\w\s]/gi, '') + '-'
-      return prefix
-    },
     // rule
     name_rules () {
       return [
         v => !!v || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.volumes.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.volumes.map(v => v.name).includes(this.$store.namePrefix + v) || 'Name already exist'
       ]
     },
     cap_rules () {

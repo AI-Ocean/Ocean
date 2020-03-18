@@ -119,6 +119,11 @@
       </v-container>
       <router-view/>
     </v-content>
+
+    <v-footer>
+      <v-spacer></v-spacer>
+      &copy; {{ new Date().getFullYear() }} by MLVC Lab.
+    </v-footer>
   </v-app>
 </template>
 

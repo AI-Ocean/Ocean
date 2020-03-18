@@ -32,16 +32,16 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :rules="this.name_rules"
+                :rules="name_rules"
                 label="Name"
-                :prefix="namePrefix"
+                :prefix="$store.namePrefix"
                 required
               >
               </v-text-field>
               <v-text-field
                 v-model.number="cpus"
                 type="number"
-                :rules="this.cpu_rules"
+                :rules="cpu_rules"
                 label="CPUs"
                 required
                 :suffix="' / ' + remainResources('cpus')"
@@ -50,7 +50,7 @@
               <v-text-field
                 v-model.number="memory"
                 type="number"
-                :rules="this.memory_rules"
+                :rules="memory_rules"
                 label="Memory"
                 required
                 :suffix="' / ' + remainResources('memory')"
@@ -58,7 +58,7 @@
               </v-text-field>
               <v-text-field
                 v-model.number="gpus"
-                :rules="this.gpu_rules"
+                :rules="gpu_rules"
                 type="number"
                 label="GPUs"
                 required
@@ -67,7 +67,7 @@
               </v-text-field>
               <v-select
                 v-model="volume"
-                :items="this.volumes"
+                :items="volumes"
                 label="Volumes"
                 required
                 chips
@@ -189,7 +189,7 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: this.namePrefix + this.name,
+        name: this.$store.namePrefix + this.name,
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,
@@ -216,18 +216,13 @@ export default {
     }
   },
   computed: {
-    namePrefix () {
-      let prefix = this.$store.state.user.email.split('@')[0]
-      prefix = prefix.replace(/[^\w\s]/gi, '') + '-'
-      return prefix
-    },
     // rule
     name_rules () {
       return [
         v => !!v || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.instances.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.instances.map(v => v.name).includes(this.$store.namePrefix + v) || 'Name already exist'
       ]
     },
     cpu_rules () {
