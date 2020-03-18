@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import api from '@/api'
+// import api from '@/api'
 import Indicator from '@/components/dashboard/Indicator'
 import Instances from '@/components/dashboard/Instances'
 import Volumes from '@/components/dashboard/Volumes'
@@ -100,8 +100,8 @@ export default {
       this.instances = []
 
       // get instances
-      // const { data } = await this.$axios.get('/api/instances')
-      const data = await api.getInstances()
+      const { data } = await this.$axios.get('/api/instances')
+      // const data = await api.getInstances()
 
       // update instances
       data.pods.forEach(element => {
