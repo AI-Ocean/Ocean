@@ -116,9 +116,6 @@ export default {
       animation: { duration: 1000, easing: 'out', startup: true }
     }
   }),
-  mounted () {
-    console.log(this.$vuetify.breakpoint)
-  },
   methods: {
     getResourceUsageAndRemain (type) {
       const using = this.resources[type].using
