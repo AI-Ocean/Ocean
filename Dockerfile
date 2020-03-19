@@ -1,5 +1,5 @@
 FROM node:latest as build-stage
-WORKDIR /frontend
+RUN cd frontend
 RUN npm install
 RUN npm run build
 WORKDIR /app
