@@ -19,4 +19,20 @@ firebaseAPI.interceptors.request.use((req) => {
   return Promise.reject(error)
 })
 
-Vue.prototype.$axios = firebaseAPI
+Vue.prototype.$firebaseAPI = firebaseAPI
+
+const localAPI = axios.create({
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+localAPI.interceptors.request.use((req) => {
+  req.headers.authorization = store.state.token
+  return req
+}, (error) => {
+  return Promise.reject(error)
+})
+
+Vue.prototype.$axios = localAPI

@@ -1,7 +1,7 @@
 <template>
   <v-container fluid grid-list-md>
     <v-row>
-      <v-col md="12" lg="4">
+      <v-col sm="12" md="4">
         <v-card>
           <v-toolbar color="orange" flat dark>
             <v-toolbar-title>
@@ -11,19 +11,21 @@
           <v-card-text pa-0>
             <v-container fluid pa-0>
               <v-row pa-0>
-                <v-col pa-0>
+                <v-col pa-0 cols="6">
                   <GChart
                     type="PieChart"
                     :data="instancesData"
                     :options="chartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>Instances</p>
                 </v-col>
-                <v-col pa-0>
+                <v-col pa-0 cols="6">
                   <GChart
                     type="PieChart"
                     :data="volumesData"
                     :options="chartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>Volumes</p>
                 </v-col>
@@ -32,7 +34,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col md="12" lg="8">
+      <v-col sm="12" md="8">
         <v-card>
           <v-toolbar color="orange" flat dark>
             <v-toolbar-title>
@@ -42,35 +44,39 @@
           <v-card-text pa-0>
             <v-container fluid pa-0>
               <v-row pa-0>
-                <v-col pa-0>
+                <v-col pa-0 sm="3" xs="6">
                   <GChart
                     type="PieChart"
                     :data="cpusData"
                     :options="resourcesChartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>CPU</p>
                 </v-col>
-                <v-col pa-0>
+                <v-col pa-0 sm="3" xs="6">
                   <GChart
                     type="PieChart"
                     :data="memoryData"
                     :options="resourcesChartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>Memory</p>
                 </v-col>
-                <v-col pa-0>
+                <v-col pa-0 sm="3" xs="6">
                   <GChart
                     type="PieChart"
                     :data="gpusData"
                     :options="resourcesChartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>GPU</p>
                 </v-col>
-                <v-col pa-0>
+                <v-col pa-0 sm="3" xs="6">
                   <GChart
                     type="PieChart"
                     :data="capacityData"
                     :options="resourcesChartOptions"
+                    :resizeDebounce="10"
                   ></GChart>
                   <p class='title text-center mt-2 ma-0'>Capacity</p>
                 </v-col>
@@ -110,6 +116,9 @@ export default {
       animation: { duration: 1000, easing: 'out', startup: true }
     }
   }),
+  mounted () {
+    console.log(this.$vuetify.breakpoint)
+  },
   methods: {
     getResourceUsageAndRemain (type) {
       const using = this.resources[type].using

@@ -29,13 +29,12 @@
               v-model="valid"
               lazy-validation
             >
-              TODO NEED TO FIX PREFIX
               <v-text-field
                 v-model.trim="name"
                 counter="30"
                 :rules="name_rules"
                 label="Name"
-                :prefix="$store.namePrefix"
+                :prefix="$store.getters.namePrefix"
                 required
               >
               </v-text-field>
@@ -190,7 +189,7 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: this.$store.namePrefix + this.name,
+        name: this.$store.getters.namePrefix + this.name,
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,
@@ -222,8 +221,8 @@ export default {
       return [
         v => !!v || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.instances.map(v => v.name).includes(this.$store.namePrefix + v) || 'Name already exist'
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.instances.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
       ]
     },
     cpu_rules () {

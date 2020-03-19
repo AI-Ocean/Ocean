@@ -83,7 +83,7 @@ export default {
 
     // user limits
     async getUserLimits () {
-      const { data } = await this.$axios.get('/profile')
+      const { data } = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
 
       this.resources.cpus.limit = Number(data.cpus)
       this.resources.memory.limit = Number(data.mem)

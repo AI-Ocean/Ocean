@@ -22,7 +22,6 @@
             New Volume
           </v-card-title>
           <v-card-text>
-            {{ resources }}
             <v-form
               ma-4
               ref="form"
@@ -32,7 +31,7 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :prefix="$store.namePrefix"
+                :prefix="$store.getters.namePrefix"
                 :rules="name_rules"
                 label="Name"
                 required
@@ -139,7 +138,7 @@ export default {
     },
     onCreate () {
       this.$emit('create', {
-        name: this.$store.namePrefix + this.name,
+        name: this.$store.getters.namePrefix + this.name,
         storage_request: this.capacity
       })
       this.$emit('get')
@@ -168,8 +167,8 @@ export default {
       return [
         v => !!v || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.volumes.map(v => v.name).includes(this.$store.namePrefix + v) || 'Name already exist'
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.volumes.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
       ]
     },
     cap_rules () {

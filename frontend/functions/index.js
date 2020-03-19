@@ -7,12 +7,6 @@ admin.initializeApp({
 
 const db = admin.firestore()
 
-exports.api = functions.https.onRequest(require('./api'))
-
-exports.admin = functions.https.onRequest(require('./admin'))
-
-exports.profile = functions.https.onRequest(require('./profile'))
-
 exports.createUser = functions.auth.user().onCreate(async (user) => {
   const { uid, email, displayName, emailVerified, photoURL, disabled } = user
   const cpus = 8

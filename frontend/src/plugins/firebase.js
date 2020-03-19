@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import * as firebase from 'firebase/app'
 import store from '@/store'
-// import router from '@/router'
 
 // Add the Firebase products that you want to use
 import 'firebase/auth'

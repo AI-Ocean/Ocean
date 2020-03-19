@@ -1,14 +1,9 @@
-const app = require('express')()
-require('express-async-errors')
-const cors = require('cors')
+const router = require('express').Router()
 const admin = require('firebase-admin')
 
 const db = admin.firestore()
-app.use(cors({ origin: true }))
 
-app.use(require('../middlewares/verifyToken'))
-
-app.get('/users', async (req, res) => {
+router.get('/', async (req, res) => {
   if (req.claims.level > 0) {
     return status(403).send({
       message: 'Permission Denyed.'
@@ -33,7 +28,12 @@ app.get('/users', async (req, res) => {
   res.send(r)
 })
 
-app.patch('/users/:uid', async (req, res) => {
+router.get('/:uid', async (req, res) => {
+  const r = await db.collection('users').doc(req.params.uid).get()
+  res.send(r.data())
+})
+
+router.patch('/:uid', async (req, res) => {
   const { uid } = req.params
   const { level } = req.body
   if (level) await admin.auth().setCustomUserClaims(uid, { level: level })
@@ -41,6 +41,4 @@ app.patch('/users/:uid', async (req, res) => {
   res.send(t)
 })
 
-app.use(require('../middlewares/error'))
-
-module.exports = app
+module.exports = router
