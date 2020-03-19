@@ -6,23 +6,24 @@ cache:
     - backend/node_modules/
     - functions/node_modules/
 
-build:
-  stage: build
-  script:
-    - cd frontend
-    - yarn --silent
-    - npm run build
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - backend/public
+include:
+  template: Serverless.gitlab-ci.yml
 
-backend:
-  stage: test
-  script:
-    - cd backend
-    - npm install --progress=false
-    # - node ./bin/www
+build:
+  extends: .serverless:build:image 
+
+deploy_staging:
+  stage: deploy
+  extends: .serverless:deploy:image
+
+deploy_prod:
+  stage: deploy
+  extends: .serverless:deploy:image
+  environment:
+    name: production
+  when: manual
+  only:
+  - master
 
 deploy_functions:
   stage: deploy
@@ -33,10 +34,3 @@ deploy_functions:
     - cd functions
     - npm install -g firebase-tools
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token "$FIREBASE_TOKEN"
-
-deploy:
-  stage: deploy
-  only:
-    - master
-  script:
-    - echo deploy start
