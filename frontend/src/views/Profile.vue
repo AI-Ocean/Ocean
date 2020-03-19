@@ -100,9 +100,8 @@ export default {
   }),
   methods: {
     async getUserInfo () {
-      const r = await this.$axios.get('/profile')
+      const r = await this.$axios.get('/users/' + this.$store.state.user.uid)
       this.userData = r.data
-      console.log(this.userData)
     }
   },
   mounted () {
