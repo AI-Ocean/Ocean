@@ -22,7 +22,7 @@ backend:
   script:
     - cd backend
     - npm install --progress=false
-    - node ./bin/www
+    # - node ./bin/www
 
 deploy_functions:
   stage: deploy
