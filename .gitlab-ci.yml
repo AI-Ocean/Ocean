@@ -9,7 +9,7 @@ cache:
 build:
   stage: build
   script:
-    - cd front
+    - cd frontend
     - yarn --silent
     - npm run build
   artifacts:
