@@ -16,6 +16,8 @@ build:
 deploy_staging:
   stage: deploy
   extends: .serverless:deploy:image
+  environment:
+    name: staging
 
 deploy_prod:
   stage: deploy
