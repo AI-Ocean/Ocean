@@ -120,7 +120,7 @@ export default {
   methods: {
     async list () {
       this.loading = true
-      const { data } = await this.$axios.get('/admin/users', {
+      const { data } = await this.$axios.get('/users', {
         params: {
           offset: this.options.page > 0 ? (this.options.page - 1) * this.options.itemsPerPage : 0,
           limits: this.options.itemsPerPage,
@@ -139,19 +139,19 @@ export default {
       else return 'Guest'
     },
     async changeCpus (uid, cpus) {
-      await this.$axios.patch('/admin/users/' + uid, { cpus })
+      await this.$axios.patch('/users/' + uid, { cpus })
       this.$toasted.show('CPUs changed.')
     },
     async changeMemory (uid, mem) {
-      await this.$axios.patch('/admin/users/' + uid, { mem })
+      await this.$axios.patch('/users/' + uid, { mem })
       this.$toasted.show('Memory changed.')
     },
     async changeGpus (uid, gpus) {
-      await this.$axios.patch('/admin/users/' + uid, { gpus })
+      await this.$axios.patch('/users/' + uid, { gpus })
       this.$toasted.show('GPUs changed.')
     },
     async changeLevel (uid, level) {
-      await this.$axios.patch('/admin/users/' + uid, { level })
+      await this.$axios.patch('/users/' + uid, { level })
       this.$toasted.show('Level changed.')
     }
   },
