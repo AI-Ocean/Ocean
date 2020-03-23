@@ -1,26 +1,6 @@
-.DS_Store
-node_modules
-/dist
+### VisualStudioCode ###
+.vscode/
 
-# local env files
-.env.local
-.env.*.local
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# firebase config 
-.firebase/**
-.firebaserc
-firebase.config.js
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history

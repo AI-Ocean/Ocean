@@ -1,31 +1,42 @@
-image: "node:10.15.0"
+image: node:10.15.0
 
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - node_modules/
-    - functions/node_modules/
-    - dist/
+  - frontend/node_modules/
+  - backend/node_modules/
+  - functions/node_modules/
 
-default:
-  before_script:
-    - yarn
-    - cd functions
-    - npm install
-    - cd ..
+include:
+  template: Serverless.gitlab-ci.yml
 
 build:
-  stage: build
-  except: 
-    - master
-  script:
-    - npm run build
+  extends: .serverless:build:image 
 
-build_and_deploy:
+deploy_staging:
   stage: deploy
-  environment: Production
+  extends: .serverless:deploy:image
+  environment:
+    name: staging
+
+deploy_prod:
+  stage: deploy
+  extends: .serverless:deploy:image
+  environment:
+    name: production
+  when: manual
   only:
-    - master
+  - master
+
+deploy_functions:
+  stage: deploy
+  environment:
+    name: production
+  when: manual
+  only:
+  - master
   script: 
-    - npm run build
+    - cd functions
     - npm install -g firebase-tools
+    - npm install
     - firebase deploy -m "Pipeline $CI_PIPELINE_ID, build $CI_BUILD_ID" --non-interactive --token "$FIREBASE_TOKEN"
