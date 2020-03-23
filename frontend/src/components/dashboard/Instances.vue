@@ -241,7 +241,7 @@ export default {
     },
     gpu_rules () {
       return [
-        v => !!v || 'GPUs is required',
+        // v => !!v || 'GPUs is required',
         v => v <= this.remainResources('gpus') ||
           `GPUs must be less then ${this.remainResources('gpus')} limit`
       ]
