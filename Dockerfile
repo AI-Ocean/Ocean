@@ -14,10 +14,12 @@ RUN npm install --production
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 # replace this with your application's default port
-FROM node:latest as prduction-stage
+# FROM node:latest as prduction-stage
+FROM nginx as production-stage
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
 COPY --from=build-stage /app/backend .
 COPY nginx.conf /etc/nginx/nginx.conf
-EXPOSE 8080
-CMD ["npm", "start"]
+# COPY nginx.conf /etc/nginx/nginx.conf
+# EXPOSE 8080
+# CMD ["npm", "start"]
