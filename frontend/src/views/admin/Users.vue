@@ -27,6 +27,7 @@
                       label="Edit"
                       single-line
                       type="number"
+                      autofocus
                     ></v-text-field>
                   </template>
                 </v-edit-dialog>
@@ -43,6 +44,7 @@
                       label="Edit"
                       single-line
                       type="number"
+                      autofocus
                     ></v-text-field>
                   </template>
                 </v-edit-dialog>
@@ -59,6 +61,7 @@
                       label="Edit"
                       single-line
                       type="number"
+                      autofocus
                     ></v-text-field>
                   </template>
                 </v-edit-dialog>
@@ -102,9 +105,9 @@ export default {
       { text: 'User', value: 1 },
       { text: 'Guest', value: 2 }
     ],
-    cpuRules: v => v <= 64 & v >= 0 || 'Input range must be between 0 to 64',
-    memRules: v => v <= 128 & v >= 0 || 'Input range must be between 0 to 128',
-    gpuRules: v => v <= 32 & v >= 0 || 'Input range must be between 0 to 32',
+    cpuRules: v => (v <= 64 && v >= 0) || 'Input range must be between 0 to 64',
+    memRules: v => (v <= 128 && v >= 0) || 'Input range must be between 0 to 128',
+    gpuRules: v => (v <= 32 && v >= 0) || 'Input range must be between 0 to 32',
     items: [],
     options: {
       itemsPerPage: 20,
@@ -120,7 +123,7 @@ export default {
   methods: {
     async list () {
       this.loading = true
-      const { data } = await this.$axios.get('/users', {
+      const { data } = await this.$axios.get('/api/users', {
         params: {
           offset: this.options.page > 0 ? (this.options.page - 1) * this.options.itemsPerPage : 0,
           limits: this.options.itemsPerPage,
@@ -139,19 +142,19 @@ export default {
       else return 'Guest'
     },
     async changeCpus (uid, cpus) {
-      await this.$axios.patch('/users/' + uid, { cpus })
+      await this.$axios.patch('/api/users/' + uid, { cpus })
       this.$toasted.show('CPUs changed.')
     },
     async changeMemory (uid, mem) {
-      await this.$axios.patch('/users/' + uid, { mem })
+      await this.$axios.patch('/api/users/' + uid, { mem })
       this.$toasted.show('Memory changed.')
     },
     async changeGpus (uid, gpus) {
-      await this.$axios.patch('/users/' + uid, { gpus })
+      await this.$axios.patch('/api/users/' + uid, { gpus })
       this.$toasted.show('GPUs changed.')
     },
     async changeLevel (uid, level) {
-      await this.$axios.patch('/users/' + uid, { level })
+      await this.$axios.patch('/api/users/' + uid, { level })
       this.$toasted.show('Level changed.')
     }
   },

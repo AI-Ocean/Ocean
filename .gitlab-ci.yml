@@ -13,20 +13,20 @@ include:
 build:
   extends: .serverless:build:image 
 
-deploy_staging:
-  stage: deploy
-  extends: .serverless:deploy:image
-  environment:
-    name: staging
+# deploy_staging:
+#   stage: deploy
+#   extends: .serverless:deploy:image
+#   environment:
+#     name: staging
 
-deploy_prod:
-  stage: deploy
-  extends: .serverless:deploy:image
-  environment:
-    name: production
-  when: manual
-  only:
-  - master
+# deploy_prod:
+#   stage: deploy
+#   extends: .serverless:deploy:image
+#   environment:
+#     name: production
+#   when: manual
+#   only:
+#   - master
 
 deploy_functions:
   stage: deploy
