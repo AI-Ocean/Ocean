@@ -9,10 +9,6 @@ RUN npm run build
 WORKDIR /app/backend
 RUN npm install --production
 
-# FROM nginx as production-stage
-
-# COPY nginx.conf /etc/nginx/nginx.conf
-
 FROM node:latest as prduction-stage
 ENV NODE_ENV production
 ENV PORT 80
