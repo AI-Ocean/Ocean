@@ -178,7 +178,6 @@ export default {
       this.loadingVolumes = false
     },
     async createVolume (data) {
-      console.log(data)
       this.volumes.push({
         name: data.name,
         capacity: data.storage_request,

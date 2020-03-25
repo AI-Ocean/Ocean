@@ -5,7 +5,6 @@ module.exports = (req, res, next) => {
     req.claims = decodedToken
     next()
   }).catch(e => {
-    console.log(e)
     res.status(403).send(e)
   })
 }
