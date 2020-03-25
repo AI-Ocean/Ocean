@@ -7,7 +7,6 @@ variables:
 
 stages:
   - build
-  - serve
   - deploy
 
 before_script:
@@ -30,29 +29,17 @@ docker develop build:
     - develop
   script:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CURRENT_VER .
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CURRENT_VER
 
 docker stable build:
   stage: build
   only:
     - master
   script:
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:CURRENT_VER -t $CI_REGISTRY_IMAGE:stable.
-
-docker push:
-  stage: serve
-  only:
-    - master
-    - develop
-  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CURRENT_VER -t $CI_REGISTRY_IMAGE:stable.
     - docker push $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:$CURRENT_VER
-
-docker push stable:
-  stage: serve
-  only:
-    - master
-  when: manual
-  script:
     - docker push $CI_REGISTRY_IMAGE:stable
 
 deploy_functions:
