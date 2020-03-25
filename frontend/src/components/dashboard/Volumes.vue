@@ -178,9 +178,6 @@ export default {
           `Capacity must be less then ${this.remainResources('capacity')} limit`
       ]
     }
-  },
-  mounted () {
-    this.onGet()
   }
 }
 </script>

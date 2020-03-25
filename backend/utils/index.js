@@ -23,7 +23,7 @@ exports.getSelector = function (claims) {
   if (claims.level <= 0) return {}
   return {
     params: {
-      labelSelector: 'user=' + getUserID(claims)
+      labelSelector: 'user=' + claims.email.split('@')[0]
     }
   }
 }

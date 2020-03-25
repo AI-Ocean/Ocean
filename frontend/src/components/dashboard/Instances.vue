@@ -246,9 +246,6 @@ export default {
           `GPUs must be less then ${this.remainResources('gpus')} limit`
       ]
     }
-  },
-  mounted () {
-    this.onGet()
   }
 }
 </script>

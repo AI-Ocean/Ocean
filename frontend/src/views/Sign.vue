@@ -14,8 +14,7 @@
         sm="5"
         xs="12"
       >
-        <sign-in @changeType="changeType" v-if="this.type"/>
-        <sign-up @changeType="changeType" v-else/>
+        <sign-in />
       </v-col>
     </v-row>
   </v-container>
@@ -23,20 +22,14 @@
 
 <script>
 import SignIn from '@/components/auth/signin'
-import SignUp from '@/components/auth/signup'
 
 export default {
   data: () => ({
-    type: true
   }),
   methods: {
-    changeType () {
-      this.type = !this.type
-    }
   },
   components: {
-    SignIn,
-    SignUp
+    SignIn
   }
 }
 </script>
