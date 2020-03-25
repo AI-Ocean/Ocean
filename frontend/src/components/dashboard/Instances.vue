@@ -6,6 +6,9 @@
         Instances
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn icon @click="onGet">
+        <v-icon color="white">mdi-refresh</v-icon>
+      </v-btn>
       <v-btn icon @click="dialog=true">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
@@ -104,31 +107,26 @@
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
       <template v-slot:item.delete="{ item }">
-        <v-btn icon @click="openDeleteDialog(item.name)">
-          <v-icon>
-            mdi-trash-can
-          </v-icon>
-        </v-btn>
+        <v-edit-dialog>
+          <v-icon>mdi-trash-can</v-icon>
+          <template v-slot:input>
+            <v-card-title>
+              Delete Instance
+            </v-card-title>
+            <v-card-text>
+              Are you sure to delete <code flat> {{ item.name }} </code>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color='red' @click="onDelete(item.name)">
+                Delete
+              </v-btn>
+            </v-card-actions>
+          </template>
+        </v-edit-dialog>
       </template>
     </v-data-table>
     <!-- end data table -->
-
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title>
-          Delete Instances
-        </v-card-title>
-        <v-card-text>
-          Are you sure to delete <code> {{ targetName }} </code>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color='red' @click="onDelete(targetName)">
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
   </v-card>
 </template>
@@ -171,11 +169,7 @@ export default {
     cpus: undefined,
     memory: undefined,
     gpus: undefined,
-    volume: undefined,
-
-    // data table
-    deleteDialog: false,
-    targetName: ''
+    volume: undefined
   }),
   methods: {
     // stataus icon
@@ -187,11 +181,6 @@ export default {
 
     remainResources (type) {
       return (this.resources[type].limit - this.resources[type].using)
-    },
-
-    openDeleteDialog (name) {
-      this.deleteDialog = true
-      this.targetName = name
     },
 
     onGet () {
@@ -206,6 +195,7 @@ export default {
         gpu_request: this.gpus,
         volume_name: this.volume
       })
+      this.$emit('get')
 
       // reset dialog
       this.dialog = false
@@ -221,8 +211,8 @@ export default {
       this.$refs.form.reset()
     },
     onDelete (name) {
-      this.deleteDialog = false
       this.$emit('delete', name)
+      this.$emit('get')
     }
   },
   computed: {
