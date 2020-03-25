@@ -100,7 +100,7 @@ export default {
   }),
   methods: {
     async getUserInfo () {
-      const r = await this.$axios.get('/users/' + this.$store.state.user.uid)
+      const r = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
       this.userData = r.data
     }
   },
