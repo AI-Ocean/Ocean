@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve --port 8000",
     "build": "vue-cli-service build",
+    "movebuild": "cp -r dist ../backend/public",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
