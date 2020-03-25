@@ -71,6 +71,8 @@ export default {
   }),
   mounted () {
     this.getUserLimits()
+    this.getInstances()
+    this.getVolumes()
   },
   methods: {
     calcUsage (type) {
@@ -89,8 +91,6 @@ export default {
       this.resources.memory.limit = Number(data.mem)
       this.resources.gpus.limit = Number(data.gpus)
       this.resources.capacity.limit = Number(data.capacity)
-
-      // this.updateItems()
     },
 
     /// Instances
@@ -101,7 +101,6 @@ export default {
 
       // get instances
       const { data } = await this.$axios.get('/api/instances')
-      // const data = await api.getInstances()
 
       // update instances
       data.pods.forEach(element => {
@@ -125,8 +124,6 @@ export default {
       this.resources.cpus.using = this.calcUsage('cpus')
       this.resources.memory.using = this.calcUsage('memory')
       this.resources.gpus.using = this.calcUsage('gpus')
-
-      // this.updateItems()
 
       this.loadingInstances = false
     },
@@ -158,8 +155,6 @@ export default {
       // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
 
-      // this.updateItems()
-
       this.loadingVolumes = false
     },
     async createVolume (data) {
@@ -170,7 +165,6 @@ export default {
     }
   },
   computed: {
-    // top
     items () {
       return [
         { text: this.instances.filter(v => v.status === 'Running').length + ' / ' + this.instances.length },

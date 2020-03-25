@@ -8,8 +8,9 @@
         app
       >
         <v-app-bar-nav-icon v-if="$store.state.user" @click="drawer = true"></v-app-bar-nav-icon>
-
-        <v-toolbar-title>MLVC Intranet</v-toolbar-title>
+        <v-toolbar-title>
+          MLVC Intranet
+        </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-menu offset-y v-if="$store.state.user">
           <template v-slot:activator="{ on }">

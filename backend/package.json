@@ -6,7 +6,9 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@sentry/node": "^5.14.2",
     "axios": "^0.19.2",
+    "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
