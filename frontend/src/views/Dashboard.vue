@@ -31,6 +31,7 @@
           :loading="loadingVolumes"
           :resources="resources"
           :volumes="volumes"
+          :usedVolumes="usedVolumes"
           @get="getVolumes"
           @create="createVolume"
           @delete="deleteVolume"
@@ -71,8 +72,13 @@ export default {
   }),
   mounted () {
     this.getUserLimits()
+
     this.getInstances()
     this.getVolumes()
+    setInterval(() => {
+      this.getInstances()
+      this.getVolumes()
+    }, 30000)
   },
   methods: {
     calcUsage (type) {
@@ -97,7 +103,7 @@ export default {
     async getInstances () {
       this.loadingInstances = true
       //  init
-      this.instances = []
+      var newInstances = []
 
       // get instances
       const { data } = await this.$axios.get('/api/instances')
@@ -117,8 +123,10 @@ export default {
         volumes.forEach(element => {
           pod.volumes.push(element.persistentVolumeClaim.claimName)
         })
-        this.instances.push(pod)
+        newInstances.push(pod)
       })
+
+      this.instances = newInstances
 
       // update using resources
       this.resources.cpus.using = this.calcUsage('cpus')
@@ -128,9 +136,19 @@ export default {
       this.loadingInstances = false
     },
     async createInstance (data) {
+      this.instances.push({
+        name: data.name,
+        status: 'Pending',
+        port: 0,
+        cpus: data.cpu_request,
+        memory: data.memory_request,
+        gpus: data.gpu_request,
+        volumes: [data.volume_name, 'dataset-pcv']
+      })
       await this.$axios.post('/api/instances', data)
     },
     async deleteInstance (name) {
+      this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
       await this.$axios.delete('/api/instances/' + name)
     },
 
@@ -138,7 +156,7 @@ export default {
     async getVolumes () {
       this.loadingVolumes = true
       // init
-      this.volumes = []
+      var newVolumes = []
 
       // get volumes
       const { data } = await this.$axios.get('/api/volumes')
@@ -150,17 +168,26 @@ export default {
           capacity: capacity.slice(0, -2),
           status
         }
-        this.volumes.push(vol)
+        newVolumes.push(vol)
       })
+      this.volumes = newVolumes
+
       // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
 
       this.loadingVolumes = false
     },
     async createVolume (data) {
+      console.log(data)
+      this.volumes.push({
+        name: data.name,
+        capacity: data.storage_request,
+        status: 'Pending'
+      })
       await this.$axios.post('/api/volumes/', data)
     },
     async deleteVolume (name) {
+      this.volumes[this.volumes.findIndex(v => v.name === name)].status = 'Terminating'
       await this.$axios.delete('/api/volumes/' + name)
     }
   },
@@ -174,6 +201,11 @@ export default {
         { text: this.getText('gpus') },
         { text: this.getText('capacity') + ' Gi' }
       ]
+    },
+    usedVolumes () {
+      var set = new Set()
+      this.instances.map(v => v.volumes.forEach(v => set.add(v)))
+      return set
     }
   }
 }
