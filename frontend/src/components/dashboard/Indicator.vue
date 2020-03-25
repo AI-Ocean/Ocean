@@ -146,7 +146,7 @@ export default {
       let pedning = 0
       if (this.instances) {
         bound = this.volumes.filter(v => v.status === 'Bound').length
-        pedning = this.volumes.filter(v => v.status === 'Pending').length
+        pedning = this.volumes.filter(v => v.status === 'Pending' || v.status === 'Terminating').length
       }
 
       return [
