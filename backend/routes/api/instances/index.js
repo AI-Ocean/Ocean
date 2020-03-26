@@ -117,13 +117,15 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const { data } = await kubeAPI.post('/pods', podData)
-  var servicedata = await kubeAPI.post('/services', serviceData)
-  servicedata = servicedata.data
+  const pod = await kubeAPI.post('/pods', podData)
+  const service = await kubeAPI.post('/services', serviceData)
 
-  var response = []
-  response.push(data)
-  response.push(servicedata)
+  const response = {
+    pod: pod.data,
+    service: service.data
+  }
+
+  console.log(response)
 
   res.send(response)
 })

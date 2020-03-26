@@ -88,6 +88,14 @@ export default {
         .map(v => Number(v[type]))
         .reduce((a, b) => a + b, 0)
     },
+    updateUsage () {
+      // update using resources
+      this.resources.cpus.using = this.calcUsage('cpus')
+      this.resources.memory.using = this.calcUsage('memory')
+      this.resources.gpus.using = this.calcUsage('gpus')
+      // update using resources
+      this.resources.capacity.using = this.calcUsage('capacity')
+    },
 
     // user limits
     async getUserLimits () {
@@ -128,10 +136,7 @@ export default {
 
       this.instances = newInstances
 
-      // update using resources
-      this.resources.cpus.using = this.calcUsage('cpus')
-      this.resources.memory.using = this.calcUsage('memory')
-      this.resources.gpus.using = this.calcUsage('gpus')
+      this.updateUsage()
 
       this.loadingInstances = false
     },
@@ -145,10 +150,12 @@ export default {
         gpus: data.gpu_request,
         volumes: [data.volume_name, 'dataset-pcv']
       })
+      this.updateUsage()
       await this.$axios.post('/api/instances', data)
     },
     async deleteInstance (name) {
       this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
+      this.updateUsage()
       await this.$axios.delete('/api/instances/' + name)
     },
 
@@ -172,8 +179,7 @@ export default {
       })
       this.volumes = newVolumes
 
-      // update using resources
-      this.resources.capacity.using = this.calcUsage('capacity')
+      this.updateUsage()
 
       this.loadingVolumes = false
     },
@@ -183,10 +189,12 @@ export default {
         capacity: data.storage_request,
         status: 'Pending'
       })
+      this.updateUsage()
       await this.$axios.post('/api/volumes/', data)
     },
     async deleteVolume (name) {
       this.volumes[this.volumes.findIndex(v => v.name === name)].status = 'Terminating'
+      this.updateUsage()
       await this.$axios.delete('/api/volumes/' + name)
     }
   },

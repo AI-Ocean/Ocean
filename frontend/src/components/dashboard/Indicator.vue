@@ -3,7 +3,7 @@
     <v-row>
       <v-col sm="12" md="4">
         <v-card>
-          <v-toolbar color="orange" flat dark>
+          <v-toolbar color="blue" flat dark>
             <v-toolbar-title>
               Resources Status
             </v-toolbar-title>
@@ -36,7 +36,7 @@
       </v-col>
       <v-col sm="12" md="8">
         <v-card>
-          <v-toolbar color="orange" flat dark>
+          <v-toolbar color="blue" flat dark>
             <v-toolbar-title>
               Workloads Status
             </v-toolbar-title>

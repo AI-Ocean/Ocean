@@ -3,7 +3,7 @@ services:
   - docker:dind
 
 variables:
-  CURRENT_VER: v0.1.0a1
+  CURRENT_VER: v0.1.0a2
 
 stages:
   - build
