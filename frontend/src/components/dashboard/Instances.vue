@@ -24,7 +24,6 @@
               ma-4
               ref="form"
               v-model="valid"
-              lazy-validation
             >
               <v-text-field
                 v-model.trim="name"
@@ -35,6 +34,14 @@
                 required
               >
               </v-text-field>
+              <v-select
+                v-model="instanceType"
+                :items="instancesList"
+                label="Instance Type"
+                auto
+                @change="setInstanceType()"
+              >
+              </v-select>
               <v-text-field
                 v-model.number="cpus"
                 type="number"
@@ -42,6 +49,7 @@
                 label="CPUs"
                 required
                 :suffix="' / ' + remainResources('cpus')"
+                :disabled="isDisabled"
               >
               </v-text-field>
               <v-text-field
@@ -51,6 +59,7 @@
                 label="Memory"
                 required
                 :suffix="' / ' + remainResources('memory')"
+                :disabled="isDisabled"
               >
               </v-text-field>
               <v-text-field
@@ -60,6 +69,7 @@
                 label="GPUs"
                 required
                 :suffix="' / ' + remainResources('gpus')"
+                :disabled="isDisabled"
               >
               </v-text-field>
               <v-select
@@ -163,11 +173,20 @@ export default {
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
+    instancesList: [
+      { text: 'g2080.1s', value: { name: 'g2080.1s', cpus: 4, memory: 16, gpus: 1 } },
+      { text: 'g2080.1', value: { name: 'g2080.1', cpus: 8, memory: 32, gpus: 1 } },
+      { text: 'g2080.2s', value: { name: 'g2080.2s', cpus: 8, memory: 32, gpus: 2 } },
+      { text: 'g2080.2', value: { name: 'g2080.2', cpus: 16, memory: 64, gpus: 2 } },
+      { text: 'custom', value: { name: 'custom', cpus: 4, memory: 16, gpus: 0 } }
+    ],
+
     // form
     dialog: false,
     valid: false,
 
     name: undefined,
+    instanceType: undefined,
     cpus: undefined,
     memory: undefined,
     gpus: undefined,
@@ -187,6 +206,12 @@ export default {
 
     remainResources (type) {
       return (this.resources[type].limit - this.resources[type].using)
+    },
+
+    setInstanceType () {
+      this.cpus = this.instanceType.cpus
+      this.memory = this.instanceType.memory
+      this.gpus = this.instanceType.gpus
     },
 
     openDeleteDialog (name) {
@@ -226,10 +251,13 @@ export default {
     }
   },
   computed: {
+    isDisabled () {
+      return !this.instanceType || (this.instanceType && this.instanceType.name !== 'custom')
+    },
     // rule
     name_rules () {
       return [
-        v => !!v || 'Name is required',
+        v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
         v => !this.instances.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'

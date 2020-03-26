@@ -23,7 +23,6 @@
               ma-4
               ref="form"
               v-model="valid"
-              lazy-validation
             >
               <v-text-field
                 v-model.trim="name"
@@ -181,7 +180,7 @@ export default {
     // rule
     name_rules () {
       return [
-        v => !!v || 'Name is required',
+        v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
         v => !this.volumes.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
