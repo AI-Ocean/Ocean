@@ -73,6 +73,12 @@ router.post('/', async (req, res) => {
         {
           name: 'dataset',
           persistentVolumeClaim: { claimName: 'dataset-pvc' }
+        },
+        {
+          name: 'dshm',
+          emptyDir: {
+            medium: 'Memory'
+          }
         }
       ],
       containers: [
@@ -88,12 +94,16 @@ router.post('/', async (req, res) => {
           volumeMounts: [
             {
               name: 'main-storage',
-              mountPath: '/workspace'
+              mountPath: '/root/volume'
             },
             {
               name: 'dataset',
               mountPath: '/dataset',
               readOnly: true
+            },
+            {
+              name: 'dshm',
+              mountPath: '/dev/shm'
             }
           ]
         }
