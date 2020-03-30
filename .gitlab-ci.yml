@@ -22,6 +22,7 @@ docker test build:
     - develop
   script:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:latest
 
 docker develop build:
   stage: build
