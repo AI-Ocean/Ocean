@@ -4,8 +4,8 @@ var { kubeAPI, getSelector, getUserID } = require('../../../utils')
 // Get Instances
 router.get('/', async (req, res) => {
   // get pods data
-  const { data } = await kubeAPI.get('/pods', getSelector(req.claims))
-  var servicedata = await kubeAPI.get('/services', getSelector(req.claims))
+  const { data } = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.claims))
+  var servicedata = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.claims))
   servicedata = servicedata.data
 
   // final response
@@ -127,8 +127,8 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const pod = await kubeAPI.post('/pods', podData)
-  const service = await kubeAPI.post('/services', serviceData)
+  const pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
+  const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
 
   const response = {
     pod: pod.data,
@@ -142,9 +142,9 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   var podname = req.params.id
-  const response = await kubeAPI.delete('/pods/' + podname)
-  await kubeAPI.delete('/services/' + podname)
+  const response = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
+  await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
   res.send(response.data)
 })
 
-module.exports = router;
+module.exports = router
