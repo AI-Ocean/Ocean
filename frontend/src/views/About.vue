@@ -11,7 +11,7 @@
   Made By MLVC Infrastructure Team.
 
   Leader: Eunseop Shin.
-  Member: Younho Jang(Purchace Manager), Wheimyeong Shin(Hompage Manager).
+  Member: Younho Jang(Purchase Manager), Wheimyeong Shin(Homepage Manager).
   Since: 2020.</pre>
           </v-card-text>
           <v-card-actions>
