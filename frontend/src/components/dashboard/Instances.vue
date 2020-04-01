@@ -49,7 +49,7 @@
                 label="CPUs"
                 required
                 :suffix="' / ' + remainResources('cpus')"
-                :disabled="isDisabled"
+                :readonly="isDisabled"
               >
               </v-text-field>
               <v-text-field
@@ -59,7 +59,7 @@
                 label="Memory"
                 required
                 :suffix="' / ' + remainResources('memory')"
-                :disabled="isDisabled"
+                :readonly="isDisabled"
               >
               </v-text-field>
               <v-text-field
@@ -69,7 +69,7 @@
                 label="GPUs"
                 required
                 :suffix="' / ' + remainResources('gpus')"
-                :disabled="isDisabled"
+                :readonly="isDisabled"
               >
               </v-text-field>
               <v-select
