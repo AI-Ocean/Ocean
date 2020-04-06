@@ -72,7 +72,7 @@ router.post('/', async (req, res) => {
         },
         {
           name: 'dataset',
-          persistentVolumeClaim: { claimName: 'dataset-pvc' }
+          hostPath: { path: '/dataset' }
         },
         {
           name: 'dshm',
