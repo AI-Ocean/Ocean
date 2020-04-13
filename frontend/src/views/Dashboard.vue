@@ -153,7 +153,7 @@ export default {
         cpus: data.cpu_request,
         memory: data.memory_request,
         gpus: data.gpu_request,
-        volumes: [data.volume_name, 'dataset-pcv']
+        volumes: [data.volume_name]
       })
       this.updateUsage()
       await this.$axios.post('/api/instances', data)
