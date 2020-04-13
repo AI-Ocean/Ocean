@@ -64,6 +64,7 @@
       :headers="volumesHeader"
       :items="volumes"
       :loading="loading"
+      :options.sync="options"
       hide-default-footer
     >
       <template v-slot:item.name="{ item }">
@@ -124,6 +125,10 @@ export default {
       { text: 'Status', value: 'status', sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
+
+    options: {
+      itemsPerPage: 20
+    },
 
     // form
     dialog: false,

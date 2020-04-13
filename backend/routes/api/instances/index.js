@@ -50,13 +50,15 @@ router.post('/', async (req, res) => {
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
+  var gpu_type = req.body.gpu_type.name
   var claimName = req.body.volume_name
 
   const metadata = {
     name,
     labels: {
       app: name,
-      user: getUserID(req.claims)
+      user: getUserID(req.claims),
+      accelerator: gpu_type
     }
   }
 
@@ -72,7 +74,7 @@ router.post('/', async (req, res) => {
         },
         {
           name: 'dataset',
-          hostPath: { path: '/dataset' }
+          hostPath: { path: '/data/dataset' }
         },
         {
           name: 'dshm',
@@ -99,7 +101,7 @@ router.post('/', async (req, res) => {
             {
               name: 'dataset',
               mountPath: '/dataset',
-              readOnly: true
+              readOnly: req.claims.level > 0 ? true : false
             },
             {
               name: 'dshm',
@@ -107,7 +109,10 @@ router.post('/', async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+      nodeSelector: {
+        accelerator: gpu_type
+      }
     }
   }
 
@@ -127,15 +132,19 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
-  const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
+  var pod, service
+  try {
+    pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
+    service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
+  } catch(err) {
+    console.log(err)
+  }
+  // const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
 
   const response = {
     pod: pod.data,
     service: service.data
   }
-
-  console.log(response)
 
   res.send(response)
 })

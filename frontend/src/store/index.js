@@ -47,6 +47,9 @@ export default new Vuex.Store({
     },
     namePrefix (state) {
       return state.user ? 'mlvc-' + state.user.email.split('@')[0].replace(/[^\w\s]/gi, '') + '-' : null
+    },
+    level (state) {
+      return state.claims ? state.claims.level : null
     }
   }
 })

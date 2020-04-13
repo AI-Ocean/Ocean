@@ -39,6 +39,7 @@
                 :items="instancesList"
                 label="Instance Type"
                 auto
+                required
                 @change="setInstanceType()"
               >
               </v-select>
@@ -62,6 +63,13 @@
                 :readonly="isDisabled"
               >
               </v-text-field>
+              <v-select
+                v-model="gpuType"
+                :items="gpuTypeList"
+                label="GPU Type"
+                :rules="required_rules"
+                required
+              ></v-select>
               <v-text-field
                 v-model.number="gpus"
                 :rules="gpu_rules"
@@ -76,6 +84,7 @@
                 v-model="volume"
                 :items="volumes"
                 label="Volumes"
+                :rules="required_rules"
                 required
                 chips
               >
@@ -102,6 +111,7 @@
       :headers="instancesHeader"
       :items="instances"
       :loading="loading"
+      :options.sync="options"
       hide-default-footer
     >
       <template v-slot:item.status="{ item }">
@@ -181,6 +191,15 @@ export default {
       { text: 'custom', value: { name: 'custom', cpus: 4, memory: 16, gpus: 0 } }
     ],
 
+    gpuTypeList: [
+      { text: 'GTX-1080ti', value: { name: 'nvidia-gtx-1080ti' } },
+      { text: 'RTX-2080ti', value: { name: 'nvidia-rtx-2080ti' } }
+    ],
+
+    options: {
+      itemsPerPage: 20
+    },
+
     // form
     dialog: false,
     valid: false,
@@ -190,6 +209,7 @@ export default {
     cpus: undefined,
     memory: undefined,
     gpus: undefined,
+    gpuType: undefined,
     volume: undefined,
 
     // data table
@@ -229,6 +249,7 @@ export default {
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,
+        gpu_type: this.gpuType,
         volume_name: this.volume
       })
 
@@ -266,14 +287,14 @@ export default {
     cpu_rules () {
       return [
         v => !!v || 'CPUs is required',
-        v => v <= this.remainResources('cpus') ||
+        v => (v <= this.remainResources('cpus') || this.$store.getters.level <= 0) ||
           `CPUs must be less then ${this.remainResources('cpus')} limit`
       ]
     },
     memory_rules () {
       return [
         v => !!v || 'Memory is required',
-        v => v <= this.remainResources('memory') ||
+        v => (v <= this.remainResources('memory') || this.$store.getters.level <= 0) ||
           `Memory must be less then ${this.remainResources('memory')} limit`
       ]
     },
@@ -282,6 +303,11 @@ export default {
         // v => !!v || 'GPUs is required',
         v => v <= this.remainResources('gpus') ||
           `GPUs must be less then ${this.remainResources('gpus')} limit`
+      ]
+    },
+    required_rules () {
+      return [
+        v => !!v || 'Required item.'
       ]
     }
   }

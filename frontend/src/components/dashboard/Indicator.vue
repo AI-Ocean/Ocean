@@ -111,16 +111,17 @@ export default {
       height: 150,
       pieSliceText: 'value',
       pieSliceTextStyle: { fontSize: 20 },
-      colors: ['#4CAF50', 'gray'],
+      colors: ['#4CAF50', 'gray', 'red'],
       chartArea: { width: '100%', height: '90%' },
       animation: { duration: 1000, easing: 'out', startup: true }
     }
   }),
   methods: {
     getResourceUsageAndRemain (type) {
-      const using = this.resources[type].using
-      const remain = this.resources[type].limit - using
-      return { using, remain }
+      const using = this.resources[type].using > this.resources[type].limit ? this.resources[type].limit : this.resources[type].using
+      const remain = this.resources[type].limit > this.resources[type].using ? this.resources[type].limit - this.resources[type].using : 0
+      const over = this.resources[type].using > this.resources[type].limit ? this.resources[type].using - this.resources[type].limit : 0
+      return { using, remain, over }
     }
   },
   computed: {
@@ -156,35 +157,39 @@ export default {
       ]
     },
     cpusData () {
-      const { using, remain } = this.getResourceUsageAndRemain('cpus')
+      const { using, remain, over } = this.getResourceUsageAndRemain('cpus')
       return [
         ['Usage', 'Number'],
         ['using', using],
-        ['remain', remain]
+        ['remain', remain],
+        ['over', over]
       ]
     },
     memoryData () {
-      const { using, remain } = this.getResourceUsageAndRemain('memory')
+      const { using, remain, over } = this.getResourceUsageAndRemain('memory')
       return [
         ['Usage', 'Number'],
         ['using', using],
-        ['remain', remain]
+        ['remain', remain],
+        ['over', over]
       ]
     },
     gpusData () {
-      const { using, remain } = this.getResourceUsageAndRemain('gpus')
+      const { using, remain, over } = this.getResourceUsageAndRemain('gpus')
       return [
         ['Usage', 'Number'],
         ['using', using],
-        ['remain', remain]
+        ['remain', remain],
+        ['over', over]
       ]
     },
     capacityData () {
-      const { using, remain } = this.getResourceUsageAndRemain('capacity')
+      const { using, remain, over } = this.getResourceUsageAndRemain('capacity')
       return [
         ['Usage', 'Number'],
         ['using', using],
-        ['remain', remain]
+        ['remain', remain],
+        ['over', over]
       ]
     }
   }
