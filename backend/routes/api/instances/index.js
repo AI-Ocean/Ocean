@@ -81,6 +81,10 @@ router.post('/', async (req, res) => {
           emptyDir: {
             medium: 'Memory'
           }
+        },
+        {
+          name: 'temp',
+          emptyDir: {}
         }
       ],
       containers: [
@@ -97,6 +101,10 @@ router.post('/', async (req, res) => {
             {
               name: 'main-storage',
               mountPath: '/root/volume'
+            },
+            {
+              name: 'temp',
+              mountPath: '/root/temp'
             },
             {
               name: 'dataset',
