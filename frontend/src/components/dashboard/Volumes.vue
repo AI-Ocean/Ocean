@@ -1,13 +1,10 @@
 <template>
   <v-card>
-    <v-toolbar color="blue" flat dark>
+    <v-toolbar flat dark>
       <v-toolbar-title>
         Volumes
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="onGet">
-        <v-icon color="white">mdi-refresh</v-icon>
-      </v-btn>
       <v-btn icon @click="dialog=true">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
@@ -26,7 +23,6 @@
               ma-4
               ref="form"
               v-model="valid"
-              lazy-validation
             >
               <v-text-field
                 v-model.trim="name"
@@ -68,32 +64,38 @@
       :headers="volumesHeader"
       :items="volumes"
       :loading="loading"
+      :options.sync="options"
       hide-default-footer
     >
       <template v-slot:item.name="{ item }">
         <v-chip class="ma-1">{{ item.name }}</v-chip>
       </template>
       <template v-slot:item.delete="{ item }">
-        <v-edit-dialog v-if="item.name !== 'dataset-pvc'">
-          <v-icon>mdi-trash-can</v-icon>
-          <template v-slot:input>
-            <v-card-title>
-              Delete Volume
-            </v-card-title>
-            <v-card-text>
-              Are you sure to delete <code flat> {{ item.name }} </code>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color='red' @click="onDelete(item.name)">
-                Delete
-              </v-btn>
-            </v-card-actions>
-          </template>
-        </v-edit-dialog>
+        <v-btn icon :disabled="!isDeletable(item)" @click="openDeleteDialog(item.name)">
+          <v-icon>
+            mdi-trash-can
+          </v-icon>
+        </v-btn>
       </template>
     </v-data-table>
     <!-- end data table -->
+
+    <v-dialog v-model="deleteDialog" max-width="400">
+      <v-card>
+        <v-card-title>
+          Delete Volume
+        </v-card-title>
+        <v-card-text>
+          Are you sure to delete <code> {{ targetName }} </code>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color='red' @click="onDelete(targetName)">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
   </v-card>
 </template>
@@ -108,6 +110,9 @@ export default {
     volumes: {
       type: Array
     },
+    usedVolumes: {
+      type: Set
+    },
     loading: {
       type: Boolean
     }
@@ -121,16 +126,32 @@ export default {
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
+    options: {
+      itemsPerPage: 20
+    },
+
     // form
     dialog: false,
     valid: false,
 
     name: '',
-    capacity: undefined
+    capacity: undefined,
+
+    // data table
+    deleteDialog: false,
+    targetName: ''
   }),
   methods: {
     remainResources (type) {
       return (this.resources[type].limit - this.resources[type].using)
+    },
+    isDeletable (item) {
+      return item.name !== 'dataset-pvc' && !this.usedVolumes.has(item.name)
+    },
+
+    openDeleteDialog (name) {
+      this.deleteDialog = true
+      this.targetName = name
     },
 
     onGet () {
@@ -141,7 +162,6 @@ export default {
         name: this.$store.getters.namePrefix + this.name,
         storage_request: this.capacity
       })
-      this.$emit('get')
 
       // reset dialog
       this.dialog = false
@@ -157,15 +177,15 @@ export default {
       this.$refs.form.resetValidation()
     },
     onDelete (name) {
+      this.deleteDialog = false
       this.$emit('delete', name)
-      this.$emit('get')
     }
   },
   computed: {
     // rule
     name_rules () {
       return [
-        v => !!v || 'Name is required',
+        v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
         v => !this.volumes.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'

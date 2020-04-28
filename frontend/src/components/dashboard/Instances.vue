@@ -1,14 +1,11 @@
 <template>
   <v-card>
     <!-- header -->
-    <v-toolbar color="blue" flat dark>
+    <v-toolbar flat dark>
       <v-toolbar-title>
         Instances
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="onGet">
-        <v-icon color="white">mdi-refresh</v-icon>
-      </v-btn>
       <v-btn icon @click="dialog=true">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
@@ -27,7 +24,6 @@
               ma-4
               ref="form"
               v-model="valid"
-              lazy-validation
             >
               <v-text-field
                 v-model.trim="name"
@@ -38,6 +34,15 @@
                 required
               >
               </v-text-field>
+              <v-select
+                v-model="instanceType"
+                :items="instancesList"
+                label="Instance Type"
+                auto
+                required
+                @change="setInstanceType()"
+              >
+              </v-select>
               <v-text-field
                 v-model.number="cpus"
                 type="number"
@@ -45,6 +50,7 @@
                 label="CPUs"
                 required
                 :suffix="' / ' + remainResources('cpus')"
+                :readonly="isDisabled"
               >
               </v-text-field>
               <v-text-field
@@ -54,8 +60,16 @@
                 label="Memory"
                 required
                 :suffix="' / ' + remainResources('memory')"
+                :readonly="isDisabled"
               >
               </v-text-field>
+              <v-select
+                v-model="gpuType"
+                :items="gpuTypeList"
+                label="GPU Type"
+                :rules="required_rules"
+                required
+              ></v-select>
               <v-text-field
                 v-model.number="gpus"
                 :rules="gpu_rules"
@@ -63,12 +77,14 @@
                 label="GPUs"
                 required
                 :suffix="' / ' + remainResources('gpus')"
+                :readonly="isDisabled"
               >
               </v-text-field>
               <v-select
                 v-model="volume"
                 :items="volumes"
                 label="Volumes"
+                :rules="required_rules"
                 required
                 chips
               >
@@ -95,6 +111,7 @@
       :headers="instancesHeader"
       :items="instances"
       :loading="loading"
+      :options.sync="options"
       hide-default-footer
     >
       <template v-slot:item.status="{ item }">
@@ -107,26 +124,31 @@
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
       <template v-slot:item.delete="{ item }">
-        <v-edit-dialog>
-          <v-icon>mdi-trash-can</v-icon>
-          <template v-slot:input>
-            <v-card-title>
-              Delete Instance
-            </v-card-title>
-            <v-card-text>
-              Are you sure to delete <code flat> {{ item.name }} </code>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color='red' @click="onDelete(item.name)">
-                Delete
-              </v-btn>
-            </v-card-actions>
-          </template>
-        </v-edit-dialog>
+        <v-btn icon @click="openDeleteDialog(item.name)">
+          <v-icon>
+            mdi-trash-can
+          </v-icon>
+        </v-btn>
       </template>
     </v-data-table>
     <!-- end data table -->
+
+    <v-dialog v-model="deleteDialog" max-width="400">
+      <v-card>
+        <v-card-title>
+          Delete Instances
+        </v-card-title>
+        <v-card-text>
+          Are you sure to delete <code> {{ targetName }} </code>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color='red' @click="onDelete(targetName)">
+            Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
   </v-card>
 </template>
@@ -161,15 +183,38 @@ export default {
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
+    instancesList: [
+      { text: 'g2080.1s', value: { name: 'g2080.1s', cpus: 4, memory: 16, gpus: 1 } },
+      { text: 'g2080.1', value: { name: 'g2080.1', cpus: 8, memory: 32, gpus: 1 } },
+      { text: 'g2080.2s', value: { name: 'g2080.2s', cpus: 8, memory: 32, gpus: 2 } },
+      { text: 'g2080.2', value: { name: 'g2080.2', cpus: 16, memory: 64, gpus: 2 } },
+      { text: 'custom', value: { name: 'custom', cpus: 4, memory: 16, gpus: 0 } }
+    ],
+
+    gpuTypeList: [
+      { text: 'GTX-1080ti', value: { name: 'nvidia-gtx-1080ti' } },
+      { text: 'RTX-2080ti', value: { name: 'nvidia-rtx-2080ti' } }
+    ],
+
+    options: {
+      itemsPerPage: 20
+    },
+
     // form
     dialog: false,
     valid: false,
 
     name: undefined,
+    instanceType: undefined,
     cpus: undefined,
     memory: undefined,
     gpus: undefined,
-    volume: undefined
+    gpuType: undefined,
+    volume: undefined,
+
+    // data table
+    deleteDialog: false,
+    targetName: ''
   }),
   methods: {
     // stataus icon
@@ -183,6 +228,17 @@ export default {
       return (this.resources[type].limit - this.resources[type].using)
     },
 
+    setInstanceType () {
+      this.cpus = this.instanceType.cpus
+      this.memory = this.instanceType.memory
+      this.gpus = this.instanceType.gpus
+    },
+
+    openDeleteDialog (name) {
+      this.deleteDialog = true
+      this.targetName = name
+    },
+
     onGet () {
       this.$emit('get')
     },
@@ -193,9 +249,9 @@ export default {
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,
+        gpu_type: this.gpuType,
         volume_name: this.volume
       })
-      this.$emit('get')
 
       // reset dialog
       this.dialog = false
@@ -211,15 +267,18 @@ export default {
       this.$refs.form.reset()
     },
     onDelete (name) {
+      this.deleteDialog = false
       this.$emit('delete', name)
-      this.$emit('get')
     }
   },
   computed: {
+    isDisabled () {
+      return !this.instanceType || (this.instanceType && this.instanceType.name !== 'custom')
+    },
     // rule
     name_rules () {
       return [
-        v => !!v || 'Name is required',
+        v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
         v => !this.instances.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
@@ -228,14 +287,14 @@ export default {
     cpu_rules () {
       return [
         v => !!v || 'CPUs is required',
-        v => v <= this.remainResources('cpus') ||
+        v => (v <= this.remainResources('cpus') || this.$store.getters.level <= 0) ||
           `CPUs must be less then ${this.remainResources('cpus')} limit`
       ]
     },
     memory_rules () {
       return [
         v => !!v || 'Memory is required',
-        v => v <= this.remainResources('memory') ||
+        v => (v <= this.remainResources('memory') || this.$store.getters.level <= 0) ||
           `Memory must be less then ${this.remainResources('memory')} limit`
       ]
     },
@@ -244,6 +303,11 @@ export default {
         // v => !!v || 'GPUs is required',
         v => v <= this.remainResources('gpus') ||
           `GPUs must be less then ${this.remainResources('gpus')} limit`
+      ]
+    },
+    required_rules () {
+      return [
+        v => !!v || 'Required item.'
       ]
     }
   }

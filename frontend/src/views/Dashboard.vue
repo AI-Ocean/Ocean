@@ -31,6 +31,7 @@
           :loading="loadingVolumes"
           :resources="resources"
           :volumes="volumes"
+          :usedVolumes="usedVolumes"
           @get="getVolumes"
           @create="createVolume"
           @delete="deleteVolume"
@@ -71,8 +72,13 @@ export default {
   }),
   mounted () {
     this.getUserLimits()
+
     this.getInstances()
     this.getVolumes()
+    setInterval(() => {
+      this.getInstances()
+      this.getVolumes()
+    }, 30000)
   },
   methods: {
     calcUsage (type) {
@@ -82,11 +88,24 @@ export default {
         .map(v => Number(v[type]))
         .reduce((a, b) => a + b, 0)
     },
+    updateUsage () {
+      // update using resources
+      this.resources.cpus.using = this.calcUsage('cpus')
+      this.resources.memory.using = this.calcUsage('memory')
+      this.resources.gpus.using = this.calcUsage('gpus')
+      // update using resources
+      this.resources.capacity.using = this.calcUsage('capacity')
+    },
 
     // user limits
     async getUserLimits () {
-      const { data } = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
-
+      var data
+      if (this.$store.state.claims.level === 0) {
+        data = await this.$axios.get('/api/resources')
+      } else {
+        data = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
+      }
+      data = data.data
       this.resources.cpus.limit = Number(data.cpus)
       this.resources.memory.limit = Number(data.mem)
       this.resources.gpus.limit = Number(data.gpus)
@@ -97,7 +116,7 @@ export default {
     async getInstances () {
       this.loadingInstances = true
       //  init
-      this.instances = []
+      var newInstances = []
 
       // get instances
       const { data } = await this.$axios.get('/api/instances')
@@ -117,20 +136,31 @@ export default {
         volumes.forEach(element => {
           pod.volumes.push(element.persistentVolumeClaim.claimName)
         })
-        this.instances.push(pod)
+        newInstances.push(pod)
       })
 
-      // update using resources
-      this.resources.cpus.using = this.calcUsage('cpus')
-      this.resources.memory.using = this.calcUsage('memory')
-      this.resources.gpus.using = this.calcUsage('gpus')
+      this.instances = newInstances
+
+      this.updateUsage()
 
       this.loadingInstances = false
     },
     async createInstance (data) {
+      this.instances.push({
+        name: data.name,
+        status: 'Pending',
+        port: 0,
+        cpus: data.cpu_request,
+        memory: data.memory_request,
+        gpus: data.gpu_request,
+        volumes: [data.volume_name]
+      })
+      this.updateUsage()
       await this.$axios.post('/api/instances', data)
     },
     async deleteInstance (name) {
+      this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
+      this.updateUsage()
       await this.$axios.delete('/api/instances/' + name)
     },
 
@@ -138,7 +168,7 @@ export default {
     async getVolumes () {
       this.loadingVolumes = true
       // init
-      this.volumes = []
+      var newVolumes = []
 
       // get volumes
       const { data } = await this.$axios.get('/api/volumes')
@@ -150,17 +180,26 @@ export default {
           capacity: capacity.slice(0, -2),
           status
         }
-        this.volumes.push(vol)
+        newVolumes.push(vol)
       })
-      // update using resources
-      this.resources.capacity.using = this.calcUsage('capacity')
+      this.volumes = newVolumes
+
+      this.updateUsage()
 
       this.loadingVolumes = false
     },
     async createVolume (data) {
+      this.volumes.push({
+        name: data.name,
+        capacity: data.storage_request,
+        status: 'Pending'
+      })
+      this.updateUsage()
       await this.$axios.post('/api/volumes/', data)
     },
     async deleteVolume (name) {
+      this.volumes[this.volumes.findIndex(v => v.name === name)].status = 'Terminating'
+      this.updateUsage()
       await this.$axios.delete('/api/volumes/' + name)
     }
   },
@@ -174,6 +213,11 @@ export default {
         { text: this.getText('gpus') },
         { text: this.getText('capacity') + ' Gi' }
       ]
+    },
+    usedVolumes () {
+      var set = new Set()
+      this.instances.map(v => v.volumes.forEach(v => set.add(v)))
+      return set
     }
   }
 }
