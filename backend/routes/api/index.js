@@ -1,5 +1,6 @@
 var router = require('express').Router()
 
+router.use('/notice', require('./notice'))
 router.use('/resources', require('./resources'))
 router.use('/instances', require('./instances'))
 router.use('/volumes', require('./volumes'))

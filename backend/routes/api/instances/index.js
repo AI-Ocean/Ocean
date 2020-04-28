@@ -146,6 +146,7 @@ router.post('/', async (req, res) => {
     service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
   } catch(err) {
     console.log(err)
+    res.statusCode(503).send(err)
   }
   // const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
 
