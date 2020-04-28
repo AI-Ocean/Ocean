@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <!-- header -->
-    <v-toolbar color="blue" flat dark>
+    <v-toolbar flat dark>
       <v-toolbar-title>
         Instances
       </v-toolbar-title>

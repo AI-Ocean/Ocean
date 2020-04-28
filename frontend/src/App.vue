@@ -2,7 +2,6 @@
   <v-app>
     <div>
       <v-app-bar
-        color="primary"
         dark
         flat
         app
@@ -57,7 +56,7 @@
 
       <v-navigation-drawer
         v-model="drawer"
-        absolute
+        app
         temporary
       >
         <v-list-item>

@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-toolbar color="blue" flat dark>
+    <v-toolbar flat dark>
       <v-toolbar-title>
         Volumes
       </v-toolbar-title>

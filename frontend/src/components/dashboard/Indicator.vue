@@ -3,7 +3,7 @@
     <v-row>
       <v-col sm="12" md="4">
         <v-card>
-          <v-toolbar color="blue" flat dark>
+          <v-toolbar flat dark>
             <v-toolbar-title>
               Resources Status
             </v-toolbar-title>
@@ -36,7 +36,7 @@
       </v-col>
       <v-col sm="12" md="8">
         <v-card>
-          <v-toolbar color="blue" flat dark>
+          <v-toolbar flat dark>
             <v-toolbar-title>
               Workloads Status
             </v-toolbar-title>
@@ -101,6 +101,7 @@ export default {
     chartOptions: {
       legend: 'none',
       height: 150,
+      backgroundColor: '#1E1E1E',
       colors: ['#4CAF50', '#FF9800', '#F44336'],
       chartArea: { width: '100%', height: '90%' },
       animation: { duration: 1000, easing: 'out', startup: true },
@@ -111,6 +112,7 @@ export default {
       height: 150,
       pieSliceText: 'value',
       pieSliceTextStyle: { fontSize: 20 },
+      backgroundColor: '#1E1E1E',
       colors: ['#4CAF50', 'gray', 'red'],
       chartArea: { width: '100%', height: '90%' },
       animation: { duration: 1000, easing: 'out', startup: true }
