@@ -1,32 +1,47 @@
-image: node:10.15.0
+image: docker:stable
+services:
+  - docker:dind
 
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-  - frontend/node_modules/
-  - backend/node_modules/
-  - functions/node_modules/
+variables:
+  CURRENT_VER: v0.1.0a2
 
-include:
-  template: Serverless.gitlab-ci.yml
+stages:
+  - build
+  - deploy
 
-build:
-  extends: .serverless:build:image 
+before_script:
+  - echo $CI_REGISTRY_USER $CI_REGISTRY_PASSWOR $CI_REGISTRY
+  - echo $CI_REGISTRY_IMAGE
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - docker pull $CI_REGISTRY_IMAGE:latest || true
 
-# deploy_staging:
-#   stage: deploy
-#   extends: .serverless:deploy:image
-#   environment:
-#     name: staging
+docker test build:
+  stage: build
+  except:
+    - master
+    - develop
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:latest
 
-# deploy_prod:
-#   stage: deploy
-#   extends: .serverless:deploy:image
-#   environment:
-#     name: production
-#   when: manual
-#   only:
-#   - master
+docker develop build:
+  stage: build
+  only:
+    - develop
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CURRENT_VER .
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CURRENT_VER
+
+docker stable build:
+  stage: build
+  only:
+    - master
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY_IMAGE:$CURRENT_VER -t $CI_REGISTRY_IMAGE:stable.
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:$CURRENT_VER
+    - docker push $CI_REGISTRY_IMAGE:stable
 
 deploy_functions:
   stage: deploy

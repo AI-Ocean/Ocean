@@ -6,7 +6,7 @@ const firebaseAPI = axios.create({
   baseURL: process.env.NODE_ENV === 'production'
     ? 'https://us-central1-mlvclab-intranet-khu.cloudfunctions.net/'
     : 'http://localhost:5000/mlvclab-intranet-khu/us-central1/',
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -22,7 +22,7 @@ firebaseAPI.interceptors.request.use((req) => {
 Vue.prototype.$firebaseAPI = firebaseAPI
 
 const localAPI = axios.create({
-  timeout: 5000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
   }

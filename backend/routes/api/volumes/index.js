@@ -2,7 +2,7 @@ var router = require('express').Router()
 var { kubeAPI, getSelector, getUserID } = require('../../../utils')
 
 router.get('/', async (req, res) => {
-  const { data } = await kubeAPI.get('/persistentvolumeclaims', getSelector(req.claims))
+  const { data } = await kubeAPI.get('/namespaces/ml-instance/persistentvolumeclaims', getSelector(req.claims))
   const response = {
     volumes: []
   }
@@ -47,14 +47,14 @@ router.post('/', async (req, res) => {
     spec
   }
 
-  const { data } = await kubeAPI.post('/persistentvolumeclaims', volumeData)
+  const { data } = await kubeAPI.post('/namespaces/ml-instance/persistentvolumeclaims', volumeData)
   res.send(data)
 })
 
 // Delete volume
 router.delete('/:id', async (req, res) => {
   var volumename = req.params.id
-  const response = await kubeAPI.delete('/persistentvolumeclaims/' + volumename)
+  const response = await kubeAPI.delete('/namespaces/ml-instance/persistentvolumeclaims/' + volumename)
   res.send(response.data)
 })
 

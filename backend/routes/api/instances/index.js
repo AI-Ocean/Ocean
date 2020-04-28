@@ -4,8 +4,8 @@ var { kubeAPI, getSelector, getUserID } = require('../../../utils')
 // Get Instances
 router.get('/', async (req, res) => {
   // get pods data
-  const { data } = await kubeAPI.get('/pods', getSelector(req.claims))
-  var servicedata = await kubeAPI.get('/services', getSelector(req.claims))
+  const { data } = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.claims))
+  var servicedata = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.claims))
   servicedata = servicedata.data
 
   // final response
@@ -50,13 +50,15 @@ router.post('/', async (req, res) => {
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
+  var gpu_type = req.body.gpu_type.name
   var claimName = req.body.volume_name
 
   const metadata = {
     name,
     labels: {
       app: name,
-      user: getUserID(req.claims)
+      user: getUserID(req.claims),
+      accelerator: gpu_type
     }
   }
 
@@ -72,7 +74,17 @@ router.post('/', async (req, res) => {
         },
         {
           name: 'dataset',
-          persistentVolumeClaim: { claimName: 'dataset-pvc' }
+          hostPath: { path: '/data/dataset' }
+        },
+        {
+          name: 'dshm',
+          emptyDir: {
+            medium: 'Memory'
+          }
+        },
+        {
+          name: 'temp',
+          emptyDir: {}
         }
       ],
       containers: [
@@ -88,16 +100,27 @@ router.post('/', async (req, res) => {
           volumeMounts: [
             {
               name: 'main-storage',
-              mountPath: '/workspace'
+              mountPath: '/root/volume'
+            },
+            {
+              name: 'temp',
+              mountPath: '/root/temp'
             },
             {
               name: 'dataset',
               mountPath: '/dataset',
-              readOnly: true
+              readOnly: req.claims.level > 0 ? true : false
+            },
+            {
+              name: 'dshm',
+              mountPath: '/dev/shm'
             }
           ]
         }
-      ]
+      ],
+      nodeSelector: {
+        accelerator: gpu_type
+      }
     }
   }
 
@@ -117,22 +140,29 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const { data } = await kubeAPI.post('/pods', podData)
-  var servicedata = await kubeAPI.post('/services', serviceData)
-  servicedata = servicedata.data
+  var pod, service
+  try {
+    pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
+    service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
+  } catch(err) {
+    console.log(err)
+    res.statusCode(503).send(err)
+  }
+  // const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
 
-  var response = []
-  response.push(data)
-  response.push(servicedata)
+  const response = {
+    pod: pod.data,
+    service: service.data
+  }
 
   res.send(response)
 })
 
 router.delete('/:id', async (req, res) => {
   var podname = req.params.id
-  const response = await kubeAPI.delete('/pods/' + podname)
-  await kubeAPI.delete('/services/' + podname)
+  const response = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
+  await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
   res.send(response.data)
 })
 
-module.exports = router;
+module.exports = router
