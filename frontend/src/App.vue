@@ -6,7 +6,7 @@
         flat
         app
       >
-        <v-app-bar-nav-icon v-if="$store.state.user" @click="drawer = true"></v-app-bar-nav-icon>
+        <v-app-bar-nav-icon v-if="$store.state.user && isMobile" @click="drawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title>
           MLVC Intranet
         </v-toolbar-title>
@@ -56,9 +56,17 @@
 
       <v-navigation-drawer
         v-model="drawer"
+        v-if="$store.state.user"
         app
-        temporary
+        mini-variant-width="56"
+        :permanent="!isMobile"
+        :expand-on-hover="!isMobile"
       >
+        <v-list-item class="px-2">
+          <v-list-item-avatar>
+            <img src="@/images/logo.png">
+          </v-list-item-avatar>
+        </v-list-item>
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title">
@@ -131,6 +139,7 @@
 export default {
   name: 'App',
   data: () => ({
+    isMobile: false,
     drawer: false,
     items: [
       {
@@ -145,7 +154,22 @@ export default {
       }
     ]
   }),
+
+  beforeDestroy () {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.onResize, { passive: true })
+    }
+  },
+
+  mounted () {
+    this.onResize()
+    window.addEventListener('resize', this.onResize, { passive: true })
+  },
+
   methods: {
+    onResize () {
+      this.isMobile = window.innerWidth < 600
+    },
     async signOut () {
       await this.$firebase.auth().signOut()
       this.$router.push('/sign')

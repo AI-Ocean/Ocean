@@ -7,12 +7,6 @@
       <v-col md="6">
         <schedules-card/>
       </v-col>
-      <v-col md="6">
-        <schedules-card/>
-      </v-col>
-      <v-col md="6">
-        <schedules-card/>
-      </v-col>
     </v-row>
   </v-container>
 </template>
