@@ -46,7 +46,7 @@
             </v-container>
             <v-divider></v-divider>
             <v-card-actions>
-              <v-btn color="white" @click="toProfile">View Profile</v-btn>
+              <v-btn @click="toProfile">View Profile</v-btn>
               <v-spacer></v-spacer>
               <v-btn color="primary" @click="signOut">SignOut</v-btn>
             </v-card-actions>
@@ -96,6 +96,12 @@
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Users</v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="$store.state.claims && $store.state.claims.level === 0" link to="/admin/settings">
+            <v-list-item-icon>
+              <v-icon>mdi-cog</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Settings</v-list-item-title>
           </v-list-item>
           <v-list-item link to="/about">
             <v-list-item-icon>
