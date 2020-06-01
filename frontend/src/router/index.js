@@ -69,6 +69,12 @@ const routes = [
     beforeEnter: adminCheck
   },
   {
+    path: '/admin/settings',
+    name: 'settings',
+    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Settings.vue'),
+    beforeEnter: adminCheck
+  },
+  {
     path: '/about',
     name: 'about',
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
