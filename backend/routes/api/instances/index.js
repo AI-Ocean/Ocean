@@ -90,7 +90,7 @@ router.post('/', async (req, res) => {
       containers: [
         {
           name,
-          image: 'mlvclab/pytorch:1.4-cuda10.1-cudnn7-devel',
+          image: 'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
           imagePullPolicy: 'Always',
           resources: { 
             limits: { memory, cpu, 'nvidia.com/gpu': gpu },
@@ -101,10 +101,6 @@ router.post('/', async (req, res) => {
             {
               name: 'main-storage',
               mountPath: '/root/volume'
-            },
-            {
-              name: 'temp',
-              mountPath: '/root/temp'
             },
             {
               name: 'dataset',
@@ -148,7 +144,6 @@ router.post('/', async (req, res) => {
     // console.log(err)
     res.statusCode(503).send(err)
   }
-  // const service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
 
   const response = {
     pod: pod.data,

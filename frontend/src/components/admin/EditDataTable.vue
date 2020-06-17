@@ -4,7 +4,7 @@
     :items="data"
   >
     <template v-slot:top>
-      <v-toolbar flat color="darken-1">
+      <v-toolbar flat color="transparent" >
         <v-toolbar-title>{{ title }}</v-toolbar-title>
         <v-divider
           class="mx-4"
@@ -14,7 +14,9 @@
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="1000px">
           <template v-slot:activator="{ on }">
-            <v-btn dark class="mb-2" v-on="on">New Item</v-btn>
+            <v-btn dark icon v-on="on">
+              <v-icon>mdi-plus-box</v-icon>
+            </v-btn>
           </template>
           <v-card>
             <v-card-title>
