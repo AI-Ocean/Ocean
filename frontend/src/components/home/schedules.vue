@@ -6,7 +6,7 @@
     <v-card-text>
       <v-data-table
         :headers="headers"
-        :items="conferences"
+        :items="schedules"
         hide-default-footer
       >
         <template v-slot:item.site="{ item }">
@@ -23,36 +23,23 @@ export default {
   data: () => ({
     headers: [
       { text: 'Name', value: 'name' },
-      { text: 'Location', value: 'location' },
       { text: 'Deadline', value: 'deadline' },
+      { text: 'Date', value: 'date' },
+      { text: 'Location', value: 'location' },
       { text: 'Site', value: 'site' }
     ],
-    conferences: [
-      {
-        name: 'NeurIPS 2020',
-        location: 'Vancouver, Canada',
-        deadline: 'May 12, 2020 (13)',
-        site: 'https://nips.cc/Conferences/2020'
-      },
-      {
-        name: 'AAAI 2021',
-        location: 'Vancouver, British Columbia, Canada',
-        deadline: 'Sep 5, 2020 (TBD)',
-        site: 'https://aaai.org/Conferences/AAAI-21'
-      },
-      {
-        name: 'CVPR 2021',
-        location: 'Nashville, TN, United States',
-        deadline: 'Nov 15, 2020 (TBD)',
-        site: 'http://cvpr2021.thecvf.com'
-      },
-      {
-        name: 'ICCV 2021',
-        location: 'Montreal, Canada',
-        deadline: 'TBD',
-        site: 'http://iccv2021.thecvf.com'
-      }
-    ]
-  })
+    schedules: []
+  }),
+
+  mounted () {
+    this.getSchedules()
+  },
+
+  methods: {
+    async getSchedules () {
+      const { data } = await this.$axios.get('/api/schedules')
+      this.schedules = data.items
+    }
+  }
 }
 </script>

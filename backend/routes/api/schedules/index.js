@@ -13,9 +13,9 @@ router.get('/', async (req, res) => {
 
   let s
   if (filter == 'all') {
-    s = await db.collection('notice').orderBy('date', 'desc').get()
+    s = await db.collection('schedules').orderBy('date').get()
   } else {
-    s = await db.collection('notice').where('date', '>=', new Date().toISOString().substr(0, 10)).orderBy('date').get()
+    s = await db.collection('schedules').where('date', '>=', [new Date().toISOString().substr(0, 10)]).orderBy('date').get()
   }
 
   r.totalCount = s.length
@@ -28,19 +28,19 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  const t = await db.collection('notice').add(req.body)
+  const t = await db.collection('schedules').add(req.body)
   res.send(t)
 })
 
 router.patch('/:uid', async (req, res) => {
   const { uid } = req.params
-  const t = await db.collection('notice').doc(uid).update(req.body)
+  const t = await db.collection('schedules').doc(uid).update(req.body)
   res.send(t)
 })
 
 router.delete('/:uid', async (req, res) => {
   const { uid } = req.params
-  const t = await db.collection('notice').doc(uid).delete()
+  const t = await db.collection('schedules').doc(uid).delete()
   res.send(t)
 })
 

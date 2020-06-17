@@ -94,7 +94,6 @@ export default {
     headers: [
       { text: 'Email', value: 'email' },
       { text: 'Name', value: 'displayName' },
-      { text: 'UID', value: 'uid' },
       { text: 'CPUs', value: 'cpus' },
       { text: 'Memory', value: 'mem' },
       { text: 'GPUs', value: 'gpus' },
