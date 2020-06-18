@@ -184,10 +184,8 @@ export default {
     ],
 
     instancesList: [
-      { text: 'g2080.1s', value: { name: 'g2080.1s', cpus: 4, memory: 16, gpus: 1 } },
-      { text: 'g2080.1', value: { name: 'g2080.1', cpus: 8, memory: 32, gpus: 1 } },
-      { text: 'g2080.2s', value: { name: 'g2080.2s', cpus: 8, memory: 32, gpus: 2 } },
-      { text: 'g2080.2', value: { name: 'g2080.2', cpus: 16, memory: 64, gpus: 2 } },
+      { text: 'g1', value: { name: 'g1', cpus: 4, memory: 16, gpus: 1 } },
+      { text: 'g2', value: { name: 'g2', cpus: 8, memory: 32, gpus: 2 } },
       { text: 'custom', value: { name: 'custom', cpus: 4, memory: 16, gpus: 0 } }
     ],
 
