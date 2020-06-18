@@ -39,6 +39,22 @@
       <!-- END Volumnes Table -->
       </v-col>
     </v-row>
+
+    <!-- Job Table -->
+    <v-row>
+      <v-col>
+        <jobs
+          :loading="loadingJobs"
+          :resources="resources"
+          :jobs="jobs"
+          :volumes="volumes.map(v => v.name)"
+          @get="getJobs"
+          @create="createJob"
+          @delete="deleteJob"
+        ></jobs>
+      </v-col>
+    </v-row>
+    <!-- End Job Table -->
   </v-container>
 </template>
 
@@ -47,12 +63,14 @@
 import Indicator from '@/components/dashboard/Indicator'
 import Instances from '@/components/dashboard/Instances'
 import Volumes from '@/components/dashboard/Volumes'
+import Jobs from '@/components/dashboard/Jobs'
 
 export default {
   components: {
     Indicator,
     Instances,
-    Volumes
+    Volumes,
+    Jobs
   },
   data: () => ({
     resources: {
@@ -68,16 +86,22 @@ export default {
 
     // volumes
     volumes: [],
-    loadingVolumes: false
+    loadingVolumes: false,
+
+    // jobs
+    jobs: [],
+    loadingJobs: false
   }),
   mounted () {
     this.getUserLimits()
 
     this.getInstances()
     this.getVolumes()
+    this.getJobs()
     setInterval(() => {
       this.getInstances()
       this.getVolumes()
+      this.getJobs()
     }, 30000)
   },
   methods: {
@@ -162,6 +186,58 @@ export default {
       this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
       this.updateUsage()
       await this.$axios.delete('/api/instances/' + name)
+    },
+
+    /// Jobs
+    async getJobs () {
+      this.loadingJobs = true
+      //  init
+      var newJobs = []
+
+      // get instances
+      const { data } = await this.$axios.get('/api/jobs')
+
+      // update instances
+      data.jobs.forEach(element => {
+        const { name, status, limits, volumes, command } = element
+        const pod = {
+          name,
+          status,
+          cpus: limits.cpu,
+          memory: limits.memory.slice(0, -2),
+          gpus: limits['nvidia.com/gpu'],
+          volumes: [],
+          command
+        }
+        volumes.forEach(element => {
+          pod.volumes.push(element.persistentVolumeClaim.claimName)
+        })
+        newJobs.push(pod)
+      })
+
+      this.instances = newJobs
+
+      this.updateUsage()
+
+      this.loadingJobs = false
+    },
+    async createJob (data) {
+      this.jobs.push({
+        name: data.name,
+        status: 'Pending',
+        cpus: data.cpu_request,
+        memory: data.memory_request,
+        gpus: data.gpu_request,
+        volumes: [data.volume_name],
+        command: data.command
+      })
+      this.updateUsage()
+      await this.$axios.post('/api/jobs', data)
+    },
+    async deleteJob (name) {
+      this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
+      this.updateUsage()
+      await this.$axios.delete('/api/jobs/' + name)
     },
 
     /// Volumes
