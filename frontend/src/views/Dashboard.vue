@@ -200,7 +200,7 @@ export default {
       // update instances
       data.jobs.forEach(element => {
         const { name, status, limits, volumes, command } = element
-        const pod = {
+        const job = {
           name,
           status,
           cpus: limits.cpu,
@@ -210,12 +210,12 @@ export default {
           command
         }
         volumes.forEach(element => {
-          pod.volumes.push(element.persistentVolumeClaim.claimName)
+          job.volumes.push(element.persistentVolumeClaim.claimName)
         })
-        newJobs.push(pod)
+        newJobs.push(job)
       })
 
-      this.instances = newJobs
+      this.jobs = newJobs
 
       this.updateUsage()
 
@@ -235,7 +235,7 @@ export default {
       await this.$axios.post('/api/jobs', data)
     },
     async deleteJob (name) {
-      this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
+      this.jobs[this.jobs.findIndex(v => v.name === name)].status = 'Pending'
       this.updateUsage()
       await this.$axios.delete('/api/jobs/' + name)
     },

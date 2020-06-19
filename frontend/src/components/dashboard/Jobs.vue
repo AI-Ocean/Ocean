@@ -186,8 +186,7 @@ export default {
 
     jobsList: [
       { text: 'g2', value: { name: 'g2', cpus: 8, memory: 32, gpus: 2 } },
-      { text: 'g4', value: { name: 'g4', cpus: 16, memory: 64, gpus: 4 } },
-      { text: 'g8', value: { name: 'g8', cpus: 32, memory: 128, gpus: 8 } }
+      { text: 'g4', value: { name: 'g4', cpus: 16, memory: 64, gpus: 4 } }
     ],
 
     gpuTypeList: [
@@ -208,7 +207,7 @@ export default {
     cpus: undefined,
     memory: undefined,
     gpus: undefined,
-    gpuType: undefined,
+    gpuType: 'nvidia-rtx-2080ti',
     volume: undefined,
     command: undefined,
 

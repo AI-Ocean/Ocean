@@ -24,13 +24,13 @@ router.get('/', async (req, res) => {
       name,
       labels,
       status: job.status,
-      node_name: job.spec.template.spec.nodeName,
       limits,
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
       command
     }
     console.log(jobData)
+    console.log(job.status)
     response.jobs.push(jobData)
   })
   res.send(response)
@@ -60,7 +60,7 @@ router.post('/', async (req, res) => {
     apiVersion: 'batch/v1',
     metadata,
     spec: {
-      backoffLimit: 1,
+      backoffLimit: 0,
       template: {
         spec: {
           restartPolicy: 'Never',
@@ -109,12 +109,19 @@ router.post('/', async (req, res) => {
           ],
           nodeSelector: {
             accelerator: gpu_type
-          }
+          },
+          tolerations: [
+            {
+              key: 'runtype',
+              operator: "Equal",
+              value: (gpu == 4 ? 'gpu4job' : 'gpu2job'),
+              effect: "NoSchedule"
+            }
+          ]
         }
       }
     }
   }
-  console.log(jobData)
   var job
   try {
     job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
@@ -131,9 +138,14 @@ router.post('/', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
-  var podname = req.params.id
-  const response = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
-  await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
+  var jobname = req.params.id
+  /// TODO bug when job is deleted pod is not delete
+  const options = {
+    kind: "DeleteOptions",
+    apiVersion: "batch/v1",
+    propagationPolicy: "Background"
+  }
+  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname, options)
   res.send(response.data)
 })
 
