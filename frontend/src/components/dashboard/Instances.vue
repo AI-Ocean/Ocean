@@ -30,7 +30,7 @@
                 counter="30"
                 :rules="name_rules"
                 label="Name"
-                :prefix="$store.getters.namePrefix"
+                :prefix="'inst-'+$store.getters.namePrefix"
                 required
               >
               </v-text-field>
@@ -243,7 +243,7 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: this.$store.getters.namePrefix + this.name,
+        name: 'inst-' + this.$store.getters.namePrefix + this.name,
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,

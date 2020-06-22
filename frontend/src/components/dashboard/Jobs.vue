@@ -30,7 +30,7 @@
                 counter="30"
                 :rules="name_rules"
                 label="Name"
-                :prefix="$store.getters.namePrefix"
+                :prefix="'job-'+$store.getters.namePrefix"
                 required
               >
               </v-text-field>
@@ -116,7 +116,7 @@
       hide-default-footer
     >
       <template v-slot:item.status="{ item }">
-        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
+        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(getSimpleStatus(item.status)) }}</v-icon>
       </template>
       <template v-slot:item.memory="{ item }">
         {{ item.memory }} Gi
@@ -216,10 +216,21 @@ export default {
     targetName: ''
   }),
   methods: {
+    getSimpleStatus (status) {
+      if ('succeeded' in status) {
+        return 'succeeded'
+      } else if ('failed' in status) {
+        return 'failed'
+      } else if ('active' in status) {
+        return 'active'
+      } else {
+        return 'pending'
+      }
+    },
     // stataus icon
     getStatusIcon (status) {
-      if (status === 'Running') return 'mdi-check-circle'
-      else if (status === 'Pending') return 'mdi-loading'
+      if (status === 'succeeded') return 'mdi-check-circle'
+      else if (status === 'active' || status === 'pending') return 'mdi-loading'
       else return 'mdi-alert-circle'
     },
 
@@ -244,7 +255,7 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: this.$store.getters.namePrefix + this.name,
+        name: 'jobs-' + this.$store.getters.namePrefix + this.name,
         cpu_request: this.cpus,
         memory_request: this.memory,
         gpu_request: this.gpus,
@@ -316,7 +327,7 @@ export default {
 </script>
 
 <style scoped>
-.Running {
+.succeeded {
   color: green;
 }
 
@@ -324,14 +335,21 @@ export default {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.Pending {
+.pending {
+  animation-name: spin;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+.active {
+  color: green;
   animation-name: spin;
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
 
-.Failed {
+.failed {
   color: red;
 }
 </style>

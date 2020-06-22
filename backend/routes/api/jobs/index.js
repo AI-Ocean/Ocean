@@ -1,5 +1,5 @@
 var router = require('express').Router()
-var { kubeJobAPI, getSelector, getUserID } = require('../../../utils')
+var { kubeAPI, kubeJobAPI, getSelector, getUserID, kubeAPI } = require('../../../utils')
 
 // Get Jobs
 router.get('/', async (req, res) => {
@@ -29,8 +29,6 @@ router.get('/', async (req, res) => {
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
       command
     }
-    console.log(jobData)
-    console.log(job.status)
     response.jobs.push(jobData)
   })
   res.send(response)
@@ -139,13 +137,18 @@ router.post('/', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   var jobname = req.params.id
-  /// TODO bug when job is deleted pod is not delete
-  const options = {
-    kind: "DeleteOptions",
-    apiVersion: "batch/v1",
-    propagationPolicy: "Background"
-  }
-  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname, options)
+  // get job pod
+  console.log(jobname)
+  const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
+  console.log(pods.data)
+  console.log(pods.data.items)
+  // delete job pod
+  pods.data.items.forEach(async pod => {
+    const name = pod.metadata.name
+    const r = await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
+  })
+  // delete job
+  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
   res.send(response.data)
 })
 

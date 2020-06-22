@@ -224,7 +224,7 @@ export default {
     async createJob (data) {
       this.jobs.push({
         name: data.name,
-        status: 'Pending',
+        status: { pending: 1 },
         cpus: data.cpu_request,
         memory: data.memory_request,
         gpus: data.gpu_request,
@@ -235,7 +235,7 @@ export default {
       await this.$axios.post('/api/jobs', data)
     },
     async deleteJob (name) {
-      this.jobs[this.jobs.findIndex(v => v.name === name)].status = 'Pending'
+      this.jobs[this.jobs.findIndex(v => v.name === name)].status = { pending: 1 }
       this.updateUsage()
       await this.$axios.delete('/api/jobs/' + name)
     },
