@@ -37,42 +37,13 @@
               <v-select
                 v-model="jobType"
                 :items="jobsList"
-                label="job Type"
+                :rules="jobTypeRules"
+                label="Job Type"
                 auto
                 required
+                :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
+                persistent-hint
                 @change="setJobType()"
-              ></v-select>
-              <v-text-field
-                v-model.number="cpus"
-                type="number"
-                :rules="cpu_rules"
-                label="CPUs"
-                required
-                :disabled="isDisabled"
-              ></v-text-field>
-              <v-text-field
-                v-model.number="memory"
-                type="number"
-                :rules="memory_rules"
-                label="Memory"
-                required
-                :disabled="isDisabled"
-              ></v-text-field>
-              <v-text-field
-                v-model.number="gpus"
-                :rules="gpu_rules"
-                type="number"
-                label="GPUs"
-                required
-                :suffix="' / ' + remainResources('gpus')"
-                :readonly="isDisabled"
-              ></v-text-field>
-              <v-select
-                v-model="gpuType"
-                :items="gpuTypeList"
-                label="GPU Type"
-                :rules="required_rules"
-                required
               ></v-select>
               <v-select
                 v-model="volume"
@@ -189,8 +160,8 @@ export default {
     ],
 
     jobsList: [
-      { text: 'g2', value: { name: 'g2', cpus: 8, memory: 32, gpus: 2 } },
-      { text: 'g4', value: { name: 'g4', cpus: 16, memory: 64, gpus: 4 } }
+      { text: 'g2', value: { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g4', value: { name: 'g4', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
     gpuTypeList: [
@@ -206,11 +177,7 @@ export default {
     valid: false,
 
     name: undefined,
-    jobType: undefined,
-    cpus: undefined,
-    memory: undefined,
-    gpus: undefined,
-    gpuType: 'nvidia-rtx-2080ti',
+    jobType: { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
     command: undefined,
 
@@ -242,9 +209,10 @@ export default {
     },
 
     setJobType () {
-      this.cpus = this.jobType.cpus
-      this.memory = this.jobType.memory
-      this.gpus = this.jobType.gpus
+      // this.cpus = this.jobType.cpus
+      // this.memory = this.jobType.memory
+      // this.gpus = this.jobType.gpus
+      // this.gpuType = this.jobType.gpuType
     },
 
     openDeleteDialog (name) {
@@ -259,10 +227,10 @@ export default {
       // request create pods
       this.$emit('create', {
         name: 'jobs-' + this.$store.getters.namePrefix + this.name,
-        cpu_request: this.cpus,
-        memory_request: this.memory,
-        gpu_request: this.gpus,
-        gpu_type: this.gpuType,
+        cpu_request: this.jobType.cpus,
+        memory_request: this.jobType.memory,
+        gpu_request: this.jobType.gpus,
+        gpu_type: this.jobType.gpuType,
         volume_name: this.volume,
         command: this.command.split(' '),
         lastEvent: ''
@@ -272,6 +240,7 @@ export default {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
+      this.jobType = { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onCancle () {
       this.$emit('cancle')
@@ -280,6 +249,7 @@ export default {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
+      this.jobType = { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onDelete (name) {
       this.deleteDialog = false
@@ -296,23 +266,13 @@ export default {
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.jobs.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
+        v => !this.jobs.map(v => v.name).includes('jobs-' + this.$store.getters.namePrefix + v) || 'Name already exist'
       ]
     },
-    cpu_rules () {
+    jobTypeRules () {
       return [
-        v => !!v || 'CPUs is required'
-      ]
-    },
-    memory_rules () {
-      return [
-        v => !!v || 'Memory is required'
-      ]
-    },
-    gpu_rules () {
-      return [
-        // v => !!v || 'GPUs is required',
-        v => v <= this.remainResources('gpus') ||
+        v => !!v || 'Job Type is required',
+        v => v.gpus <= this.remainResources('gpus') ||
           `GPUs must be less then ${this.remainResources('gpus')} limit`
       ]
     },

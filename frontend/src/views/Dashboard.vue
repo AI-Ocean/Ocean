@@ -98,6 +98,7 @@ export default {
     this.getInstances()
     this.getVolumes()
     this.getJobs()
+
     setInterval(() => {
       this.getInstances()
       this.getVolumes()
@@ -106,7 +107,7 @@ export default {
   },
   methods: {
     calcUsage (type) {
-      let base = this.instances
+      let base = this.instances.concat(this.jobs)
       if (type === 'capacity') base = this.volumes
       return base
         .map(v => Number(v[type]))
@@ -196,7 +197,6 @@ export default {
 
       // get instances
       const { data } = await this.$axios.get('/api/jobs')
-      console.log(data)
       // update instances
       data.jobs.forEach(element => {
         const { name, status, limits, volumes, command, lastEvent } = element

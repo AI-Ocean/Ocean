@@ -21,11 +21,9 @@ router.get('/', async (req, res) => {
 
     // event
     const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
-    console.log(pods.data.items[0].metadata.name)
     const events = await kubeAPI.get('/namespaces/ml-instance/events?fieldSelector=involvedObject.name=' + pods.data.items[0].metadata.name)
-    
-    console.log(events.data.items[events.data.items.length -1])
     const { reason, message, type } = events.data.items[events.data.items.length -1]
+    
     // job data
     const jobData = {
       name,
@@ -37,10 +35,8 @@ router.get('/', async (req, res) => {
       command,
       lastEvent: [type, reason, message].join(' |\n ')
     }
-    console.log(jobData)
     response.jobs.push(jobData)
   }
-  console.log(response)
   res.send(response)
 })
 
