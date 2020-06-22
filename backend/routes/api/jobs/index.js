@@ -22,7 +22,11 @@ router.get('/', async (req, res) => {
     // event
     const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
     const events = await kubeAPI.get('/namespaces/ml-instance/events?fieldSelector=involvedObject.name=' + pods.data.items[0].metadata.name)
-    const { reason, message, type } = events.data.items[events.data.items.length -1]
+    var lastEvent = null
+    if (events.data.items. length > 0) {
+      const { reason, message, type } = events.data.items[events.data.items.length -1]
+      lastEvent = [type, reason, message].join(' | ')
+    }
     
     // job data
     const jobData = {
@@ -33,7 +37,7 @@ router.get('/', async (req, res) => {
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
       command,
-      lastEvent: [type, reason, message].join(' |\n ')
+      lastEvent
     }
     response.jobs.push(jobData)
   }
