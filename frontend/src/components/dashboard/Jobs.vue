@@ -160,12 +160,8 @@ export default {
     ],
 
     jobsList: [
-      { text: 'g2', value: { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g4', value: { name: 'g4', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
-    ],
-
-    gpuTypeList: [
-      { text: 'RTX-2080ti', value: { name: 'nvidia-rtx-2080ti' } }
+      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
     options: {
@@ -177,7 +173,7 @@ export default {
     valid: false,
 
     name: undefined,
-    jobType: { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
+    jobType: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
     command: undefined,
 
@@ -240,7 +236,7 @@ export default {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
-      this.jobType = { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
+      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onCancle () {
       this.$emit('cancle')
@@ -249,7 +245,7 @@ export default {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
-      this.jobType = { name: 'g2', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
+      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onDelete (name) {
       this.deleteDialog = false

@@ -67,6 +67,7 @@ router.post('/', async (req, res) => {
     apiVersion: 'v1',
     metadata,
     spec: {
+      restartPolicy: 'OnFailure',
       volumes: [
         {
           name: 'main-storage',

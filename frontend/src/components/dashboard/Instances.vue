@@ -184,7 +184,8 @@ export default {
     ],
 
     instancesList: [
-      { text: 'g1', value: { name: 'g1', cpus: 4, memory: 16, gpus: 1 } }
+      { text: 'g1.small', value: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' } },
+      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
     gpuTypeList: [
