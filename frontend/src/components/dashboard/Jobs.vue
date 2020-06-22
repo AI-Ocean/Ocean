@@ -121,6 +121,9 @@
       <template v-slot:item.memory="{ item }">
         {{ item.memory }} Gi
       </template>
+      <template v-slot:item.command="{ item }">
+        {{ item.command.join(' ') }}
+      </template>
       <template v-slot:item.volumes="{ item }">
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
@@ -179,8 +182,9 @@ export default {
       { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'Volumes', value: 'volumes', width: 400, sortable: false, filterable: false },
-      { text: 'Command', value: 'command', sortable: false, filterable: false },
+      { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
+      { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
+      { text: 'LastEvnet', value: 'lastEvent', sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
@@ -190,7 +194,6 @@ export default {
     ],
 
     gpuTypeList: [
-      { text: 'GTX-1080ti', value: { name: 'nvidia-gtx-1080ti' } },
       { text: 'RTX-2080ti', value: { name: 'nvidia-rtx-2080ti' } }
     ],
 
@@ -261,7 +264,8 @@ export default {
         gpu_request: this.gpus,
         gpu_type: this.gpuType,
         volume_name: this.volume,
-        command: this.command.split(' ')
+        command: this.command.split(' '),
+        lastEvent: ''
       })
 
       // reset dialog

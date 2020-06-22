@@ -13,12 +13,19 @@ router.get('/', async (req, res) => {
   }
 
   // get job details
-  data.items.forEach(job => {
+  for ( const job of data.items ) {
     const limits = job.spec.template.spec.containers[0].resources.limits
     const requests = job.spec.template.spec.containers[0].resources.requests
     const command = job.spec.template.spec.containers[0].command
     const { name, labels } = job.metadata
 
+    // event
+    const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
+    console.log(pods.data.items[0].metadata.name)
+    const events = await kubeAPI.get('/namespaces/ml-instance/events?fieldSelector=involvedObject.name=' + pods.data.items[0].metadata.name)
+    
+    console.log(events.data.items[events.data.items.length -1])
+    const { reason, message, type } = events.data.items[events.data.items.length -1]
     // job data
     const jobData = {
       name,
@@ -27,10 +34,13 @@ router.get('/', async (req, res) => {
       limits,
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
-      command
+      command,
+      lastEvent: [type, reason, message].join(' |\n ')
     }
+    console.log(jobData)
     response.jobs.push(jobData)
-  })
+  }
+  console.log(response)
   res.send(response)
 })
 
@@ -59,6 +69,7 @@ router.post('/', async (req, res) => {
     metadata,
     spec: {
       backoffLimit: 0,
+      activeDeadlineSeconds: 60 * 60 * 24 * 5, // 5 days
       template: {
         spec: {
           restartPolicy: 'Never',
@@ -138,15 +149,12 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   var jobname = req.params.id
   // get job pod
-  console.log(jobname)
   const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
-  console.log(pods.data)
-  console.log(pods.data.items)
   // delete job pod
-  pods.data.items.forEach(async pod => {
+  for ( const pod of pods.data.items ) {
     const name = pod.metadata.name
-    const r = await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
-  })
+    await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
+  }
   // delete job
   const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
   res.send(response.data)
