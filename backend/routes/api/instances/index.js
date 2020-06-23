@@ -117,7 +117,6 @@ router.post('/', async (req, res) => {
       }
     }
   }
-  console.log(gpu_type)
   const serviceData = {
     apiVersion: 'v1',
     kind: 'Service',
