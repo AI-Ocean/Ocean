@@ -6,7 +6,7 @@
         Instances
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="dialog=true">
+      <v-btn icon @click="dialog=true" v-if="instances.length <= 0 || $store.getters.level <= 0">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
 
@@ -28,9 +28,9 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :rules="name_rules"
+                :rules="nameRules"
                 label="Name"
-                :prefix="'inst-'+$store.getters.namePrefix"
+                :prefix="namePrefix"
                 required
               >
               </v-text-field>
@@ -40,51 +40,15 @@
                 label="Instance Type"
                 auto
                 required
-                @change="setInstanceType()"
+                :hint="`CPU: ${instanceType.cpus}, Memory: ${instanceType.memory}, GPU: ${instanceType.gpuType} x ${instanceType.gpus}`"
+                persistent-hint
               >
               </v-select>
-              <v-text-field
-                v-model.number="cpus"
-                type="number"
-                :rules="cpu_rules"
-                label="CPUs"
-                required
-                :suffix="' / ' + remainResources('cpus')"
-                :readonly="isDisabled"
-              >
-              </v-text-field>
-              <v-text-field
-                v-model.number="memory"
-                type="number"
-                :rules="memory_rules"
-                label="Memory"
-                required
-                :suffix="' / ' + remainResources('memory')"
-                :readonly="isDisabled"
-              >
-              </v-text-field>
-              <v-select
-                v-model="gpuType"
-                :items="gpuTypeList"
-                label="GPU Type"
-                :rules="required_rules"
-                required
-              ></v-select>
-              <v-text-field
-                v-model.number="gpus"
-                :rules="gpu_rules"
-                type="number"
-                label="GPUs"
-                required
-                :suffix="' / ' + remainResources('gpus')"
-                :readonly="isDisabled"
-              >
-              </v-text-field>
               <v-select
                 v-model="volume"
                 :items="volumes"
                 label="Volumes"
-                :rules="required_rules"
+                :rules="volumeRules"
                 required
                 chips
               >
@@ -188,11 +152,6 @@ export default {
       { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
-    gpuTypeList: [
-      { text: 'GTX-1080ti', value: { name: 'nvidia-gtx-1080ti' } },
-      { text: 'RTX-2080ti', value: { name: 'nvidia-rtx-2080ti' } }
-    ],
-
     options: {
       itemsPerPage: 20
     },
@@ -200,13 +159,8 @@ export default {
     // form
     dialog: false,
     valid: false,
-
     name: undefined,
-    instanceType: undefined,
-    cpus: undefined,
-    memory: undefined,
-    gpus: undefined,
-    gpuType: undefined,
+    instanceType: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' },
     volume: undefined,
 
     // data table
@@ -221,19 +175,15 @@ export default {
       else return 'mdi-alert-circle'
     },
 
-    remainResources (type) {
-      return (this.resources[type].limit - this.resources[type].using)
-    },
-
-    setInstanceType () {
-      this.cpus = this.instanceType.cpus
-      this.memory = this.instanceType.memory
-      this.gpus = this.instanceType.gpus
-    },
-
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
+    },
+
+    resetForm () {
+      this.$refs.form.resetValidation()
+      this.$refs.form.reset()
+      this.instanceType = { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' }
     },
 
     onGet () {
@@ -242,26 +192,24 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: 'inst-' + this.$store.getters.namePrefix + this.name,
-        cpu_request: this.cpus,
-        memory_request: this.memory,
-        gpu_request: this.gpus,
-        gpu_type: this.gpuType,
+        name: this.namePrefix + this.name,
+        cpu_request: this.instanceType.cpus,
+        memory_request: this.instanceType.memory,
+        gpu_request: this.instanceType.gpus,
+        gpu_type: this.instanceType.gpuType,
         volume_name: this.volume
       })
 
       // reset dialog
       this.dialog = false
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
+      this.resetForm()
     },
     onCancle () {
       this.$emit('cancle')
 
       // reset dialog
       this.dialog = false
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
+      this.resetForm()
     },
     onDelete (name) {
       this.deleteDialog = false
@@ -269,42 +217,21 @@ export default {
     }
   },
   computed: {
-    isDisabled () {
-      return !this.instanceType || (this.instanceType && this.instanceType.name !== 'custom')
+    namePrefix () {
+      return 'inst-' + this.$store.getters.namePrefix
     },
     // rule
-    name_rules () {
+    nameRules () {
       return [
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.instances.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
+        v => !this.instances.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
       ]
     },
-    cpu_rules () {
+    volumeRules () {
       return [
-        v => !!v || 'CPUs is required',
-        v => (v <= this.remainResources('cpus') || this.$store.getters.level <= 0) ||
-          `CPUs must be less then ${this.remainResources('cpus')} limit`
-      ]
-    },
-    memory_rules () {
-      return [
-        v => !!v || 'Memory is required',
-        v => (v <= this.remainResources('memory') || this.$store.getters.level <= 0) ||
-          `Memory must be less then ${this.remainResources('memory')} limit`
-      ]
-    },
-    gpu_rules () {
-      return [
-        // v => !!v || 'GPUs is required',
-        v => v <= this.remainResources('gpus') ||
-          `GPUs must be less then ${this.remainResources('gpus')} limit`
-      ]
-    },
-    required_rules () {
-      return [
-        v => !!v || 'Required item.'
+        v => !!v || 'Volume is required'
       ]
     }
   }

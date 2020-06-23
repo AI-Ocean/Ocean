@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
-  var gpu_type = req.body.gpu_type.name
+  var gpu_type = req.body.gpu_type
   var claimName = req.body.volume_name
   var command = req.body.command
 
@@ -117,16 +117,9 @@ router.post('/', async (req, res) => {
             }
           ],
           nodeSelector: {
-            accelerator: gpu_type
-          },
-          tolerations: [
-            {
-              key: 'runtype',
-              operator: "Equal",
-              value: (gpu == 4 ? 'gpu4job' : 'gpu2job'),
-              effect: "NoSchedule"
-            }
-          ]
+            accelerator: gpu_type,
+            runtype: (gpu === 4 ? 'job4gpu' : 'job2gpu')
+          }
         }
       }
     }

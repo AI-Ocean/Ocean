@@ -117,7 +117,7 @@ export default {
       // update using resources
       this.resources.cpus.using = this.calcUsage('cpus')
       this.resources.memory.using = this.calcUsage('memory')
-      this.resources.gpus.using = this.calcUsage('gpus')
+      this.resources.gpus.using = this.calcUsage('gpus') - 1 // instance gpu(1) will not calculate
       // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
     },

@@ -28,9 +28,9 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :rules="name_rules"
+                :rules="nameRules"
                 label="Name"
-                :prefix="'job-'+$store.getters.namePrefix"
+                :prefix="namePrefix"
                 required
               >
               </v-text-field>
@@ -43,19 +43,18 @@
                 required
                 :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
                 persistent-hint
-                @change="setJobType()"
               ></v-select>
               <v-select
                 v-model="volume"
                 :items="volumes"
                 label="Volumes"
-                :rules="required_rules"
+                :rules="requiredRules"
                 required
                 chips
               ></v-select>
               <v-text-field
                 v-model="command"
-                :rules="command_rules"
+                :rules="commandRules"
                 type="string"
                 label="Command"
                 required
@@ -148,14 +147,14 @@ export default {
   data: () => ({
     // jobs
     jobsHeader: [
-      { text: 'Status', value: 'status', width: 80, sortable: false, filterable: false },
-      { text: 'Name', value: 'name', width: 200, sortable: false, filterable: false },
+      { text: 'Status', value: 'status', width: 10, sortable: false, filterable: false },
+      { text: 'Name', value: 'name', width: 80, sortable: false, filterable: false },
       { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'LastEvnet', value: 'lastEvent', sortable: false, filterable: false },
+      { text: 'LastEvnet', value: 'lastEvent', width: 800, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
@@ -171,7 +170,6 @@ export default {
     // form
     dialog: false,
     valid: false,
-
     name: undefined,
     jobType: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
@@ -204,13 +202,6 @@ export default {
       return (this.resources[type].limit - this.resources[type].using)
     },
 
-    setJobType () {
-      // this.cpus = this.jobType.cpus
-      // this.memory = this.jobType.memory
-      // this.gpus = this.jobType.gpus
-      // this.gpuType = this.jobType.gpuType
-    },
-
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
@@ -222,7 +213,7 @@ export default {
     onCreate () {
       // request create pods
       this.$emit('create', {
-        name: 'jobs-' + this.$store.getters.namePrefix + this.name,
+        name: this.namePrefix + this.name,
         cpu_request: this.jobType.cpus,
         memory_request: this.jobType.memory,
         gpu_request: this.jobType.gpus,
@@ -253,16 +244,16 @@ export default {
     }
   },
   computed: {
-    isDisabled () {
-      return !this.jobType || (this.jobType && this.jobType.name !== 'custom')
+    namePrefix () {
+      return 'jobs-' + this.$store.getters.namePrefix
     },
     // rule
-    name_rules () {
+    nameRules () {
       return [
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.jobs.map(v => v.name).includes('jobs-' + this.$store.getters.namePrefix + v) || 'Name already exist'
+        v => !this.jobs.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
       ]
     },
     jobTypeRules () {
@@ -272,12 +263,12 @@ export default {
           `GPUs must be less then ${this.remainResources('gpus')} limit`
       ]
     },
-    command_rules () {
+    commandRules () {
       return [
         v => !!v || 'Command is required'
       ]
     },
-    required_rules () {
+    requiredRules () {
       return [
         v => !!v || 'Required item.'
       ]
