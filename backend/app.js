@@ -16,10 +16,6 @@ admin.initializeApp({
   credential: admin.credential.cert(require('./key.json'))
 })
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'pug')
-
 // middleware
 app.use(history())
 
