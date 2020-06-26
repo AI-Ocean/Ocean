@@ -27,7 +27,7 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join('public')))
 
 app.use(require('./middlewares/verifyToken'))
 
@@ -47,7 +47,6 @@ app.use(function(err, req, res, next) {
 
   // send the error
   res.status(err.status || 500).send(err.message || 'ERROR')
-  // res.render('error')
 });
 
 module.exports = app
