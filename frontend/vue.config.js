@@ -23,5 +23,6 @@ module.exports = {
     'vuetify'
   ],
   publicPath: '',
+  assetsDir: 'static',
   outputDir: './dist'
 }
