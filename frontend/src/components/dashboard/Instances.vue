@@ -153,7 +153,7 @@ export default {
     ],
 
     options: {
-      itemsPerPage: 20
+      itemsPerPage: 30
     },
 
     // form
