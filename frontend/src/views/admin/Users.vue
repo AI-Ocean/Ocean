@@ -15,44 +15,10 @@
               :loading="loading"
               :footer-props="footerProps"
             >
-              <template v-slot:item.cpus="{ item }">
-                <v-edit-dialog
-                  :return-value.sync="item.cpus"
-                  @save="changeCpus(item.uid, item.cpus)"
-                > {{ item.cpus }}
-                  <template v-slot:input>
-                    <v-text-field
-                      v-model="item.cpus"
-                      :rules="[cpuRules]"
-                      label="Edit"
-                      single-line
-                      type="number"
-                      autofocus
-                    ></v-text-field>
-                  </template>
-                </v-edit-dialog>
-              </template>
-              <template v-slot:item.mem="{ item }">
-                <v-edit-dialog
-                  :return-value.sync="item.mem"
-                  @save="changeMemory(item.uid, item.mem)"
-                > {{ item.mem }}
-                  <template v-slot:input>
-                    <v-text-field
-                      v-model="item.mem"
-                      :rules="[memRules]"
-                      label="Edit"
-                      single-line
-                      type="number"
-                      autofocus
-                    ></v-text-field>
-                  </template>
-                </v-edit-dialog>
-              </template>
               <template v-slot:item.gpus="{ item }">
                 <v-edit-dialog
                   :return-value.sync="item.gpus"
-                  @save="changeGpus(item.uid, item.gpus)"
+                  @save="changeGpus(item.uid, Number(item.gpus))"
                 > {{ item.gpus }}
                   <template v-slot:input>
                     <v-text-field
@@ -94,8 +60,6 @@ export default {
     headers: [
       { text: 'Email', value: 'email' },
       { text: 'Name', value: 'displayName' },
-      { text: 'CPUs', value: 'cpus' },
-      { text: 'Memory', value: 'mem' },
       { text: 'GPUs', value: 'gpus' },
       { text: 'level', value: 'level', width: 120 }
     ],
@@ -104,8 +68,6 @@ export default {
       { text: 'User', value: 1 },
       { text: 'Guest', value: 2 }
     ],
-    cpuRules: v => (v <= 64 && v >= 0) || 'Input range must be between 0 to 64',
-    memRules: v => (v <= 128 && v >= 0) || 'Input range must be between 0 to 128',
     gpuRules: v => (v <= 32 && v >= 0) || 'Input range must be between 0 to 32',
     items: [],
     options: {
@@ -139,14 +101,6 @@ export default {
       if (level === 0) return 'Admin'
       else if (level === 1) return 'User'
       else return 'Guest'
-    },
-    async changeCpus (uid, cpus) {
-      await this.$axios.patch('/api/users/' + uid, { cpus })
-      this.$toasted.show('CPUs changed.')
-    },
-    async changeMemory (uid, mem) {
-      await this.$axios.patch('/api/users/' + uid, { mem })
-      this.$toasted.show('Memory changed.')
     },
     async changeGpus (uid, gpus) {
       await this.$axios.patch('/api/users/' + uid, { gpus })

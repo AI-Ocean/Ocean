@@ -27,7 +27,7 @@
               <v-text-field
                 v-model.trim="name"
                 counter="30"
-                :prefix="$store.getters.namePrefix"
+                :prefix="'vol-' + $store.getters.namePrefix"
                 :rules="name_rules"
                 label="Name"
                 required
@@ -127,7 +127,7 @@ export default {
     ],
 
     options: {
-      itemsPerPage: 20
+      itemsPerPage: 30
     },
 
     // form
@@ -159,7 +159,7 @@ export default {
     },
     onCreate () {
       this.$emit('create', {
-        name: this.$store.getters.namePrefix + this.name,
+        name: 'vol-' + this.$store.getters.namePrefix + this.name,
         storage_request: this.capacity
       })
 

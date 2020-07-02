@@ -39,6 +39,22 @@
       <!-- END Volumnes Table -->
       </v-col>
     </v-row>
+
+    <!-- Job Table -->
+    <v-row>
+      <v-col>
+        <jobs
+          :loading="loadingJobs"
+          :resources="resources"
+          :jobs="jobs"
+          :volumes="volumes.map(v => v.name)"
+          @get="getJobs"
+          @create="createJob"
+          @delete="deleteJob"
+        ></jobs>
+      </v-col>
+    </v-row>
+    <!-- End Job Table -->
   </v-container>
 </template>
 
@@ -47,12 +63,14 @@
 import Indicator from '@/components/dashboard/Indicator'
 import Instances from '@/components/dashboard/Instances'
 import Volumes from '@/components/dashboard/Volumes'
+import Jobs from '@/components/dashboard/Jobs'
 
 export default {
   components: {
     Indicator,
     Instances,
-    Volumes
+    Volumes,
+    Jobs
   },
   data: () => ({
     resources: {
@@ -68,21 +86,28 @@ export default {
 
     // volumes
     volumes: [],
-    loadingVolumes: false
+    loadingVolumes: false,
+
+    // jobs
+    jobs: [],
+    loadingJobs: false
   }),
   mounted () {
     this.getUserLimits()
 
     this.getInstances()
     this.getVolumes()
+    this.getJobs()
+
     setInterval(() => {
       this.getInstances()
       this.getVolumes()
+      this.getJobs()
     }, 30000)
   },
   methods: {
     calcUsage (type) {
-      let base = this.instances
+      let base = this.instances.concat(this.jobs)
       if (type === 'capacity') base = this.volumes
       return base
         .map(v => Number(v[type]))
@@ -162,6 +187,58 @@ export default {
       this.instances[this.instances.findIndex(v => v.name === name)].status = 'Pending'
       this.updateUsage()
       await this.$axios.delete('/api/instances/' + name)
+    },
+
+    /// Jobs
+    async getJobs () {
+      this.loadingJobs = true
+      //  init
+      var newJobs = []
+
+      // get instances
+      const { data } = await this.$axios.get('/api/jobs')
+      // update instances
+      data.jobs.forEach(element => {
+        const { name, status, limits, volumes, command, lastEvent } = element
+        const job = {
+          name,
+          status,
+          cpus: limits.cpu,
+          memory: limits.memory.slice(0, -2),
+          gpus: limits['nvidia.com/gpu'],
+          volumes: [],
+          command,
+          lastEvent
+        }
+        volumes.forEach(element => {
+          job.volumes.push(element.persistentVolumeClaim.claimName)
+        })
+        newJobs.push(job)
+      })
+
+      this.jobs = newJobs
+
+      this.updateUsage()
+
+      this.loadingJobs = false
+    },
+    async createJob (data) {
+      this.jobs.push({
+        name: data.name,
+        status: { pending: 1 },
+        cpus: data.cpu_request,
+        memory: data.memory_request,
+        gpus: data.gpu_request,
+        volumes: [data.volume_name],
+        command: data.command
+      })
+      this.updateUsage()
+      await this.$axios.post('/api/jobs', data)
+    },
+    async deleteJob (name) {
+      this.jobs[this.jobs.findIndex(v => v.name === name)].status = { pending: 1 }
+      this.updateUsage()
+      await this.$axios.delete('/api/jobs/' + name)
     },
 
     /// Volumes

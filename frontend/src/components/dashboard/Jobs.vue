@@ -3,10 +3,10 @@
     <!-- header -->
     <v-toolbar flat dark>
       <v-toolbar-title>
-        Instances
+        Jobs
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="dialog=true" v-if="instances.length <= 0 || $store.getters.level <= 0">
+      <v-btn icon @click="dialog=true">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
 
@@ -17,7 +17,7 @@
       >
         <v-card>
           <v-card-title>
-            New Instance
+            New job
           </v-card-title>
           <v-card-text>
             <v-form
@@ -35,24 +35,31 @@
               >
               </v-text-field>
               <v-select
-                v-model="instanceType"
-                :items="instancesList"
-                label="Instance Type"
+                v-model="jobType"
+                :items="jobsList"
+                :rules="jobTypeRules"
+                label="Job Type"
                 auto
                 required
-                :hint="`CPU: ${instanceType.cpus}, Memory: ${instanceType.memory}, GPU: ${instanceType.gpuType} x ${instanceType.gpus}`"
+                :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
                 persistent-hint
-              >
-              </v-select>
+              ></v-select>
               <v-select
                 v-model="volume"
                 :items="volumes"
                 label="Volumes"
-                :rules="volumeRules"
+                :rules="requiredRules"
                 required
                 chips
-              >
-              </v-select>
+              ></v-select>
+              <v-text-field
+                v-model="command"
+                :rules="commandRules"
+                type="string"
+                label="Command"
+                required
+                hint="Shell Command to Run"
+              ></v-text-field>
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -72,17 +79,20 @@
 
     <!-- data table -->
     <v-data-table
-      :headers="instancesHeader"
-      :items="instances"
+      :headers="jobsHeader"
+      :items="jobs"
       :loading="loading"
       :options.sync="options"
       hide-default-footer
     >
       <template v-slot:item.status="{ item }">
-        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
+        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(getSimpleStatus(item.status)) }}</v-icon>
       </template>
       <template v-slot:item.memory="{ item }">
         {{ item.memory }} Gi
+      </template>
+      <template v-slot:item.command="{ item }">
+        {{ item.command.join(' ') }}
       </template>
       <template v-slot:item.volumes="{ item }">
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
@@ -100,7 +110,7 @@
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title>
-          Delete Instances
+          Delete Jobs
         </v-card-title>
         <v-card-text>
           Are you sure to delete <code> {{ targetName }} </code>
@@ -119,12 +129,12 @@
 
 <script>
 export default {
-  name: 'Instances',
+  name: 'Jobs',
   props: {
     resources: {
       type: Object
     },
-    instances: {
+    jobs: {
       type: Array
     },
     volumes: {
@@ -135,55 +145,66 @@ export default {
     }
   },
   data: () => ({
-    // instances
-    instancesHeader: [
-      { text: 'Status', value: 'status', width: 80, sortable: false, filterable: false },
-      { text: 'Name', value: 'name', width: 200, sortable: false, filterable: false },
+    // jobs
+    jobsHeader: [
+      { text: 'Status', value: 'status', width: 10, sortable: false, filterable: false },
+      { text: 'Name', value: 'name', width: 80, sortable: false, filterable: false },
       { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'SSH port', value: 'port', sortable: false, filterable: false },
-      { text: 'Volumes', value: 'volumes', sortable: false, filterable: false },
+      { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
+      { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
+      { text: 'LastEvnet', value: 'lastEvent', width: 800, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
-    instancesList: [
-      { text: 'g1.small', value: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' } },
-      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
+    jobsList: [
+      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
     options: {
-      itemsPerPage: 30
+      itemsPerPage: 20
     },
 
     // form
     dialog: false,
     valid: false,
     name: undefined,
-    instanceType: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' },
+    jobType: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
+    command: undefined,
 
     // data table
     deleteDialog: false,
     targetName: ''
   }),
   methods: {
+    getSimpleStatus (status) {
+      if ('succeeded' in status) {
+        return 'succeeded'
+      } else if ('failed' in status) {
+        return 'failed'
+      } else if ('active' in status) {
+        return 'active'
+      } else {
+        return 'pending'
+      }
+    },
     // stataus icon
     getStatusIcon (status) {
-      if (status === 'Running') return 'mdi-check-circle'
-      else if (status === 'Pending') return 'mdi-loading'
+      if (status === 'succeeded') return 'mdi-check-circle'
+      else if (status === 'active' || status === 'pending') return 'mdi-loading'
       else return 'mdi-alert-circle'
+    },
+
+    remainResources (type) {
+      return (this.resources[type].limit - this.resources[type].using)
     },
 
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
-    },
-
-    resetForm () {
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
-      this.instanceType = { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' }
     },
 
     onGet () {
@@ -193,23 +214,29 @@ export default {
       // request create pods
       this.$emit('create', {
         name: this.namePrefix + this.name,
-        cpu_request: this.instanceType.cpus,
-        memory_request: this.instanceType.memory,
-        gpu_request: this.instanceType.gpus,
-        gpu_type: this.instanceType.gpuType,
-        volume_name: this.volume
+        cpu_request: this.jobType.cpus,
+        memory_request: this.jobType.memory,
+        gpu_request: this.jobType.gpus,
+        gpu_type: this.jobType.gpuType,
+        volume_name: this.volume,
+        command: this.command.split(' '),
+        lastEvent: ''
       })
 
       // reset dialog
       this.dialog = false
-      this.resetForm()
+      this.$refs.form.resetValidation()
+      this.$refs.form.reset()
+      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onCancle () {
       this.$emit('cancle')
 
       // reset dialog
       this.dialog = false
-      this.resetForm()
+      this.$refs.form.resetValidation()
+      this.$refs.form.reset()
+      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
     onDelete (name) {
       this.deleteDialog = false
@@ -218,7 +245,7 @@ export default {
   },
   computed: {
     namePrefix () {
-      return 'inst-' + this.$store.getters.namePrefix
+      return 'jobs-' + this.$store.getters.namePrefix
     },
     // rule
     nameRules () {
@@ -226,12 +253,24 @@ export default {
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.instances.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
+        v => !this.jobs.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
       ]
     },
-    volumeRules () {
+    jobTypeRules () {
       return [
-        v => !!v || 'Volume is required'
+        v => !!v || 'Job Type is required',
+        v => v.gpus <= this.remainResources('gpus') ||
+          `GPUs must be less then ${this.remainResources('gpus')} limit`
+      ]
+    },
+    commandRules () {
+      return [
+        v => !!v || 'Command is required'
+      ]
+    },
+    requiredRules () {
+      return [
+        v => !!v || 'Required item.'
       ]
     }
   }
@@ -239,7 +278,7 @@ export default {
 </script>
 
 <style scoped>
-.Running {
+.succeeded {
   color: green;
 }
 
@@ -247,14 +286,21 @@ export default {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.Pending {
+.pending {
+  animation-name: spin;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+.active {
+  color: green;
   animation-name: spin;
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
 
-.Failed {
+.failed {
   color: red;
 }
 </style>
