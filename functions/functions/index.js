@@ -9,9 +9,7 @@ const db = admin.firestore()
 
 exports.createUser = functions.auth.user().onCreate(async (user) => {
   const { uid, email, displayName, emailVerified, photoURL, disabled } = user
-  const cpus = 8
-  const gpus = 2
-  const mem = 32
+  const gpus = 9
   const capacity = 100
   let level = 2
 
