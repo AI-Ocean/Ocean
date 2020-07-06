@@ -28,7 +28,7 @@ jobs:
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
     - name: docker push
-      run: docker push $IMAGE_NAME:latest
+      run: docker push --cache-from $IMAGE:latest $IMAGE_NAME:latest
     
   push-version:
     needs: build
@@ -42,4 +42,4 @@ jobs:
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
     - name: docker push
-      run: docker push $IMAGE_NAME:$VERSION
+      run: docker push --cache-from $IMAGE:latest $IMAGE_NAME:$VERSION
