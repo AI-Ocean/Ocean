@@ -15,15 +15,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: docker build
-      run: docker build --cache-from $IMAGE:latest . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
-      
+    - name: echo
+      run: echo 
+
     - name: login docker registry
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
-    - name: docker push
+    - name: docker build
+      run: docker build --cache-from $IMAGE:latest . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
+
+    - name: docker push latest
       run: docker push $IMAGE_NAME:latest
     
-    - name: docker push
-      if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/mater'
+    - name: docker push version
+      if: ${{ github.ref }} == 'refs/heads/develop' || ${{ github.ref }} == 'refs/heads/mater'
       run: docker push $IMAGE_NAME:$VERSION
