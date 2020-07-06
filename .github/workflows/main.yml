@@ -9,37 +9,21 @@ env:
   VERSION: v0.2.0
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v2
 
     - name: docker build
-      run: docker build . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
+      run: docker build --cache-from $IMAGE:latest . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
       
-  push-latest:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    steps:
     - name: login docker registry
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
     - name: docker push
-      run: docker push --cache-from $IMAGE:latest $IMAGE_NAME:latest
+      run: docker push $IMAGE_NAME:latest
     
-  push-version:
-    needs: build
-
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/mater'
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: login docker registry
-      run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
-
     - name: docker push
-      run: docker push --cache-from $IMAGE:latest $IMAGE_NAME:$VERSION
+      if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/mater'
+      run: docker push $IMAGE_NAME:$VERSION
