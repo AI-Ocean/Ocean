@@ -9,9 +9,7 @@ const db = admin.firestore()
 
 exports.createUser = functions.auth.user().onCreate(async (user) => {
   const { uid, email, displayName, emailVerified, photoURL, disabled } = user
-  const cpus = 8
-  const gpus = 2
-  const mem = 32
+  const gpus = 9
   const capacity = 100
   let level = 2
 
@@ -23,7 +21,7 @@ exports.createUser = functions.auth.user().onCreate(async (user) => {
   await admin.auth().setCustomUserClaims(uid, { level: level })
 
   const d = {
-    uid, email, displayName, emailVerified, photoURL, disabled, cpus, gpus, mem, capacity, level
+    uid, email, displayName, emailVerified, photoURL, disabled, gpus, capacity, level
   }
   const r = await db.collection('users').doc(uid).set(d)
   return r

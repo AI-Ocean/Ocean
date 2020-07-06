@@ -50,7 +50,7 @@ router.post('/', async (req, res) => {
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
-  var gpu_type = req.body.gpu_type.name
+  var gpu_type = req.body.gpu_type
   var claimName = req.body.volume_name
 
   const metadata = {
@@ -67,6 +67,7 @@ router.post('/', async (req, res) => {
     apiVersion: 'v1',
     metadata,
     spec: {
+      restartPolicy: 'OnFailure',
       volumes: [
         {
           name: 'main-storage',
@@ -81,10 +82,6 @@ router.post('/', async (req, res) => {
           emptyDir: {
             medium: 'Memory'
           }
-        },
-        {
-          name: 'temp',
-          emptyDir: {}
         }
       ],
       containers: [
@@ -115,11 +112,11 @@ router.post('/', async (req, res) => {
         }
       ],
       nodeSelector: {
-        accelerator: gpu_type
+        accelerator: gpu_type,
+        runtype: 'inst'
       }
     }
   }
-
   const serviceData = {
     apiVersion: 'v1',
     kind: 'Service',
@@ -141,7 +138,6 @@ router.post('/', async (req, res) => {
     pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
     service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
   } catch(err) {
-    // console.log(err)
     res.statusCode(503).send(err)
   }
 

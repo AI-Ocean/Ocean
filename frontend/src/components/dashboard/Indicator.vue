@@ -119,11 +119,17 @@ export default {
     }
   }),
   methods: {
-    getResourceUsageAndRemain (type) {
+    getChartData (type, onlyUsing = false) {
       const using = this.resources[type].using > this.resources[type].limit ? this.resources[type].limit : this.resources[type].using
       const remain = this.resources[type].limit > this.resources[type].using ? this.resources[type].limit - this.resources[type].using : 0
       const over = this.resources[type].using > this.resources[type].limit ? this.resources[type].using - this.resources[type].limit : 0
-      return { using, remain, over }
+
+      return [
+        ['Usage', 'Number'],
+        ['using', using],
+        ['remain', (onlyUsing ? 0 : remain)],
+        ['over', (onlyUsing ? 0 : over)]
+      ]
     }
   },
   computed: {
@@ -159,40 +165,16 @@ export default {
       ]
     },
     cpusData () {
-      const { using, remain, over } = this.getResourceUsageAndRemain('cpus')
-      return [
-        ['Usage', 'Number'],
-        ['using', using],
-        ['remain', remain],
-        ['over', over]
-      ]
+      return this.getChartData('cpus', this.$store.getters.level > 0)
     },
     memoryData () {
-      const { using, remain, over } = this.getResourceUsageAndRemain('memory')
-      return [
-        ['Usage', 'Number'],
-        ['using', using],
-        ['remain', remain],
-        ['over', over]
-      ]
+      return this.getChartData('memory', this.$store.getters.level > 0)
     },
     gpusData () {
-      const { using, remain, over } = this.getResourceUsageAndRemain('gpus')
-      return [
-        ['Usage', 'Number'],
-        ['using', using],
-        ['remain', remain],
-        ['over', over]
-      ]
+      return this.getChartData('gpus')
     },
     capacityData () {
-      const { using, remain, over } = this.getResourceUsageAndRemain('capacity')
-      return [
-        ['Usage', 'Number'],
-        ['using', using],
-        ['remain', remain],
-        ['over', over]
-      ]
+      return this.getChartData('capacity')
     }
   }
 }

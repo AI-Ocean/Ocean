@@ -16,10 +16,6 @@ admin.initializeApp({
   credential: admin.credential.cert(require('./key.json'))
 })
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'pug')
-
 // middleware
 app.use(history())
 
@@ -47,7 +43,6 @@ app.use(function(err, req, res, next) {
 
   // send the error
   res.status(err.status || 500).send(err.message || 'ERROR')
-  // res.render('error')
 });
 
 module.exports = app
