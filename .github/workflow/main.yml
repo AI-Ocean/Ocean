@@ -1,0 +1,41 @@
+name: Intranet
+
+on: [push, pull_request]
+
+env:
+  IMAGE_NAME: docker.pkg.github.com/$USERNAME/intranet
+  VERSION: v0.2.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: docker build
+      run: docker build . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
+      
+  push-latest:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    - name: login docker registry
+      run: docker login docker.pkg.github.com --username $USERNAME -p $PERSONAL_ACCESS_TOKEN
+
+    - name: docker push
+      run: docker push $IMAGE_NAME:latest
+    
+  push-version:
+    needs: build
+
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/mater'
+
+    runs-on: ubuntu-latest
+
+    - name: login docker registry
+      run: docker login docker.pkg.github.com --username $USERNAME -p $PERSONAL_ACCESS_TOKEN
+
+    - name: docker push
+      run: docker push $IMAGE_NAME:$VERSION
