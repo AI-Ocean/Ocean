@@ -3,7 +3,9 @@ name: Intranet
 on: [push, pull_request]
 
 env:
-  IMAGE_NAME: docker.pkg.github.com/$USERNAME/intranet
+  USERNAME: ${{ github.actor }}
+  PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
+  IMAGE_NAME: docker.pkg.github.com/mlvc-lab/intranet
   VERSION: v0.2.0
 
 jobs:
@@ -23,7 +25,7 @@ jobs:
 
     steps:
     - name: login docker registry
-      run: docker login docker.pkg.github.com --username $USERNAME -p $PERSONAL_ACCESS_TOKEN
+      run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
     - name: docker push
       run: docker push $IMAGE_NAME:latest
@@ -37,7 +39,7 @@ jobs:
 
     steps:
     - name: login docker registry
-      run: docker login docker.pkg.github.com --username $USERNAME -p $PERSONAL_ACCESS_TOKEN
+      run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
     - name: docker push
       run: docker push $IMAGE_NAME:$VERSION
