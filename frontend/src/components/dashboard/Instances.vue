@@ -170,7 +170,7 @@ export default {
   methods: {
     // stataus icon
     getStatusIcon (status) {
-      if (status === 'Running') return 'mdi-check-circle'
+      if (status === 'Running' || status === 'Completed') return 'mdi-check-circle'
       else if (status === 'Pending') return 'mdi-loading'
       else return 'mdi-alert-circle'
     },

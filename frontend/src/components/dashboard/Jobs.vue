@@ -259,7 +259,7 @@ export default {
     jobTypeRules () {
       return [
         v => !!v || 'Job Type is required',
-        v => v.gpus <= this.remainResources('gpus') ||
+        v => (v.gpus <= this.remainResources('gpus') || this.$store.state.claims.level === 0) ||
           `GPUs must be less then ${this.remainResources('gpus')} limit`
       ]
     },
