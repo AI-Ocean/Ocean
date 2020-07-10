@@ -68,6 +68,8 @@ router.post('/', async (req, res) => {
     apiVersion: 'batch/v1',
     metadata,
     spec: {
+      completions: 1,
+      parallelism: 1,
       backoffLimit: 0,
       activeDeadlineSeconds: 60 * 60 * 24 * 5, // 5 days
       template: {
@@ -143,13 +145,13 @@ router.delete('/:id', async (req, res) => {
   var jobname = req.params.id
   // get job pod
   const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
+  // delete job
+  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
   // delete job pod
   for ( const pod of pods.data.items ) {
     const name = pod.metadata.name
     await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
   }
-  // delete job
-  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
   res.send(response.data)
 })
 
