@@ -199,7 +199,7 @@ export default {
       const { data } = await this.$axios.get('/api/jobs')
       // update instances
       data.jobs.forEach(element => {
-        const { name, status, limits, volumes, command, lastEvent } = element
+        const { name, status, limits, volumes, command } = element
         const job = {
           name,
           status,
@@ -207,8 +207,7 @@ export default {
           memory: limits.memory.slice(0, -2),
           gpus: limits['nvidia.com/gpu'],
           volumes: [],
-          command,
-          lastEvent
+          command
         }
         volumes.forEach(element => {
           job.volumes.push(element.persistentVolumeClaim.claimName)
