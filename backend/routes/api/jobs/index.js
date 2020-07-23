@@ -155,4 +155,21 @@ router.delete('/:id', async (req, res) => {
   res.send(response.data)
 })
 
+// Get Job Logs
+router.get('/:id/log', async (req, res) => {
+  console.log('log request ' + req.params.id)
+  // get pod for job
+  var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
+  const podname = data.items[0].metadata.name
+
+  // get jobs data
+  var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log')
+
+  // final response
+  const response = {
+    logs: data
+  }
+  res.send(response)
+})
+
 module.exports = router
