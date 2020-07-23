@@ -21,12 +21,12 @@ router.get('/', async (req, res) => {
 
     // pod data
     const podres = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
-
+    const status = (0 in podres.data.items) ? podres.data.items[0].status.phase : 'Failed'
     // job data
     const jobData = {
       name,
       labels,
-      status: podres.data.items[0].status.phase,
+      status,
       limits,
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
