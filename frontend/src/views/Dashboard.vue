@@ -108,8 +108,17 @@ export default {
   },
   methods: {
     calcUsage (type) {
-      let base = this.instances.concat(this.jobs)
-      if (type === 'capacity') base = this.volumes
+      let base
+      if (type === 'capacity') {
+        base = this.volumes
+      } else {
+        if (this.$store.state.claims.level === 0) {
+          base = this.instances
+        } else {
+          base = this.instances.concat(this.jobs)
+        }
+        base = base.filter(v => v.status === 'Running' || v.status === 'Pending')
+      }
       return base
         .map(v => Number(v[type]))
         .reduce((a, b) => a + b, 0)
@@ -225,7 +234,7 @@ export default {
     async createJob (data) {
       this.jobs.push({
         name: data.name,
-        status: { pending: 1 },
+        status: 'Pending',
         cpus: data.cpu_request,
         memory: data.memory_request,
         gpus: data.gpu_request,
@@ -236,7 +245,7 @@ export default {
       await this.$axios.post('/api/jobs', data)
     },
     async deleteJob (name) {
-      this.jobs[this.jobs.findIndex(v => v.name === name)].status = { pending: 1 }
+      this.jobs[this.jobs.findIndex(v => v.name === name)].status = 'Pending'
       this.updateUsage()
       await this.$axios.delete('/api/jobs/' + name)
     },
