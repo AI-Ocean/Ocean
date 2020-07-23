@@ -183,7 +183,7 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'Duration', value: 'duration', width: 80, sortable: false, filterable: false },
+      { text: 'Duration', value: 'startTime', width: 80, sortable: false, filterable: false },
       { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
@@ -215,7 +215,7 @@ export default {
   methods: {
     // stataus icon
     getStatusIcon (status) {
-      if (status === 'Succeeded') return 'mdi-check-circle'
+      if (status === 'Succeeded') return 'mdi-check-decagram'
       else if (status === 'Running' || status === 'Pending' || status === 'Terminating') return 'mdi-loading'
       else return 'mdi-alert-circle'
     },
