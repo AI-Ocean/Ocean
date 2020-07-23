@@ -97,6 +97,9 @@
       <template v-slot:item.volumes="{ item }">
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
+      <template v-slot:item.duration="{ item }">
+        {{ calcDuration(item.startTime) }}
+      </template>
       <template v-slot:item.logs="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
       </template>
@@ -183,7 +186,7 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'Duration', value: 'startTime', width: 80, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 80, sortable: false, filterable: false },
       { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
@@ -271,9 +274,21 @@ export default {
       const { data } = await this.$axios.get('/api/jobs/' + name + '/log')
       this.podLogs = data.logs
       this.podLogsLoading = false
+    },
+    // calculate duration
+    calcDuration (start) {
+      console.log(start)
+      const diff = new Date(new Date() - new Date(start))
+
+      let result = ''
+      result += diff.getUTCDate() > 1 ? (Number(diff.getUTCDate()) - 1) + 'd' : ''
+      result += diff.getUTCHours() > 0 ? diff.getUTCHours() + 'h' : ''
+      result += diff.getUTCMinutes() + 'm'
+      return result
     }
   },
   computed: {
+    // namePrefix
     namePrefix () {
       return 'jobs-' + this.$store.getters.namePrefix
     },
