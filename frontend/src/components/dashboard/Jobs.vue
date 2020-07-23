@@ -86,7 +86,7 @@
       hide-default-footer
     >
       <template v-slot:item.status="{ item }">
-        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(getSimpleStatus(item.status)) }}</v-icon>
+        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
       </template>
       <template v-slot:item.memory="{ item }">
         {{ item.memory }} Gi
@@ -183,6 +183,7 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 80, sortable: false, filterable: false },
       { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
@@ -212,21 +213,10 @@ export default {
     podLogsLoading: false
   }),
   methods: {
-    getSimpleStatus (status) {
-      if ('succeeded' in status) {
-        return 'succeeded'
-      } else if ('failed' in status) {
-        return 'failed'
-      } else if ('active' in status) {
-        return 'active'
-      } else {
-        return 'pending'
-      }
-    },
     // stataus icon
     getStatusIcon (status) {
-      if (status === 'succeeded') return 'mdi-check-circle'
-      else if (status === 'active' || status === 'pending') return 'mdi-loading'
+      if (status === 'Succeeded') return 'mdi-check-circle'
+      else if (status === 'Running' || status === 'Pending' || status === 'Terminating') return 'mdi-loading'
       else return 'mdi-alert-circle'
     },
 
@@ -318,7 +308,7 @@ export default {
 </script>
 
 <style scoped>
-.succeeded {
+.Succeeded {
   color: green;
 }
 
@@ -326,13 +316,13 @@ export default {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-.pending {
+.Pending {
   animation-name: spin;
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
-.active {
+.Running {
   color: green;
   animation-name: spin;
   animation-duration: 1000ms;
@@ -340,7 +330,7 @@ export default {
   animation-timing-function: linear;
 }
 
-.failed {
+.Failed {
   color: red;
 }
 </style>
