@@ -10,6 +10,22 @@
     </v-row>
     <!-- END Top Indicator Cards -->
 
+    <!-- Job Table -->
+    <v-row>
+      <v-col>
+        <jobs
+          :loading="loadingJobs"
+          :resources="resources"
+          :jobs="jobs"
+          :volumes="volumes.map(v => v.name)"
+          @get="getJobs"
+          @create="createJob"
+          @delete="deleteJob"
+        ></jobs>
+      </v-col>
+    </v-row>
+    <!-- End Job Table -->
+
     <v-row>
       <!-- Instances Table -->
       <v-col md="12" lg="8">
@@ -40,21 +56,6 @@
       </v-col>
     </v-row>
 
-    <!-- Job Table -->
-    <v-row>
-      <v-col>
-        <jobs
-          :loading="loadingJobs"
-          :resources="resources"
-          :jobs="jobs"
-          :volumes="volumes.map(v => v.name)"
-          @get="getJobs"
-          @create="createJob"
-          @delete="deleteJob"
-        ></jobs>
-      </v-col>
-    </v-row>
-    <!-- End Job Table -->
   </v-container>
 </template>
 
