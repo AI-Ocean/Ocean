@@ -137,7 +137,7 @@
             readonly
             solo
             flat
-            rows="50"
+            rows="30"
             background-color="grey darken-3"
             :loading="podLogsLoading"
             :value="podLogs">
