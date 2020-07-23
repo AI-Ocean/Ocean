@@ -97,6 +97,9 @@
       <template v-slot:item.volumes="{ item }">
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
+      <template v-slot:item.logs="{ item }">
+        <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
+      </template>
       <template v-slot:item.delete="{ item }">
         <v-btn icon @click="openDeleteDialog(item.name)">
           <v-icon>
@@ -119,6 +122,32 @@
           <v-spacer></v-spacer>
           <v-btn color='red' @click="onDelete(targetName)">
             Delete
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="logDialog" max-width="1500">
+      <v-card>
+        <v-card-title>
+          Job Logs
+        </v-card-title>
+        <v-card-text>
+          <v-textarea
+            readonly
+            solo
+            flat
+            rows="50"
+            background-color="grey darken-3"
+            :loading="podLogsLoading"
+            :value="podLogs">
+            {{podLogs}}
+          </v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="logDialog=false">
+            close
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -154,7 +183,7 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'LastEvnet', value: 'lastEvent', width: 800, sortable: false, filterable: false },
+      { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
@@ -177,7 +206,10 @@ export default {
 
     // data table
     deleteDialog: false,
-    targetName: ''
+    targetName: '',
+    logDialog: false,
+    podLogs: 'No Logs',
+    podLogsLoading: false
   }),
   methods: {
     getSimpleStatus (status) {
@@ -241,6 +273,14 @@ export default {
     onDelete (name) {
       this.deleteDialog = false
       this.$emit('delete', name)
+    },
+    async viewLogs (name) {
+      this.podLogs = 'No Logs'
+      this.logDialog = true
+      this.podLogsLoading = true
+      const { data } = await this.$axios.get('/api/jobs/' + name + '/log')
+      this.podLogs = data.logs
+      this.podLogsLoading = false
     }
   },
   computed: {
