@@ -98,7 +98,10 @@
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
       <template v-slot:item.duration="{ item }">
-        {{ calcDuration(item.startTime) }}
+        {{ calcDuration(item.startTime, item.completionTime) }}
+      </template>
+      <template v-slot:item.age="{ item }">
+        {{ calcAge(item.startTime) }}
       </template>
       <template v-slot:item.logs="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
@@ -186,9 +189,10 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'Duration', value: 'duration', width: 80, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 50, sortable: false, filterable: false },
+      { text: 'Age', value: 'age', width: 50, sortable: false, filterable: false },
       { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
+      { text: '', value: 'delete', width: 10, sortable: false, filterable: false }
     ],
 
     jobsList: [
@@ -276,9 +280,22 @@ export default {
       this.podLogsLoading = false
     },
     // calculate duration
-    calcDuration (start) {
-      console.log(start)
-      const diff = new Date(new Date() - new Date(start))
+    calcDuration (start, end) {
+      start = new Date(start)
+      end = end ? new Date(end) : new Date()
+      const diff = new Date(end - start)
+
+      let result = ''
+      result += diff.getUTCDate() > 1 ? (Number(diff.getUTCDate()) - 1) + 'd' : ''
+      result += diff.getUTCHours() > 0 ? diff.getUTCHours() + 'h' : ''
+      result += diff.getUTCMinutes() + 'm'
+      return result
+    },
+    // calculate age
+    calcAge (start) {
+      start = new Date(start)
+      const end = new Date()
+      const diff = new Date(end - start)
 
       let result = ''
       result += diff.getUTCDate() > 1 ? (Number(diff.getUTCDate()) - 1) + 'd' : ''
