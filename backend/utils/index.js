@@ -1,14 +1,14 @@
 var axios = require('axios')
 var https = require('https')
 
-var configs = require('../config')
+var configs = require('../configs')
 
 // kube api endpoint
 exports.kubeAPI = axios.create({
-  baseURL: 'https://' + configs.kube_host + ':' + configs.kube_port + '/api/v1/',
+  baseURL: 'https://' + configs.KUBE_HOST + ':' + configs.KUBE_PORT + '/api/v1/',
   timeout: 5000,
   headers: {
-    'Authorization': configs.kube_token,
+    'Authorization': configs.KUBE_TOKEN,
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },
@@ -18,10 +18,10 @@ exports.kubeAPI = axios.create({
 })
 
 exports.kubeJobAPI = axios.create({
-  baseURL: 'https://' + configs.kube_host + ':' + configs.kube_port + '/apis/batch/v1/',
+  baseURL: 'https://' + configs.KUBE_HOST + ':' + configs.KUBE_PORT + '/apis/batch/v1/',
   timeout: 5000,
   headers: {
-    'Authorization': configs.kube_token,
+    'Authorization': configs.KUBE_TOKEN,
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },
