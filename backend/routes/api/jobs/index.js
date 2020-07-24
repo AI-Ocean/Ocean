@@ -31,7 +31,8 @@ router.get('/', async (req, res) => {
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
       command,
-      startTime: job.status.startTime
+      startTime: job.status.startTime,
+      completionTime: job.status.completionTime
     }
     response.jobs.push(jobData)
   }
@@ -151,7 +152,6 @@ router.delete('/:id', async (req, res) => {
 
 // Get Job Logs
 router.get('/:id/log', async (req, res) => {
-  console.log('log request ' + req.params.id)
   // get pod for job
   var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
   const podname = data.items[0].metadata.name
