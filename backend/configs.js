@@ -6,8 +6,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 module.exports = {
-  KUBE_HOST: process.env.KUBE_HOST.trim() || "localhost",
-  KUBE_PORT: process.env.KUBE_PORT.trim() || "6443",
+  KUBE_API_URL: process.env.KUBE_API_URL.trim(),
+  KUBE_CA: process.env.KUBE_CA.trim(),
   KUBE_TOKEN: process.env.KUBE_TOKEN.trim(),
   FIREBASE_CERT: JSON.parse(process.env.FIREBASE_CERT)
 }
