@@ -3,6 +3,8 @@ var https = require('https')
 
 var configs = require('../configs')
 
+console.log(configs)
+
 // kube api endpoint
 exports.kubeAPI = axios.create({
   baseURL: 'https://' + configs.KUBE_HOST + ':' + configs.KUBE_PORT + '/api/v1/',
