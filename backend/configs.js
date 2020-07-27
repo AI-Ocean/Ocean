@@ -1,8 +1,6 @@
 var path = require('path')
 var dotenv = require('dotenv')
 
-console.log(process.env.NODE_ENV)
-
 if (process.env.NODE_ENV === 'development') {
   dotenv.config({ path: path.join(__dirname, '.env') })
 }
