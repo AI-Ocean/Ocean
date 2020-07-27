@@ -10,7 +10,7 @@ exports.kubeAPI = axios.create({
   baseURL: 'https://' + configs.KUBE_HOST + ':' + configs.KUBE_PORT + '/api/v1/',
   timeout: 5000,
   headers: {
-    'Authorization': configs.KUBE_TOKEN,
+    'Authorization': 'Bearer ' + configs.KUBE_TOKEN,
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },
@@ -23,7 +23,7 @@ exports.kubeJobAPI = axios.create({
   baseURL: 'https://' + configs.KUBE_HOST + ':' + configs.KUBE_PORT + '/apis/batch/v1/',
   timeout: 5000,
   headers: {
-    'Authorization': configs.KUBE_TOKEN,
+    'Authorization': 'Bearer ' + configs.KUBE_TOKEN,
     'Accept': 'application/json',
     'Content-Type': 'application/json'
   },
