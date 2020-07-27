@@ -1,35 +1,36 @@
 var axios = require('axios')
 var https = require('https')
+var fs = require('fs')
 
 var configs = require('../configs')
 
-// kube api endpoint
-exports.kubeAPI = axios.create({
-  baseURL: configs.KUBE_API_URL + '/api/v1/',
-  timeout: 5000,
-  headers: {
-    'Authorization': 'Bearer ' + configs.KUBE_TOKEN,
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  },
-  httpsAgent: new https.Agent({ // ssl
-    // rejectUnauthorized: false
-    ca: configs.KUBE_CA
-  })
+
+const timeout = 5000
+
+const headers = {
+  'Authorization': 'Bearer ' + configs.KUBE_TOKEN,
+  'Accept': 'application/json',
+  'Content-Type': 'application/json'
+}
+
+const httpsAgent = new https.Agent({ // ssl
+  ca: fs.readFileSync('/home/kairos/mlvc.pem')
 })
 
+// kube api endpoint
+exports.kubeAPI = baseAPI = axios.create({
+  baseURL: configs.KUBE_API_URL + '/api/v1/',
+  timeout,
+  headers,
+  httpsAgent
+})
+
+// kube Job api endpoint
 exports.kubeJobAPI = axios.create({
   baseURL: configs.KUBE_API_URL + '/apis/batch/v1/',
-  timeout: 5000,
-  headers: {
-    'Authorization': 'Bearer ' + configs.KUBE_TOKEN,
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-  },
-  httpsAgent: new https.Agent({ // ssl
-    // rejectUnauthorized: false
-    ca: configs.KUBE_CA
-  })
+  timeout,
+  headers,
+  httpsAgent,
 })
 
 exports.getUserID = function (claims) {
