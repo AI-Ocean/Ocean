@@ -5,8 +5,9 @@ on: [push, pull_request]
 env:
   USERNAME: ${{ github.actor }}
   PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
-  IMAGE_NAME: docker.pkg.github.com/mlvc-lab/intranet/intranet
-  VERSION: v0.2.1
+  IMAGE_NAME: docker.pkg.github.com/kairos03/intranet/intranet
+  DEV_VERSION: a1
+  STABLE_VERSION: v0.2.2
 
 jobs:
   build-and-push:
@@ -15,9 +16,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: echo
-      run: echo 
-
     - name: login docker registry
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
@@ -25,11 +23,15 @@ jobs:
       run: docker pull $IMAGE_NAME:latest
 
     - name: docker build
-      run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:latest
+      run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
       run: docker push $IMAGE_NAME:latest
     
-    - name: docker push version
-      if: ${{ github.ref }} == 'refs/heads/develop' || ${{ github.ref }} == 'refs/heads/mater'
-      run: docker push $IMAGE_NAME:$VERSION
+    - name: docker push dev version
+      if: ${{ github.ref }} == 'refs/heads/develop'
+      run: docker push $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION
+
+    - name: docker push stable version
+    if: ${{ github.ref }} == 'refs/heads/mater'
+    run: docker push $IMAGE_NAME:$STABLE_VERSION

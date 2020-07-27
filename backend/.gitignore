@@ -11,3 +11,6 @@ yarn-error.log*
 
 # front file
 public/
+
+# local config
+.configs/

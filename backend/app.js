@@ -9,11 +9,13 @@ var logger = require('morgan')
 var admin = require('firebase-admin')
 var history = require('connect-history-api-fallback');
 
+var configs = require('./configs')
+
 var app = express();
 
 // firebase
 admin.initializeApp({
-  credential: admin.credential.cert(require('./key.json'))
+  credential: admin.credential.cert(configs.FIREBASE_CERT)
 })
 
 // middleware
