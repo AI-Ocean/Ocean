@@ -14,7 +14,7 @@ const headers = {
 }
 
 const httpsAgent = new https.Agent({ // ssl
-  ca: fs.readFileSync('/home/kairos/mlvc.pem')
+  ca: fs.readFileSync(configs.KUBE_CA)
 })
 
 // kube api endpoint
