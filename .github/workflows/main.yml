@@ -19,11 +19,10 @@ jobs:
     - name: login docker registry
       run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
 
-    # - name: docker pull cache image
-    #   run: docker pull $IMAGE_NAME:latest
+    - name: docker pull cache image
+      run: docker pull $IMAGE_NAME:latest
 
     - name: docker build
-      if: ${{ always() }}
       run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
