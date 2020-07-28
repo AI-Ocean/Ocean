@@ -23,6 +23,7 @@ jobs:
     #   run: docker pull $IMAGE_NAME:latest
 
     - name: docker build
+      if: ${{ always() }}
       run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
