@@ -1,11 +1,11 @@
-name: Intranet
+name: Ocean
 
 on: [push, pull_request]
 
 env:
   USERNAME: ${{ github.actor }}
   PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
-  IMAGE_NAME: docker.pkg.github.com/kairos03/intranet/intranet
+  IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean
   DEV_VERSION: a1
   STABLE_VERSION: v0.2.2
 
@@ -23,6 +23,7 @@ jobs:
       run: docker pull $IMAGE_NAME:latest
 
     - name: docker build
+      if: ${{ always() }}
       run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
