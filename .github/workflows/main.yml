@@ -29,9 +29,9 @@ jobs:
       run: docker push $IMAGE_NAME:latest
     
     - name: docker push dev version
-      if: ${{ github.ref }} == 'refs/heads/develop'
+      if: ${{ github.ref }} == 'refs/heads/master'
       run: docker push $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION
 
     - name: docker push stable version
-    if: ${{ github.ref }} == 'refs/heads/mater'
-    run: docker push $IMAGE_NAME:$STABLE_VERSION
+      if: ${{ github.ref }} == 'refs/heads/stage'
+      run: docker push $IMAGE_NAME:$STABLE_VERSION
