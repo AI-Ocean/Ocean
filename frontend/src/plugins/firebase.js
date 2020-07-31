@@ -6,10 +6,13 @@ import store from '@/store'
 import 'firebase/auth'
 import 'firebase/firestore'
 
-import firebaseConfig from '../../fierbaseConfig'
+// import firebaseConfig from '../../fierbaseConfig'
+import configs from '../configs'
+
+console.log(configs.FIREBASE_CONFIG)
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig)
+firebase.initializeApp(configs.FIREBASE_CONFIG)
 
 Vue.prototype.$firebase = firebase
 
