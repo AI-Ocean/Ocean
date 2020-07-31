@@ -9,8 +9,6 @@ import 'firebase/firestore'
 // import firebaseConfig from '../../fierbaseConfig'
 import configs from '../configs'
 
-console.log(configs.FIREBASE_CONFIG)
-
 // Initialize Firebase
 firebase.initializeApp(configs.FIREBASE_CONFIG)
 
