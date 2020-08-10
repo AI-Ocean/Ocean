@@ -11,7 +11,7 @@ import configs from '../configs'
 
 // Initialize Firebase
 firebase.initializeApp(configs.FIREBASE_CONFIG)
-alert(configs.FIREBASE_CONFIG)
+alert(configs.FIREBASE_CONFIG.apiKey + configs.FIREBASE_CONFIG.authDomain)
 Vue.prototype.$firebase = firebase
 
 firebase.auth().onAuthStateChanged((user) => {
