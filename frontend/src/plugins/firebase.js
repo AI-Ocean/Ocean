@@ -6,12 +6,10 @@ import store from '@/store'
 import 'firebase/auth'
 import 'firebase/firestore'
 
-// import firebaseConfig from '../../fierbaseConfig'
 import configs from '../configs'
 
 // Initialize Firebase
 firebase.initializeApp(configs.FIREBASE_CONFIG)
-alert(configs.FIREBASE_CONFIG.apiKey)
 Vue.prototype.$firebase = firebase
 
 firebase.auth().onAuthStateChanged((user) => {

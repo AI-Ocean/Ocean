@@ -27,6 +27,7 @@ jobs:
 
     - name: docker push latest
       run: docker push $IMAGE_NAME:latest
+      run: echo ${{ github.ref }}
     
     - name: docker push dev version
       if: ${{ github.ref }} == 'refs/heads/master'
