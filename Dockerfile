@@ -20,7 +20,3 @@ COPY --from=backend-build /build .
 COPY --from=frontend-build /build/dist ./public
 EXPOSE 80
 CMD ["npm", "start"]
-
-# FROM nginx as production-stage
-# COPY --from=build-stage /app/backend .
-# COPY nginx.conf /etc/nginx/nginx.conf
