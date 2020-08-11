@@ -26,8 +26,7 @@ jobs:
       run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
-      run: docker push $IMAGE_NAME:latest
-      run: echo ${{ github.ref }}
+      run: echo ${{ github.ref }} && docker push $IMAGE_NAME:latest
     
     - name: docker push dev version
       if: ${{ github.ref }} == 'refs/heads/master'
