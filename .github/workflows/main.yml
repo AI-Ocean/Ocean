@@ -1,13 +1,17 @@
 name: Ocean
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: ['master', 'develop']
+  pull_request:
+    branches: ['stage', 'master', 'develop']
 
 env:
   USERNAME: ${{ github.actor }}
   PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
   IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean
   DEV_VERSION: a1
-  STABLE_VERSION: v0.2.2
+  STABLE_VERSION: v0.2.3
 
 jobs:
   build-and-push:
@@ -26,12 +30,13 @@ jobs:
       run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
 
     - name: docker push latest
-      run: echo ${{ github.ref }} && docker push $IMAGE_NAME:latest
+      if: github.ref == 'refs/heads/develop'
+      run: docker push $IMAGE_NAME:latest
     
     - name: docker push dev version
-      if: ${{ github.ref }} == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master'
       run: docker push $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION
 
     - name: docker push stable version
-      if: ${{ github.ref }} == 'refs/heads/stage'
+      if: github.ref == 'refs/heads/stage'
       run: docker push $IMAGE_NAME:$STABLE_VERSION
