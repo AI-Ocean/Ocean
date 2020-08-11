@@ -8,7 +8,7 @@
       >
         <v-app-bar-nav-icon v-if="$store.state.user && isMobile" @click="drawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title>
-          MLVC Intranet
+          Ocean
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-menu offset-y v-if="$store.state.user">
@@ -70,10 +70,10 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="title">
-              Intranet
+              Ocean
             </v-list-item-title>
             <v-list-item-subtitle>
-              MLVC Lab.
+              GPU Management System
             </v-list-item-subtitle>
           </v-list-item-content>
         </v-list-item>
