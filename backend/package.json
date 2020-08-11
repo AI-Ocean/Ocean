@@ -1,6 +1,6 @@
 {
-  "name": "backend",
-  "version": "0.0.0",
+  "name": "ocean-backend",
+  "version": "0.2.3",
   "private": true,
   "scripts": {
     "dev": "cross-env NODE_ENV=development node ./bin/www",
