@@ -4,7 +4,7 @@
       <v-col>
         <v-card>
           <v-card-title primary-title>
-            MLVC Intranet
+            Ocean
           </v-card-title>
           <v-card-text>
             <pre>
@@ -29,10 +29,10 @@
             Report Bug or Feature Request
           </v-card-title>
           <v-card-text>
-            Join to intranet and contribuet your IDEA!
+            Join to Ocean and contribuet your IDEA!
           </v-card-text>
           <v-card-actions>
-            <v-btn dark color="red" href="https://forms.gle/hMhJLiGWWaFA7wGJA" target="_blank">
+            <v-btn dark color="red" href="https://github.com/kairos03/Ocean" target="_blank">
               Go To Request Form
             </v-btn>
           </v-card-actions>
