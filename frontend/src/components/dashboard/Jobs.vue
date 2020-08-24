@@ -85,28 +85,28 @@
       :options.sync="options"
       hide-default-footer
     >
-      <template v-slot:item.status="{ item }">
+      <template v-slot:[`item.status`]="{ item }">
         <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
       </template>
-      <template v-slot:item.memory="{ item }">
+      <template v-slot:[`item.memory`]="{ item }">
         {{ item.memory }} Gi
       </template>
-      <template v-slot:item.command="{ item }">
+      <template v-slot:[`item.command`]="{ item }">
         {{ item.command.join(' ') }}
       </template>
-      <template v-slot:item.volumes="{ item }">
+      <template v-slot:[`item.volumes`]="{ item }">
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
-      <template v-slot:item.duration="{ item }">
+      <template v-slot:[`item.duration`]="{ item }">
         {{ calcDuration(item.startTime, item.completionTime) }}
       </template>
-      <template v-slot:item.age="{ item }">
+      <template v-slot:[`item.age`]="{ item }">
         {{ calcAge(item.startTime) }}
       </template>
-      <template v-slot:item.logs="{ item }">
+      <template v-slot:[`item.logs`]="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
       </template>
-      <template v-slot:item.delete="{ item }">
+      <template v-slot:[`item.delete`]="{ item }">
         <v-btn icon @click="openDeleteDialog(item.name)">
           <v-icon>
             mdi-trash-can
@@ -196,6 +196,7 @@ export default {
     ],
 
     jobsList: [
+      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
       { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
       { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
     ],
@@ -208,7 +209,7 @@ export default {
     dialog: false,
     valid: false,
     name: undefined,
-    jobType: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' },
+    jobType: { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
     volume: undefined,
     command: undefined,
 
@@ -238,7 +239,9 @@ export default {
 
     onGet () {
       this.$emit('get')
+      this.volume = this.volumes[0]
     },
+
     onCreate () {
       // request create pods
       this.$emit('create', {
@@ -258,6 +261,7 @@ export default {
       this.$refs.form.reset()
       this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
+
     onCancle () {
       this.$emit('cancle')
 
@@ -267,10 +271,12 @@ export default {
       this.$refs.form.reset()
       this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
     },
+
     onDelete (name) {
       this.deleteDialog = false
       this.$emit('delete', name)
     },
+
     async viewLogs (name) {
       this.podLogs = 'No Logs'
       this.logDialog = true
@@ -279,6 +285,7 @@ export default {
       this.podLogs = data.logs
       this.podLogsLoading = false
     },
+
     // calculate duration
     calcDuration (start, end) {
       start = new Date(start)
@@ -291,6 +298,7 @@ export default {
       result += diff.getUTCMinutes() + 'm'
       return result
     },
+
     // calculate age
     calcAge (start) {
       start = new Date(start)
