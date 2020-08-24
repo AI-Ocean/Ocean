@@ -64,7 +64,7 @@
       >
         <v-list-item class="px-2">
           <v-list-item-avatar>
-            <img src="@/images/logo.png">
+            <img src="@/images/logo.svg">
           </v-list-item-avatar>
         </v-list-item>
         <v-list-item>
