@@ -50,10 +50,12 @@
                 </v-col>
                 <v-col cols=3>
                   <v-text-field
-                    v-model.trim="repeat"
+                    v-model.number="repeat"
                     type="number"
                     :rules="repeatRules"
                     label="Repeat"
+                    @click:append-outer="increment"
+                    @click:prepend="decrement"
                     required
                   ></v-text-field>
                 </v-col>
@@ -67,7 +69,7 @@
                 chips
               ></v-select>
               <v-text-field
-                v-model="command"
+                v-model.trim="command"
                 :rules="commandRules"
                 type="string"
                 label="Command"
@@ -249,6 +251,14 @@ export default {
       return (this.resources[type].limit - this.resources[type].using)
     },
 
+    // dialog repeat
+    increment () {
+      this.repeat = parseInt(this.repeat) + 1
+    },
+    decrement () {
+      this.repeat = parseInt(this.repeat) - 1
+    },
+
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
@@ -269,16 +279,32 @@ export default {
 
     onCreate () {
       // request create pods
-      this.$emit('create', {
-        name: this.namePrefix + this.name,
-        cpu_request: this.jobType.cpus,
-        memory_request: this.jobType.memory,
-        gpu_request: this.jobType.gpus,
-        gpu_type: this.jobType.gpuType,
-        volume_name: this.volume,
-        command: this.command.split(' '),
-        lastEvent: ''
-      })
+      if (this.repeat === 1) {
+        this.$emit('create', {
+          name: this.namePrefix + this.name,
+          cpu_request: this.jobType.cpus,
+          memory_request: this.jobType.memory,
+          gpu_request: this.jobType.gpus,
+          gpu_type: this.jobType.gpuType,
+          volume_name: this.volume,
+          command: this.command.split(' '),
+          lastEvent: ''
+        })
+      } else {
+        let i
+        for (i = 0; i < this.repeat; i++) {
+          this.$emit('create', {
+            name: this.namePrefix + this.name + '-' + i,
+            cpu_request: this.jobType.cpus,
+            memory_request: this.jobType.memory,
+            gpu_request: this.jobType.gpus,
+            gpu_type: this.jobType.gpuType,
+            volume_name: this.volume,
+            command: this.command.split(' '),
+            lastEvent: ''
+          })
+        }
+      }
       this.resetDialog()
     },
 
@@ -358,7 +384,8 @@ export default {
     repeatRules () {
       return [
         v => !!v || 'Repeat is required',
-        v => (v && v.isInteger()) || 'Repeat must be integer',
+        v => (v && Number.isInteger(v)) || 'Repeat must be integer',
+        v => (v && v >= 1) || 'Repeat must be larger then 1',
         v => (v && v <= 5) || 'Repeat must be less then 5'
       ]
     },
