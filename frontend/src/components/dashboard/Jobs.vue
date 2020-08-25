@@ -209,7 +209,7 @@ export default {
     dialog: false,
     valid: false,
     name: undefined,
-    jobType: { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
+    jobType: undefined,
     volume: undefined,
     command: undefined,
 
@@ -220,6 +220,10 @@ export default {
     podLogs: 'No Logs',
     podLogsLoading: false
   }),
+  created () {
+    this.jobType = { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' }
+    this.volume = this.volumes[0]
+  },
   methods: {
     // stataus icon
     getStatusIcon (status) {
@@ -235,6 +239,14 @@ export default {
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
+    },
+
+    resetDialog () {
+      this.dialog = false
+      this.$refs.form.resetValidation()
+      this.$refs.form.reset()
+      this.jobType = { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' }
+      this.volume = this.volumes[0]
     },
 
     onGet () {
@@ -254,22 +266,12 @@ export default {
         command: this.command.split(' '),
         lastEvent: ''
       })
-
-      // reset dialog
-      this.dialog = false
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
-      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
+      this.resetDialog()
     },
 
     onCancle () {
       this.$emit('cancle')
-
-      // reset dialog
-      this.dialog = false
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
-      this.jobType = { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' }
+      this.resetDialog()
     },
 
     onDelete (name) {

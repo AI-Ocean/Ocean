@@ -93,7 +93,7 @@ export default {
     jobs: [],
     loadingJobs: false
   }),
-  mounted () {
+  created () {
     this.getUserLimits()
 
     this.getInstances()

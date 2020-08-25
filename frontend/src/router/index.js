@@ -44,7 +44,7 @@ const routes = [
   {
     path: '/sign',
     name: 'sign',
-    component: () => import(/* webpackChunkName: "sign" */ '../views/Sign.vue'),
+    component: () => import(/* webpackChunkName: "core" */ '../views/Sign.vue'),
     beforeEnter: (to, from, next) => {
       if (store.state.user) return next('/')
       next()
@@ -53,37 +53,37 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Dashboard.vue'),
+    component: () => import(/* webpackChunkName: "core" */ '../views/Dashboard.vue'),
     beforeEnter: userCheck
   },
   {
     path: '/profile',
     name: 'profile',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Profile.vue'),
+    component: () => import(/* webpackChunkName: "core" */ '../views/Profile.vue'),
     beforeEnter: userCheck
   },
   {
     path: '/admin/users',
     name: 'users',
-    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Users.vue'),
+    component: () => import(/* webpackChunkName: "admin" */ '../views/admin/Users.vue'),
     beforeEnter: adminCheck
   },
   {
     path: '/admin/settings',
     name: 'settings',
-    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Settings.vue'),
+    component: () => import(/* webpackChunkName: "admin" */ '../views/admin/Settings.vue'),
     beforeEnter: adminCheck
   },
   {
     path: '/about',
     name: 'about',
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
+    component: () => import(/* webpackChunkName: "core" */ '../views/About.vue'),
     beforeEnter: guestCheck
   },
   {
     path: '/*',
     name: 'e404',
-    component: () => import('../views/e404.vue')
+    component: () => import(/* webpackChunkName: "core" */ '../views/e404.vue')
   }
 ]
 
