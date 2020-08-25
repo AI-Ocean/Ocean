@@ -32,18 +32,32 @@
                 label="Name"
                 :prefix="namePrefix"
                 required
-              >
-              </v-text-field>
-              <v-select
-                v-model="jobType"
-                :items="jobsList"
-                :rules="jobTypeRules"
-                label="Job Type"
-                auto
-                required
-                :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
-                persistent-hint
-              ></v-select>
+              ></v-text-field>
+              <v-row>
+                <v-col cols=8>
+                  <v-select
+                    v-model="jobType"
+                    :items="jobsList"
+                    :rules="jobTypeRules"
+                    label="Job Type"
+                    auto
+                    required
+                    :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
+                    persistent-hint
+                  ></v-select>
+                </v-col>
+                <v-col cols=1>
+                </v-col>
+                <v-col cols=3>
+                  <v-text-field
+                    v-model.trim="repeat"
+                    type="number"
+                    :rules="repeatRules"
+                    label="Repeat"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
               <v-select
                 v-model="volume"
                 :items="volumes"
@@ -88,8 +102,8 @@
       <template v-slot:[`item.status`]="{ item }">
         <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
       </template>
-      <template v-slot:[`item.memory`]="{ item }">
-        {{ item.memory }} Gi
+      <template v-slot:[`item.gpus`]="{ item }">
+        {{ convertGpuToJobType(Number(item.gpus)) }}
       </template>
       <template v-slot:[`item.command`]="{ item }">
         {{ item.command.join(' ') }}
@@ -184,14 +198,12 @@ export default {
     jobsHeader: [
       { text: 'Status', value: 'status', width: 10, sortable: false, filterable: false },
       { text: 'Name', value: 'name', width: 80, sortable: false, filterable: false },
-      { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
+      { text: 'Type', value: 'gpus', width: 10, align: 'end', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'Duration', value: 'duration', width: 50, sortable: false, filterable: false },
-      { text: 'Age', value: 'age', width: 50, sortable: false, filterable: false },
-      { text: 'Logs', value: 'logs', width: 200, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 20, sortable: false, filterable: false },
+      { text: 'Age', value: 'age', width: 20, sortable: false, filterable: false },
+      { text: 'Logs', value: 'logs', width: 100, sortable: false, filterable: false },
       { text: '', value: 'delete', width: 10, sortable: false, filterable: false }
     ],
 
@@ -208,10 +220,11 @@ export default {
     // form
     dialog: false,
     valid: false,
-    name: undefined,
+    name: '',
+    repeat: 1,
     jobType: undefined,
     volume: undefined,
-    command: undefined,
+    command: '',
 
     // data table
     deleteDialog: false,
@@ -312,6 +325,19 @@ export default {
       result += diff.getUTCHours() > 0 ? diff.getUTCHours() + 'h' : ''
       result += diff.getUTCMinutes() + 'm'
       return result
+    },
+
+    // converter
+    convertGpuToJobType (gpu) {
+      let type
+      if (gpu === 1) {
+        type = 'g2.small'
+      } else if (gpu === 2) {
+        type = 'g2.medium'
+      } else if (gpu === 4) {
+        type = 'g2.large'
+      }
+      return type
     }
   },
   computed: {
@@ -319,6 +345,7 @@ export default {
     namePrefix () {
       return 'jobs-' + this.$store.getters.namePrefix
     },
+
     // rule
     nameRules () {
       return [
@@ -326,6 +353,13 @@ export default {
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
         v => !this.jobs.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
+      ]
+    },
+    repeatRules () {
+      return [
+        v => !!v || 'Repeat is required',
+        v => (v && v.isInteger()) || 'Repeat must be integer',
+        v => (v && v <= 5) || 'Repeat must be less then 5'
       ]
     },
     jobTypeRules () {
