@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
           ],
           nodeSelector: {
             accelerator: gpu_type,
-            runtype: (gpu === 4 ? 'job4gpu' : 'job2gpu')
+            runtype: 'job' + gpu +'gpu'
           }
         }
       }

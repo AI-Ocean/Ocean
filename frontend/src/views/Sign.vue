@@ -8,7 +8,7 @@
         sm="5"
         xs="12"
       >
-        <v-img src="@/images/logo.png" max-width="200"></v-img>
+        <v-img src="@/images/logo.svg" max-width="200"></v-img>
       </v-col>
       <v-col
         sm="5"
