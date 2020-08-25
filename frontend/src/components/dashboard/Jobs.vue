@@ -149,21 +149,26 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="logDialog" max-width="1500">
+    <v-dialog v-model="logDialog" max-width="1500" overlay-opacity=100>
       <v-card>
         <v-card-title>
           Job Logs
+          <v-spacer></v-spacer>
+          <v-switch
+            v-model="logReverse"
+            label="Reverse"
+          ></v-switch>
         </v-card-title>
         <v-card-text>
           <v-textarea
             readonly
             solo
             flat
-            rows="30"
+            hide-details
+            rows="20"
             background-color="grey darken-3"
             :loading="podLogsLoading"
-            :value="podLogs">
-            {{podLogs}}
+            :value="reverseText(podLogs, logReverse)">
           </v-textarea>
         </v-card-text>
         <v-card-actions>
@@ -174,7 +179,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </v-card>
 </template>
 
@@ -232,7 +236,8 @@ export default {
     deleteDialog: false,
     targetName: '',
     logDialog: false,
-    podLogs: 'No Logs',
+    logReverse: false,
+    podLogs: 'No Logs.',
     podLogsLoading: false
   }),
   created () {
@@ -249,6 +254,14 @@ export default {
 
     remainResources (type) {
       return (this.resources[type].limit - this.resources[type].using)
+    },
+
+    // reverse text
+    reverseText (text, reverse = false) {
+      if (reverse) {
+        text = text.split('\n').reverse().join('\n')
+      }
+      return text
     },
 
     // dialog repeat
@@ -315,11 +328,13 @@ export default {
     },
 
     async viewLogs (name) {
-      this.podLogs = 'No Logs'
+      this.podLogs = 'No Logs.'
       this.logDialog = true
       this.podLogsLoading = true
       const { data } = await this.$axios.get('/api/jobs/' + name + '/log')
-      this.podLogs = data.logs
+      if (data.logs.length >= 1) {
+        this.podLogs = data.logs
+      }
       this.podLogsLoading = false
     },
 
