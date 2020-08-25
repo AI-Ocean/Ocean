@@ -241,7 +241,9 @@ export default {
         memory: data.memory_request,
         gpus: data.gpu_request,
         volumes: [data.volume_name],
-        command: data.command
+        command: data.command,
+        startTime: new Date(),
+        completionTime: new Date()
       })
       this.updateUsage()
       await this.$axios.post('/api/jobs', data)
