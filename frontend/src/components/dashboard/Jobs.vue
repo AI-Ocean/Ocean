@@ -6,7 +6,7 @@
         Jobs
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="dialog=true">
+      <v-btn icon @click="openDialog">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
 
@@ -41,9 +41,12 @@
                     :rules="jobTypeRules"
                     label="Job Type"
                     auto
+                    la
                     required
-                    :hint="`CPU: ${jobType.cpus}, Memory: ${jobType.memory}, GPU: ${jobType.gpuType} x ${jobType.gpus}`"
+                    :hint="jobTypeHint"
                     persistent-hint
+                    :error-messages="gpuErrorMessages"
+                    ref="jobType"
                   ></v-select>
                 </v-col>
                 <v-col cols=1>
@@ -57,6 +60,8 @@
                     @click:append-outer="increment"
                     @click:prepend="decrement"
                     required
+                    :error-messages="gpuErrorMessages"
+                    ref="repeat"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -228,9 +233,10 @@ export default {
     valid: false,
     name: '',
     repeat: 1,
-    jobType: undefined,
+    jobType: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
     command: '',
+    gpuErrorMessages: '',
 
     // data table
     deleteDialog: false,
@@ -240,10 +246,6 @@ export default {
     podLogs: 'No Logs.',
     podLogsLoading: false
   }),
-  created () {
-    this.jobType = { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' }
-    this.volume = this.volumes[0]
-  },
   methods: {
     // stataus icon
     getStatusIcon (status) {
@@ -272,29 +274,41 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
+    candinateNames (name) {
+      let candidate = []
+      let i
+      for (i = 0; i < this.repeat; i++) {
+        candidate.push(name + '-' + i)
+      }
+      return candidate
+    },
+
     openDeleteDialog (name) {
       this.deleteDialog = true
       this.targetName = name
+    },
+
+    openDialog () {
+      this.dialog = true
+      this.jobType = this.jobsList[0].value
+      this.repeat = 1
+      this.volume = this.volumes[0]
     },
 
     resetDialog () {
       this.dialog = false
       this.$refs.form.resetValidation()
       this.$refs.form.reset()
-      this.jobType = { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' }
-      this.volume = this.volumes[0]
     },
 
     onGet () {
       this.$emit('get')
-      this.volume = this.volumes[0]
     },
 
     onCreate () {
       // request create pods
-
+      let name = this.namePrefix + this.name
       let body = {
-        name: this.namePrefix + this.name,
         cpu_request: this.jobType.cpus,
         memory_request: this.jobType.memory,
         gpu_request: this.jobType.gpus,
@@ -309,9 +323,8 @@ export default {
       } else {
         let i
         for (i = 0; i < this.repeat; i++) {
-          let newBody = body
-          newBody.name += '-' + i
-          this.$emit('create', newBody)
+          body.name = name + '-' + i
+          this.$emit('create', { ...body })
         }
       }
       this.resetDialog()
@@ -362,6 +375,18 @@ export default {
         type = 'g2.large'
       }
       return type
+    },
+
+    // gpu rules
+    gpuRules () {
+      if (this.jobType) {
+        let condition = (this.jobType.gpus * this.repeat <= this.remainResources('gpus') ||
+                        this.$store.state.claims.level === 0)
+        this.gpuErrorMessages = condition
+          ? ''
+          : `GPUs must be less then ${this.remainResources('gpus')} limit`
+      }
+      return true
     }
   },
   computed: {
@@ -370,13 +395,22 @@ export default {
       return 'jobs-' + this.$store.getters.namePrefix
     },
 
+    // hint
+    jobTypeHint () {
+      if (this.jobType) {
+        return `CPU: ${this.jobType.cpus}, Memory: ${this.jobType.memory}, GPU: ${this.jobType.gpuType} x ${this.jobType.gpus}`
+      } else {
+        return ''
+      }
+    },
+
     // rule
     nameRules () {
       return [
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.jobs.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
+        v => !this.jobs.map(v => v.name).includes(...this.candinateNames(this.namePrefix + v)) || 'Name already exist'
       ]
     },
     repeatRules () {
@@ -384,14 +418,14 @@ export default {
         v => !!v || 'Repeat is required',
         v => (v && Number.isInteger(v)) || 'Repeat must be integer',
         v => (v && v >= 1) || 'Repeat must be larger then 1',
-        v => (v && v <= 5) || 'Repeat must be less then 5'
+        v => (v && v <= 5) || 'Repeat must be less then 5',
+        this.gpuRules
       ]
     },
     jobTypeRules () {
       return [
         v => !!v || 'Job Type is required',
-        v => (v.gpus <= this.remainResources('gpus') || this.$store.state.claims.level === 0) ||
-          `GPUs must be less then ${this.remainResources('gpus')} limit`
+        this.gpuRules
       ]
     },
     commandRules () {
