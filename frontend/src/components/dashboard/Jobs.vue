@@ -114,10 +114,10 @@
         <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
       </template>
       <template v-slot:[`item.duration`]="{ item }">
-        {{ calcDuration(item.startTime, item.completionTime) }}
+        {{ calcTime(item.startTime, item.completionTime) }}
       </template>
       <template v-slot:[`item.age`]="{ item }">
-        {{ calcAge(item.startTime) }}
+        {{ calcTime(item.startTime) }}
       </template>
       <template v-slot:[`item.logs`]="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
@@ -279,30 +279,26 @@ export default {
 
     onCreate () {
       // request create pods
+
+      let body = {
+        name: this.namePrefix + this.name,
+        cpu_request: this.jobType.cpus,
+        memory_request: this.jobType.memory,
+        gpu_request: this.jobType.gpus,
+        gpu_type: this.jobType.gpuType,
+        volume_name: this.volume,
+        command: this.command.split(' '),
+        lastEvent: ''
+      }
+
       if (this.repeat === 1) {
-        this.$emit('create', {
-          name: this.namePrefix + this.name,
-          cpu_request: this.jobType.cpus,
-          memory_request: this.jobType.memory,
-          gpu_request: this.jobType.gpus,
-          gpu_type: this.jobType.gpuType,
-          volume_name: this.volume,
-          command: this.command.split(' '),
-          lastEvent: ''
-        })
+        this.$emit('create', body)
       } else {
         let i
         for (i = 0; i < this.repeat; i++) {
-          this.$emit('create', {
-            name: this.namePrefix + this.name + '-' + i,
-            cpu_request: this.jobType.cpus,
-            memory_request: this.jobType.memory,
-            gpu_request: this.jobType.gpus,
-            gpu_type: this.jobType.gpuType,
-            volume_name: this.volume,
-            command: this.command.split(' '),
-            lastEvent: ''
-          })
+          let newBody = body
+          newBody.name += '-' + i
+          this.$emit('create', newBody)
         }
       }
       this.resetDialog()
@@ -328,22 +324,9 @@ export default {
     },
 
     // calculate duration
-    calcDuration (start, end) {
+    calcTime (start, end = new Date()) {
       start = new Date(start)
       end = end ? new Date(end) : new Date()
-      const diff = new Date(end - start)
-
-      let result = ''
-      result += diff.getUTCDate() > 1 ? (Number(diff.getUTCDate()) - 1) + 'd' : ''
-      result += diff.getUTCHours() > 0 ? diff.getUTCHours() + 'h' : ''
-      result += diff.getUTCMinutes() + 'm'
-      return result
-    },
-
-    // calculate age
-    calcAge (start) {
-      start = new Date(start)
-      const end = new Date()
       const diff = new Date(end - start)
 
       let result = ''
