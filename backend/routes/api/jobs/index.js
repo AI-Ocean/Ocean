@@ -125,7 +125,7 @@ router.post('/', async (req, res) => {
   try {
     job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
   } catch(err) {
-    console.log(err)
+    // console.log(err)
     res.statusCode(503).send(err)
   }
 
