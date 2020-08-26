@@ -319,6 +319,7 @@ export default {
       }
 
       if (this.repeat === 1) {
+        body.name = name
         this.$emit('create', body)
       } else {
         let i
