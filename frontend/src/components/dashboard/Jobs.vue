@@ -32,6 +32,7 @@
                 label="Name"
                 :prefix="namePrefix"
                 required
+                :error-messages="nameErrorMessages"
               ></v-text-field>
               <v-row>
                 <v-col cols=8>
@@ -237,6 +238,7 @@ export default {
     volume: undefined,
     command: '',
     gpuErrorMessages: '',
+    nameErrorMessages: '',
 
     // data table
     deleteDialog: false,
@@ -276,9 +278,13 @@ export default {
 
     candinateNames (name) {
       let candidate = []
-      let i
-      for (i = 0; i < this.repeat; i++) {
-        candidate.push(name + '-' + i)
+      if (this.repeat > 1) {
+        let i
+        for (i = 0; i < this.repeat; i++) {
+          candidate.push(name + '-' + i)
+        }
+      } else {
+        candidate.push(name)
       }
       return candidate
     },
@@ -388,6 +394,15 @@ export default {
           : `GPUs must be less then ${this.remainResources('gpus')} limit`
       }
       return true
+    },
+
+    nameExistRules (name) {
+      if (name) {
+        this.nameErrorMessages = this.jobs.map(v => v.name).includes(...this.candinateNames(this.namePrefix + name))
+          ? 'Name already exist'
+          : ''
+      }
+      return true
     }
   },
   computed: {
@@ -411,7 +426,7 @@ export default {
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.jobs.map(v => v.name).includes(...this.candinateNames(this.namePrefix + v)) || 'Name already exist'
+        v => this.nameExistRules(v)
       ]
     },
     repeatRules () {
@@ -420,7 +435,8 @@ export default {
         v => (v && Number.isInteger(v)) || 'Repeat must be integer',
         v => (v && v >= 1) || 'Repeat must be larger then 1',
         v => (v && v <= 5) || 'Repeat must be less then 5',
-        this.gpuRules
+        this.gpuRules,
+        v => this.nameExistRules(v)
       ]
     },
     jobTypeRules () {
