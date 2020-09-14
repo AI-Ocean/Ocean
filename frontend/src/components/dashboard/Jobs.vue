@@ -248,6 +248,10 @@ export default {
     podLogs: 'No Logs.',
     podLogsLoading: false
   }),
+  created () {
+    this.jobType = { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' }
+    this.volume = this.volumes[0]
+  },
   methods: {
     // stataus icon
     getStatusIcon (status) {
@@ -309,6 +313,7 @@ export default {
 
     onGet () {
       this.$emit('get')
+      this.volume = this.volumes[0]
     },
 
     onCreate () {
