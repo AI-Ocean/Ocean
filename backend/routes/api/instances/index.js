@@ -58,7 +58,8 @@ router.post('/', async (req, res) => {
     labels: {
       app: 'inst',
       user: getUserID(req.claims),
-      accelerator: gpu_type
+      accelerator: gpu_type,
+      name
     }
   }
 
@@ -123,7 +124,7 @@ router.post('/', async (req, res) => {
     metadata,
     spec: {
       type: 'NodePort',
-      selector: { app: name },
+      selector: { name },
       ports: [{
         port: 22,
         targetPort: 22,
