@@ -2,7 +2,7 @@ var router = require('express').Router()
 var { kubeAPI, getSelector, getUserID } = require('../../../utils')
 
 router.get('/', async (req, res) => {
-  const { data } = await kubeAPI.get('/namespaces/ml-instance/persistentvolumeclaims', getSelector(req.claims))
+  const { data } = await kubeAPI.get('/namespaces/ml-instance/persistentvolumeclaims', getSelector(req.claims, 'vol'))
   const response = {
     volumes: []
   }
