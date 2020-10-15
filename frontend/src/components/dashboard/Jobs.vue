@@ -31,9 +31,6 @@
       :loading="loading"
       :options.sync="options"
     >
-      <!-- <template v-slot:[`header.data-table-select`]="{ item }">
-        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
-      </template> -->
       <template v-slot:[`item.status`]="{ item }">
         <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
       </template>
@@ -54,13 +51,6 @@
       </template>
       <template v-slot:[`item.logs`]="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
-      </template>
-      <template v-slot:[`item.delete`]="{}">
-        <v-btn icon @click="openDeleteDialog()">
-          <v-icon>
-            mdi-trash-can
-          </v-icon>
-        </v-btn>
       </template>
     </v-data-table>
     <!-- end data table -->
@@ -421,9 +411,6 @@ export default {
     candinateNames (name) {
       let candidate = []
       let i = 0
-      // for (i = 0; i < this.repeat; i++) {
-      //   candidate.push(name + '-' + i)
-      // }
       while (candidate.length < this.repeat) {
         let newName = name + '-' + i
         if (!this.jobs.map(v => v.name).includes(newName)) {
