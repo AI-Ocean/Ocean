@@ -31,7 +31,8 @@ router.post('/', async (req, res) => {
   const metadata = {
     name,
     labels: {
-      user: getUserID(req.claims)
+      user: getUserID(req.claims),
+      app: 'vol'
     }
   }
   const spec = {
