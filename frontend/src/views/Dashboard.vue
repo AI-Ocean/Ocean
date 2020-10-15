@@ -1,18 +1,21 @@
 <template>
-  <v-container fluid grid-list-md>
+  <v-container fluid grid-list-md class="ma-0 pa-0">
     <!-- Top Indicator Cards -->
-    <v-row>
-      <indicator
-        :instances="instances"
-        :volumes="volumes"
-        :resources="resources"
-      ></indicator>
+    <v-row class="ma-0 pa-0">
+      <v-col class="ma-0 pa-0">
+        <indicator
+          class="ma-0 pa-0"
+          :instances="instances"
+          :volumes="volumes"
+          :resources="resources"
+        ></indicator>
+      </v-col>
     </v-row>
     <!-- END Top Indicator Cards -->
 
     <!-- Job Table -->
-    <v-row>
-      <v-col>
+    <v-row class="ma-0 pa-0">
+      <v-col class="ma-0 pa-1 pt-0">
         <jobs
           :loading="loadingJobs"
           :resources="resources"
@@ -26,9 +29,9 @@
     </v-row>
     <!-- End Job Table -->
 
-    <v-row>
+    <v-row class="ma-0 pa-0">
       <!-- Instances Table -->
-      <v-col md="12" lg="8">
+      <v-col class="ma-0 pa-1 pt-0" md="12" lg="8">
         <instances
           :loading="loadingInstances"
           :resources="resources"
@@ -42,7 +45,7 @@
       <!-- END Instances Table -->
 
       <!-- Volumes Table -->
-      <v-col md="12" lg="4">
+      <v-col class="ma-0 pa-1 pt-0 pl-0" md="12" lg="4">
         <volumes
           :loading="loadingVolumes"
           :resources="resources"
