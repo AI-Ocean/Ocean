@@ -37,11 +37,14 @@ exports.getUserID = function (claims) {
   return claims.email.split('@')[0]
 }
 
-exports.getSelector = function (claims) {
-  if (claims.level <= 0) return {}
-  return {
-    params: {
-      labelSelector: 'user=' + claims.email.split('@')[0]
-    }
+exports.getSelector = function (claims, app) {
+  var params = {}
+  if (app) {
+    params['labelSelector'] = 'app=' + app
   }
+  
+  if (claims.level > 0) {
+    params['labelSelector'] += ',user=' + claims.email.split('@')[0]
+  }
+  return { params }
 }
