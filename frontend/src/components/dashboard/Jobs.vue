@@ -78,6 +78,9 @@
               :prefix="namePrefix"
               required
             ></v-text-field>
+            <span v-if="repeat <= 5">Names:
+              <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
+            </span>
             <v-row>
               <v-col cols=8>
                 <v-select
