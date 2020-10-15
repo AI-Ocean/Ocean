@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
     labels: {
       app: 'inst',
       user: getUserID(req.claims),
-      accelerator: gpu_type,
+      accelerator: gpu_type
     }
   }
 
