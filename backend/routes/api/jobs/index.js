@@ -95,7 +95,7 @@ router.post('/', async (req, res) => {
               imagePullPolicy: 'Always',
               command,
               resources: { 
-                limits: { memory, cpu, 'nvidia.com/gpu': gpu },
+                limits: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu },
                 requests: { memory, cpu, 'nvidia.com/gpu': gpu }
               },
               volumeMounts: [
