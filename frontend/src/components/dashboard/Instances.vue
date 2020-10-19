@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card tile>
     <!-- header -->
     <v-toolbar flat dark>
       <v-toolbar-title>
