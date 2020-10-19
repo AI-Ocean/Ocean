@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card tile>
     <!-- header -->
     <v-toolbar flat dark>
       <v-toolbar-title>
@@ -164,7 +164,7 @@
     <!-- end delete dialog -->
 
     <!-- log dialog -->
-    <v-dialog v-model="logDialog" max-width="1500" overlay-opacity=100>
+    <v-dialog tile v-model="logDialog" max-width="1500" overlay-opacity=100>
       <v-card>
         <v-card-title>
           Job Logs
@@ -296,6 +296,7 @@ export default {
 
     openDialog () {
       this.dialog = true
+      this.volume = this.volumes[0]
     },
 
     openCopyDialog () {
