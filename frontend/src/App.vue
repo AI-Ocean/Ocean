@@ -5,6 +5,7 @@
         dark
         flat
         app
+        class="grey darken-3"
       >
         <v-app-bar-nav-icon v-if="$store.state.user && isMobile" @click="drawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title>

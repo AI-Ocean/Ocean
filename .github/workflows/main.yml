@@ -10,7 +10,7 @@ env:
   USERNAME: ${{ github.actor }}
   PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
   IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean
-  DEV_VERSION: a2
+  DEV_VERSION: a3
   STABLE_VERSION: v0.2.3
 
 jobs:

@@ -4,8 +4,8 @@ var { kubeAPI, getSelector, getUserID } = require('../../../utils')
 // Get Instances
 router.get('/', async (req, res) => {
   // get pods data
-  const { data } = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.claims))
-  var servicedata = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.claims))
+  const { data } = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.claims, 'inst'))
+  var servicedata = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.claims, 'inst'))
   servicedata = servicedata.data
 
   // final response
@@ -56,9 +56,10 @@ router.post('/', async (req, res) => {
   const metadata = {
     name,
     labels: {
-      app: name,
+      app: 'inst',
       user: getUserID(req.claims),
-      accelerator: gpu_type
+      accelerator: gpu_type,
+      name
     }
   }
 
@@ -113,7 +114,7 @@ router.post('/', async (req, res) => {
       ],
       nodeSelector: {
         accelerator: gpu_type,
-        runtype: 'inst'
+        app: 'inst'
       }
     }
   }
@@ -123,7 +124,7 @@ router.post('/', async (req, res) => {
     metadata,
     spec: {
       type: 'NodePort',
-      selector: { app: name },
+      selector: { name },
       ports: [{
         port: 22,
         targetPort: 22,

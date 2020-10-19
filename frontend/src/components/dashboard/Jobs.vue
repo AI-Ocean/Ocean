@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card tile>
     <!-- header -->
     <v-toolbar flat dark>
       <v-toolbar-title>
@@ -9,103 +9,27 @@
       <v-btn icon @click="openDialog">
         <v-icon color="white">mdi-plus-box</v-icon>
       </v-btn>
-
-      <!-- form dialog -->
-      <v-dialog
-        v-model="dialog"
-        max-width="500"
-      >
-        <v-card>
-          <v-card-title>
-            New job
-          </v-card-title>
-          <v-card-text>
-            <v-form
-              ma-4
-              ref="form"
-              v-model="valid"
-            >
-              <v-text-field
-                v-model.trim="name"
-                counter="30"
-                :rules="nameRules"
-                label="Name"
-                :prefix="namePrefix"
-                required
-                :error-messages="nameErrorMessages"
-              ></v-text-field>
-              <v-row>
-                <v-col cols=8>
-                  <v-select
-                    v-model="jobType"
-                    :items="jobsList"
-                    :rules="jobTypeRules"
-                    label="Job Type"
-                    auto
-                    la
-                    required
-                    :hint="jobTypeHint"
-                    persistent-hint
-                    :error-messages="gpuErrorMessages"
-                    ref="jobType"
-                  ></v-select>
-                </v-col>
-                <v-col cols=1>
-                </v-col>
-                <v-col cols=3>
-                  <v-text-field
-                    v-model.number="repeat"
-                    type="number"
-                    :rules="repeatRules"
-                    label="Repeat"
-                    @click:append-outer="increment"
-                    @click:prepend="decrement"
-                    required
-                    :error-messages="gpuErrorMessages"
-                    ref="repeat"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-select
-                v-model="volume"
-                :items="volumes"
-                label="Volumes"
-                :rules="requiredRules"
-                required
-                chips
-              ></v-select>
-              <v-text-field
-                v-model.trim="command"
-                :rules="commandRules"
-                type="string"
-                label="Command"
-                required
-                hint="Shell Command to Run"
-              ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="gray" @click="onCancle">
-              Cancle
-            </v-btn>
-            <v-btn color="success" @click="onCreate" :disabled="!valid">
-              Create
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <!-- end form dialog -->
+      <v-divider class="mx-2" vertical></v-divider>
+      <v-btn icon @click="openCopyDialog" :disabled="selected.length !== 1">
+        <v-icon color="white">mdi-content-copy</v-icon>
+      </v-btn>
+      <v-divider class="mx-2" vertical></v-divider>
+      <v-btn icon @click="openDeleteDialog" :disabled="selected.length < 1">
+        <v-icon color="white">mdi-trash-can</v-icon>
+      </v-btn>
     </v-toolbar>
     <!-- end header -->
 
     <!-- data table -->
     <v-data-table
+      v-model="selected"
+      hide-default-footer
+      show-select
+      item-key="name"
       :headers="jobsHeader"
       :items="jobs"
       :loading="loading"
       :options.sync="options"
-      hide-default-footer
     >
       <template v-slot:[`item.status`]="{ item }">
         <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
@@ -128,34 +52,119 @@
       <template v-slot:[`item.logs`]="{ item }">
         <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
       </template>
-      <template v-slot:[`item.delete`]="{ item }">
-        <v-btn icon @click="openDeleteDialog(item.name)">
-          <v-icon>
-            mdi-trash-can
-          </v-icon>
-        </v-btn>
-      </template>
     </v-data-table>
     <!-- end data table -->
 
+    <!-- form dialog -->
+    <v-dialog
+      v-model="dialog"
+      max-width="500"
+    >
+      <v-card>
+        <v-card-title>
+          New job
+        </v-card-title>
+        <v-card-text>
+          <v-form
+            ma-4
+            ref="form"
+            v-model="valid"
+          >
+            <v-text-field
+              v-model.trim="name"
+              counter="30"
+              :rules="nameRules"
+              label="Name"
+              :prefix="namePrefix"
+              required
+            ></v-text-field>
+            <span v-if="repeat <= 5">Names:
+              <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
+            </span>
+            <v-row>
+              <v-col cols=8>
+                <v-select
+                  v-model="jobType"
+                  :items="jobsList"
+                  :rules="jobTypeRules"
+                  label="Job Type"
+                  auto
+                  la
+                  required
+                  :hint="jobTypeHint"
+                  persistent-hint
+                  :error-messages="gpuErrorMessages"
+                  ref="jobType"
+                ></v-select>
+              </v-col>
+              <v-col cols=1>
+              </v-col>
+              <v-col cols=3>
+                <v-text-field
+                  v-model.number="repeat"
+                  type="number"
+                  :rules="repeatRules"
+                  label="Repeat"
+                  @click:append-outer="increment"
+                  @click:prepend="decrement"
+                  required
+                  :error-messages="gpuErrorMessages"
+                  ref="repeat"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-select
+              v-model="volume"
+              :items="volumes"
+              label="Volumes"
+              :rules="requiredRules"
+              required
+              chips
+            ></v-select>
+            <v-text-field
+              v-model.trim="command"
+              :rules="commandRules"
+              type="string"
+              label="Command"
+              required
+              hint="Shell Command to Run"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="gray" @click="onCancle">
+            Cancle
+          </v-btn>
+          <v-btn color="success" @click="onCreate" :disabled="!valid">
+            Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- end form dialog -->
+
+    <!-- delete dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title>
           Delete Jobs
         </v-card-title>
         <v-card-text>
-          Are you sure to delete <code> {{ targetName }} </code>
+          Are you sure to delete <code> {{ selected.map(x => x.name).join(',') }} </code>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color='red' @click="onDelete(targetName)">
+          <v-btn color='red' @click="onDelete()">
             Delete
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- end delete dialog -->
 
-    <v-dialog v-model="logDialog" max-width="1500" overlay-opacity=100>
+    <!-- log dialog -->
+    <v-dialog tile v-model="logDialog" max-width="1500" overlay-opacity=100>
       <v-card>
         <v-card-title>
           Job Logs
@@ -185,6 +194,8 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- end log dialog -->
+
   </v-card>
 </template>
 
@@ -215,8 +226,7 @@ export default {
       { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
       { text: 'Duration', value: 'duration', width: 20, sortable: false, filterable: false },
       { text: 'Age', value: 'age', width: 20, sortable: false, filterable: false },
-      { text: 'Logs', value: 'logs', width: 100, sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 10, sortable: false, filterable: false }
+      { text: 'Logs', value: 'logs', width: 100, sortable: false, filterable: false }
     ],
 
     jobsList: [
@@ -238,9 +248,9 @@ export default {
     volume: undefined,
     command: '',
     gpuErrorMessages: '',
-    nameErrorMessages: '',
 
     // data table
+    selected: [],
     deleteDialog: false,
     targetName: '',
     logDialog: false,
@@ -248,6 +258,10 @@ export default {
     podLogs: 'No Logs.',
     podLogsLoading: false
   }),
+  created () {
+    this.jobType = this.jobsList[0].value
+    this.volume = this.volumes[0]
+  },
   methods: {
     // stataus icon
     getStatusIcon (status) {
@@ -276,39 +290,44 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
-    candinateNames (name) {
-      let candidate = []
-      if (this.repeat > 1) {
-        let i
-        for (i = 0; i < this.repeat; i++) {
-          candidate.push(name + '-' + i)
-        }
-      } else {
-        candidate.push(name)
-      }
-      return candidate
-    },
-
-    openDeleteDialog (name) {
+    openDeleteDialog () {
       this.deleteDialog = true
-      this.targetName = name
     },
 
     openDialog () {
       this.dialog = true
-      this.jobType = this.jobsList[0].value
-      this.repeat = 1
       this.volume = this.volumes[0]
+    },
+
+    openCopyDialog () {
+      this.name = this.selected[0].name.split('-').slice(2, -1).join('-')
+      this.volume = this.selected[0].volumes[0]
+      this.command = this.selected[0].command.join(' ')
+
+      if (this.selected[0].gpus === 1) {
+        this.jobType = this.jobsList[0].value
+      } else if (this.selected[0].gpus === 2) {
+        this.jobType = this.jobsList[1].value
+      } else if (this.selected[0].gpus === 4) {
+        this.jobType = this.jobsList[2].value
+      }
+      this.dialog = true
     },
 
     resetDialog () {
       this.dialog = false
       this.$refs.form.resetValidation()
-      this.$refs.form.reset()
+
+      this.name = ''
+      this.jobType = this.jobsList[0].value
+      this.repeat = 1
+      this.volume = this.volumes[0]
+      this.command = ''
     },
 
     onGet () {
       this.$emit('get')
+      this.volume = this.volumes[0]
     },
 
     onCreate () {
@@ -320,20 +339,13 @@ export default {
         gpu_request: this.jobType.gpus,
         gpu_type: this.jobType.gpuType,
         volume_name: this.volume,
-        command: this.command.split(' '),
-        lastEvent: ''
+        command: this.command.split(' ')
       }
 
-      if (this.repeat === 1) {
-        body.name = name
-        this.$emit('create', body)
-      } else {
-        let i
-        for (i = 0; i < this.repeat; i++) {
-          body.name = name + '-' + i
-          this.$emit('create', { ...body })
-        }
-      }
+      this.candinateNames(name).forEach(n => {
+        body.name = n
+        this.$emit('create', { ...body })
+      })
       this.resetDialog()
     },
 
@@ -342,9 +354,11 @@ export default {
       this.resetDialog()
     },
 
-    onDelete (name) {
+    onDelete () {
       this.deleteDialog = false
-      this.$emit('delete', name)
+      this.selected.forEach(e => this.$emit('delete', e.name))
+      this.selected = []
+      // this.$emit('delete', name)
     },
 
     async viewLogs (name) {
@@ -367,7 +381,9 @@ export default {
       let result = ''
       result += diff.getUTCDate() > 1 ? (Number(diff.getUTCDate()) - 1) + 'd' : ''
       result += diff.getUTCHours() > 0 ? diff.getUTCHours() + 'h' : ''
-      result += diff.getUTCMinutes() + 'm'
+      if (result.length < 4) {
+        result += diff.getUTCMinutes() + 'm'
+      }
       return result
     },
 
@@ -396,13 +412,17 @@ export default {
       return true
     },
 
-    nameExistRules (name) {
-      if (name) {
-        this.nameErrorMessages = this.jobs.map(v => v.name).includes(...this.candinateNames(this.namePrefix + name))
-          ? 'Name already exist'
-          : ''
+    candinateNames (name) {
+      let candidate = []
+      let i = 0
+      while (candidate.length < this.repeat) {
+        let newName = name + '-' + i
+        if (!this.jobs.map(v => v.name).includes(newName)) {
+          candidate.push(newName)
+        }
+        i++
       }
-      return true
+      return candidate
     }
   },
   computed: {
@@ -425,8 +445,7 @@ export default {
       return [
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => this.nameExistRules(v)
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -'
       ]
     },
     repeatRules () {
@@ -435,8 +454,7 @@ export default {
         v => (v && Number.isInteger(v)) || 'Repeat must be integer',
         v => (v && v >= 1) || 'Repeat must be larger then 1',
         v => (v && v <= 5) || 'Repeat must be less then 5',
-        this.gpuRules,
-        v => this.nameExistRules(v)
+        this.gpuRules
       ]
     },
     jobTypeRules () {

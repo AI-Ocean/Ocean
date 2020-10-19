@@ -4,7 +4,7 @@ var { kubeAPI, kubeJobAPI, getSelector, getUserID, kubeAPI } = require('../../..
 // Get Jobs
 router.get('/', async (req, res) => {
   // get jobs data
-  const { data } = await kubeJobAPI.get('/namespaces/ml-instance/jobs', getSelector(req.claims))
+  const { data } = await kubeJobAPI.get('/namespaces/ml-instance/jobs', getSelector(req.claims, 'job'))
 
   // final response
   const response = {
@@ -52,9 +52,10 @@ router.post('/', async (req, res) => {
   const metadata = {
     name,
     labels: {
-      app: name,
+      app: 'job',
       user: getUserID(req.claims),
-      accelerator: gpu_type
+      accelerator: gpu_type,
+      jobtype: gpu.toString()
     }
   }
 
@@ -68,6 +69,7 @@ router.post('/', async (req, res) => {
       backoffLimit: 0,
       activeDeadlineSeconds: 60 * 60 * 24 * 5, // 5 days
       template: {
+        metadata,
         spec: {
           restartPolicy: 'Never',
           volumes: [
@@ -115,7 +117,8 @@ router.post('/', async (req, res) => {
           ],
           nodeSelector: {
             accelerator: gpu_type,
-            runtype: 'job' + gpu +'gpu'
+            app: 'job',
+            jobtype: gpu.toString()
           }
         }
       }
@@ -125,8 +128,8 @@ router.post('/', async (req, res) => {
   try {
     job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
   } catch(err) {
-    // console.log(err)
-    res.statusCode(503).send(err)
+    console.error(err)
+    res.status(503).send(err)
   }
 
   const response = {

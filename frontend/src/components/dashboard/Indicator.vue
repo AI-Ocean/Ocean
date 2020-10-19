@@ -1,8 +1,8 @@
 <template>
-  <v-container fluid grid-list-md>
-    <v-row>
-      <v-col sm="12" md="4">
-        <v-card>
+  <v-container fluid grid-list-md class="ma-0 pa-0">
+    <v-row class="ma-0 pa-0">
+      <v-col sm="12" md="4" class="ma-0 pa-1">
+        <v-card tile>
           <v-toolbar flat dark>
             <v-toolbar-title>
               Resources Status
@@ -34,8 +34,8 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col sm="12" md="8">
-        <v-card>
+      <v-col sm="12" md="8" class="ma-0 pa-1 pl-0">
+        <v-card tile>
           <v-toolbar flat dark>
             <v-toolbar-title>
               Workloads Status
