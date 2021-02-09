@@ -46,7 +46,9 @@ router.get('/', async (req, res) => {
 
 // Create pod
 router.post('/', async (req, res) => {
+  console.log(req.body)
   var name = req.body.name
+  var image = req.body.image
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
@@ -68,7 +70,7 @@ router.post('/', async (req, res) => {
     apiVersion: 'v1',
     metadata,
     spec: {
-      restartPolicy: 'OnFailure',
+      restartPolicy: 'Always',
       volumes: [
         {
           name: 'main-storage',
@@ -88,7 +90,7 @@ router.post('/', async (req, res) => {
       containers: [
         {
           name,
-          image: 'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
+          image,
           imagePullPolicy: 'Always',
           resources: { 
             limits: { memory, cpu, 'nvidia.com/gpu': gpu },

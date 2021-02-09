@@ -81,6 +81,23 @@
             <span v-if="repeat <= 5">Names:
               <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
             </span>
+            <v-combobox
+              v-model.trim="image"
+              :items="imagesList"
+              :hide-no-data="!searchImage"
+              :search-input.sync="searchImage"
+              label="Image"
+              required
+              persistent-hint
+              hint="You can add other image"
+            >
+              <template v-slot:no-data>
+                <v-list-item>
+                  <span class="subheading">Create</span>
+                    {{ searchImage }}
+                </v-list-item>
+              </template>
+            </v-combobox>
             <v-row>
               <v-col cols=8>
                 <v-select
@@ -122,7 +139,7 @@
               chips
             ></v-select>
             <v-text-field
-              v-model.trim="command"
+              v-model="command"
               :rules="commandRules"
               type="string"
               label="Command"
@@ -229,6 +246,12 @@ export default {
       { text: 'Logs', value: 'logs', width: 100, sortable: false, filterable: false }
     ],
 
+    imagesList: [
+      { header: 'Select an option or type other images' },
+      'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
+      'mlvclab/pytorch:1.6.0-cuda10.1-cudnn7-devel'
+    ],
+
     jobsList: [
       { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
       { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
@@ -243,6 +266,8 @@ export default {
     dialog: false,
     valid: false,
     name: '',
+    image: '',
+    searchImage: '',
     repeat: 1,
     jobType: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' },
     volume: undefined,
@@ -334,6 +359,7 @@ export default {
       // request create pods
       let name = this.namePrefix + this.name
       let body = {
+        image: this.image,
         cpu_request: this.jobType.cpus,
         memory_request: this.jobType.memory,
         gpu_request: this.jobType.gpus,

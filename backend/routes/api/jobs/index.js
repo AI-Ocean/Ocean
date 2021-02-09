@@ -42,6 +42,7 @@ router.get('/', async (req, res) => {
 // Create pod
 router.post('/', async (req, res) => {
   var name = req.body.name
+  var image = req.body.image
   var cpu = req.body.cpu_request
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
@@ -67,7 +68,8 @@ router.post('/', async (req, res) => {
       completions: 1,
       parallelism: 1,
       backoffLimit: 0,
-      activeDeadlineSeconds: 60 * 60 * 24 * 5, // 5 days
+      activeDeadlineSeconds: 60 * 60 * 24 * 5, // 5 days,
+      ttlSecondsAfterFinished: 60 * 60 * 24 * 60, // 30 days
       template: {
         metadata,
         spec: {
@@ -91,12 +93,12 @@ router.post('/', async (req, res) => {
           containers: [
             {
               name,
-              image: 'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
+              image,
               imagePullPolicy: 'Always',
               command,
               resources: { 
                 limits: { memory, cpu, 'nvidia.com/gpu': gpu },
-                requests: { memory: '1Gi', cpu: 1, 'nvidia.com/gpu': gpu }
+                requests: { memory: '10Gi', cpu: gpu, 'nvidia.com/gpu': gpu }
               },
               volumeMounts: [
                 {
@@ -119,7 +121,15 @@ router.post('/', async (req, res) => {
             accelerator: gpu_type,
             app: 'job',
             jobtype: gpu.toString()
-          }
+          },
+          tolerations: [
+            {
+              key: "dedicated",
+              value: "gpu",
+              operator: "Equal",
+              effect: "NoSchedule"
+            }
+          ]
         }
       }
     }
