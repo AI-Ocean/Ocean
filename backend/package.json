@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@sentry/node": "^5.14.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "cluster": "^0.7.7",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "~1.4.4",
