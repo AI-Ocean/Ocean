@@ -17,11 +17,14 @@
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
+    "express-session": "^1.17.1",
     "firebase-admin": "^9.2.0",
     "http-errors": "~1.6.3",
     "https": "^1.0.0",
     "morgan": "~1.9.1",
     "os": "^0.1.1",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
     "uuid": "^8.2.0"
   }
 }
