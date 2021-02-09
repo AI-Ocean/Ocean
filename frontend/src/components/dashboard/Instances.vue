@@ -34,6 +34,23 @@
                 required
               >
               </v-text-field>
+              <v-combobox
+                v-model.trim="image"
+                :items="imagesList"
+                :hide-no-data="!searchImage"
+                :search-input.sync="searchImage"
+                label="Image"
+                required
+                persistent-hint
+                hint="You can add other image"
+              >
+                <template v-slot:no-data>
+                  <v-list-item>
+                    <span class="subheading">Create</span>
+                      {{ searchImage }}
+                  </v-list-item>
+                </template>
+              </v-combobox>
               <v-select
                 v-model="instanceType"
                 :items="instancesList"
@@ -147,6 +164,12 @@ export default {
       { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
     ],
 
+    imagesList: [
+      { header: 'Select an option or type other images' },
+      'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
+      'mlvclab/pytorch:1.6.0-cuda10.1-cudnn7-devel'
+    ],
+
     instancesList: [
       { text: 'g1.small', value: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' } },
       { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
@@ -160,6 +183,8 @@ export default {
     dialog: false,
     valid: false,
     name: undefined,
+    image: '',
+    searchImage: '',
     instanceType: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' },
     volume: undefined,
 
@@ -194,6 +219,7 @@ export default {
       // request create pods
       this.$emit('create', {
         name: this.namePrefix + this.name,
+        image: this.image,
         cpu_request: this.instanceType.cpus,
         memory_request: this.instanceType.memory,
         gpu_request: this.instanceType.gpus,
