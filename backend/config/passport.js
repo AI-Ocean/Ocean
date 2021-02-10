@@ -33,7 +33,7 @@ const jwtStrategyOption = {
 async function jwtVerify(payload, done) {
   let user;
   try {
-    user = await userDAO.find(payload.email);
+    user = await userDAO.findOne({email: payload.email});
     if (!user) return done(null, false);
   } catch (e) {
     return done(e);

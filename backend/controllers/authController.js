@@ -47,7 +47,7 @@ module.exports.signin = function (req, res, next) {
         },
         require('../config/key').SECRET,
         {
-          expiresIn: "5m",
+          expiresIn: "1d",
           issuer: 'kairos03',
           subject: 'userInfo'
         })
@@ -55,29 +55,3 @@ module.exports.signin = function (req, res, next) {
     });
   })(req, res);
 }
-
-    // check 
-    // User.findOne({ email: req.body.email }, function(err, user) {
-    //     console.log(user)
-    //     if (err) throw err;
-    //     if (!user) {
-    //         return res.status(401).json({msg: 'Authentication failed. User not found.'});
-    //     } else {
-    //         // check if password matches
-    //         user.comparePassword(req.body.password, function (err, isMatch) {
-    //             if (isMatch && !err) {
-    //                 // if user is found and password is right create a token
-    //                 let token = jwt.sign(user, config.SECRET, {
-    //                     expiresIn: '1h',
-    //                     issuer: 'kairos03',
-    //                     subject: 'userInfo'
-    //                 });
-    //                 // return the information including token as JSON
-    //                 return res.json({token});
-    //             } else {
-    //                 return res.status(401).json({msg: 'Authentication failed. Wrong password.'});
-    //             }
-    //         });
-    //     }
-    // });
-// };
