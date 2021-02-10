@@ -1,11 +1,14 @@
 const router = require('express').Router()
-const admin = require('firebase-admin')
+const User = require('../../../models/user')
 
-const db = admin.firestore()
+// const admin = require('firebase-admin')
+
+// const db = admin.firestore()
+const db = null
 
 router.get('/', async (req, res) => {
   if (req.claims.level > 0) {
-    return status(403).send({
+    return status(403).json({
       message: 'Permission Denyed.'
     })
   }
@@ -25,12 +28,12 @@ router.get('/', async (req, res) => {
   const s = await db.collection('users').orderBy(order, sort).offset(offset).limit(limits).get()
 
   s.forEach(v => r.items.push(v.data()))
-  res.send(r)
+  res.json(r)
 })
 
 router.get('/:uid', async (req, res) => {
   const r = await db.collection('users').doc(req.params.uid).get()
-  res.send(r.data())
+  res.json(r.data())
 })
 
 router.patch('/:uid', async (req, res) => {

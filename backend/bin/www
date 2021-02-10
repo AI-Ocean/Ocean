@@ -62,7 +62,6 @@ if (cluster.isMaster) {
   var debug = require('debug')('backend:server');
   var http = require('http');
   var worker_id = cluster.worker.id;
-  var master_id;
 
   /**
    * Get port from environment and store in Express.
