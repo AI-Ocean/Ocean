@@ -20,7 +20,7 @@ async function localVerify(email, password, done) {
     const isSamePassword = await bcrypt.compare(password, user.password);
     if (!isSamePassword) return done(null, false);
   } catch (e) {
-    done(e);
+    return done(e);
   }
   return done(null, user);
 }
@@ -45,21 +45,3 @@ module.exports = () => {
   passport.use(new LocalStrategy(LocalStrategyOption, localVerify));
   passport.use(new JWTStrategy(jwtStrategyOption, jwtVerify));
 };
-
-// module.exports = function(passport) {
-//   var opts = {};
-//   opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-//   opts.secretOrKey = secret;
-//   passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-//     User.findOne({id: jwt_payload.id}, function(err, user) {
-//           if (err) {
-//               return done(err, false);
-//           }
-//           if (user) {
-//               done(null, user);
-//           } else {
-//               done(null, false);
-//           }
-//       });
-//   }));
-// };

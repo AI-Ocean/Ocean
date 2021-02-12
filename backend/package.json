@@ -5,7 +5,8 @@
   "scripts": {
     "tsdev": "cross-env NODE_ENV=development nodemon --exec ts-node ./bin/www",
     "dev": "cross-env NODE_ENV=development nodemon --exec node ./bin/www",
-    "start": "cross-env NODE_ENV=production nodemon --exec node ./bin/www"
+    "start": "cross-env NODE_ENV=production nodemon --exec node ./bin/www",
+    "test": "cross-env NODE_ENV=development nodemon --exec node_modules/mocha/bin/mocha --exit --timeout 5000 $(find . -name '*.spec.js' -not -path './node_modules/*') --recursive"
   },
   "dependencies": {
     "@sentry/node": "^5.14.2",
@@ -33,7 +34,11 @@
     "uuid": "^8.2.0"
   },
   "devDependencies": {
+    "chai": "^4.3.0",
+    "mocha": "^8.2.1",
+    "node-mocks-http": "^1.10.1",
     "nodemon": "^2.0.7",
+    "sinon": "^9.2.4",
     "ts-node": "^9.1.1"
   }
 }

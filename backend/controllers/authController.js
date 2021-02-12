@@ -28,10 +28,10 @@ module.exports.signup = async function (req, res, next) {
   // save the user
   try {
     await newUser.save();
-    return res.status(201).json({ msg: 'Successful created new user.' });
   } catch (err) {
-    return next(err)
+      return next(err)
   }
+  return res.status(201).json({ msg: 'Successful created new user.' });
 };
 
 module.exports.signin = function (req, res, next) {
