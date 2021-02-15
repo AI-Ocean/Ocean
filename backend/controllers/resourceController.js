@@ -1,10 +1,14 @@
-var router = require('express').Router()
-var { kubeAPI, getSelector, getUserID } = require('../../../utils')
+var { kubeAPI } = require('../utils')
 
-// Get Instances
-router.get('/', async (req, res) => {
-  // get pods data
-  const { data } = await kubeAPI.get('/nodes')
+module.exports.get_resources = async (req, res) => {
+  let data
+  try{
+    // get pods data
+    const pod = await kubeAPI.get('/nodes?labelSelector=accelerator')
+    data = pod.data
+  } catch (err) {
+    return res.status(503).json(err.response.data)
+  }
 
   // sum resources
   const total = {
@@ -15,9 +19,6 @@ router.get('/', async (req, res) => {
   }
 
   data.items.forEach(v => {
-    if (v.metadata.name === 'master'){
-      return
-    }
     const { cpu, memory } = v.status.capacity
     const gpu = v.status.capacity['nvidia.com/gpu']
 
@@ -26,7 +27,5 @@ router.get('/', async (req, res) => {
     total.gpus += Number(gpu)
   })
 
-  res.send(total)
-})
-
-module.exports = router
+  return res.json(total)
+}
