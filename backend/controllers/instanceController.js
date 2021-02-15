@@ -1,7 +1,7 @@
 var { kubeAPI, getSelector, getUserID } = require('../utils')
 
 // get instances list
-module.exports.instances_list = async (req, res) => {
+module.exports.get_instances_list = async (req, res) => {
   let podData, serviceData
   try {
     // get pods, services data

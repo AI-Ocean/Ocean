@@ -1,6 +1,6 @@
 var { kubeAPI, kubeJobAPI, getSelector, getUserID, kubeAPI } = require('../utils')
 
-module.exports.jobs_list = async (req, res) => {
+module.exports.get_jobs_list = async (req, res) => {
   let data
   // get jobs data
   try {
@@ -169,5 +169,24 @@ module.exports.delete_job = async (req, res) => {
   } catch (err) {
     return res.status(503).json(err.response.data)
   }
-  return res.send(response.data)
+  return res.status(204).json(response.data)
+}
+
+module.exports.get_job_log = async (req, res) => {
+  // get pod for job
+  try {
+    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
+    const podname = data.items[0].metadata.name
+
+    // get jobs data
+    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log')
+  } catch (err) {
+    return res.status(503).json(res.response.data)
+  }
+
+  // final response
+  const response = {
+    logs: data
+  }
+  return res.json(response)
 }
