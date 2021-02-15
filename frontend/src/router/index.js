@@ -9,8 +9,8 @@ const adminCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (!store.state.user.emailVerified) return next('/profile')
-    if (store.state.claims.level > 0) throw Error('Only allow to Admin.')
+    // if (!store.state.user.emailVerified) return next('/profile')
+    if (store.state.user.role !== 'admin') throw Error('Only allow to Admin.')
     next()
   }
 }
@@ -19,7 +19,7 @@ const userCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (store.state.claims.level > 1) throw Error('Only allow to User.')
+    // if (store.state.claims.level > 1) throw Error('Only allow to User.')
     next()
   }
 }
@@ -28,8 +28,8 @@ const guestCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    if (!store.state.user.emailVerified) return next('/profile')
-    if (store.state.claims.level > 2) throw Error('Only allow to Guest.')
+    // if (!store.state.user.emailVerified) return next('/profile')
+    // if (store.state.claims.level > 2) throw Error('Only allow to Guest.')
     next()
   }
 }
@@ -87,20 +87,20 @@ const routes = [
   }
 ]
 
-const waitFirebase = () => {
-  return new Promise((resolve, reject) => {
-    let count = 0
-    const tmr = setInterval(() => {
-      if (store.state.firebaseLoaded) {
-        clearInterval(tmr)
-        resolve()
-      } else if (count++ > 500) {
-        clearInterval(tmr)
-        reject(Error('Firebase load time exceeded'))
-      }
-    }, 10)
-  })
-}
+// const waitFirebase = () => {
+//   return new Promise((resolve, reject) => {
+//     let count = 0
+//     const tmr = setInterval(() => {
+//       if (store.state.firebaseLoaded) {
+//         clearInterval(tmr)
+//         resolve()
+//       } else if (count++ > 500) {
+//         clearInterval(tmr)
+//         reject(Error('Firebase load time exceeded'))
+//       }
+//     }, 10)
+//   })
+// }
 
 const router = new VueRouter({
   mode: 'history',
@@ -108,12 +108,12 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  Vue.prototype.$Progress.start()
-  waitFirebase().then(() => {
-    next()
-  }).catch(e => Vue.prototype.$toasted.error(e.message))
-})
+// router.beforeEach((to, from, next) => {
+//   Vue.prototype.$Progress.start()
+//   waitFirebase().then(() => {
+//     next()
+//   }).catch(e => Vue.prototype.$toasted.error(e.message))
+// })
 
 router.afterEach((to, from) => {
   Vue.prototype.$Progress.finish()

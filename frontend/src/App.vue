@@ -86,19 +86,21 @@
             </v-list-item-icon>
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
+
           <v-list-item link to="/dashboard">
             <v-list-item-icon>
               <v-icon>mdi-monitor-dashboard</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
-          <v-list-item v-if="$store.state.claims && $store.state.claims.level === 0" link to="/admin/users">
+
+          <v-list-item v-if="$store.state.user && $store.state.user.role === 'admin'" link to="/admin/users">
             <v-list-item-icon>
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Users</v-list-item-title>
           </v-list-item>
-          <v-list-item v-if="$store.state.claims && $store.state.claims.level === 0" link to="/admin/settings">
+          <v-list-item v-if="$store.state.user && $store.state.user.role === 'admin'" link to="/admin/settings">
             <v-list-item-icon>
               <v-icon>mdi-cog</v-icon>
             </v-list-item-icon>
@@ -115,8 +117,8 @@
     </div>
 
     <v-content>
-      <vue-progress-bar/>
-      <v-container v-if="!$store.state.firebaseLoaded" grid-list-md>
+      <!-- <vue-progress-bar/> -->
+      <!-- <v-container grid-list-md>
         <v-row align="center" justify="center">
             <v-card color="transparent" flat>
               <v-card-text class="text-center">
@@ -131,13 +133,13 @@
               </v-card-text>
             </v-card>
         </v-row>
-      </v-container>
+      </v-container> -->
       <router-view/>
     </v-content>
 
     <v-footer>
       <v-spacer></v-spacer>
-      &copy; {{ new Date().getFullYear() }} by MLVC Lab.
+      &copy; 2019-{{ new Date().getFullYear() }} by kairos03.
     </v-footer>
   </v-app>
 </template>
@@ -178,7 +180,7 @@ export default {
       this.isMobile = window.innerWidth < 600
     },
     async signOut () {
-      await this.$firebase.auth().signOut()
+      this.$store.dispatch('logout')
       this.$router.push('/sign')
     },
     toProfile () {

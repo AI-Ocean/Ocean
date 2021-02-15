@@ -1,17 +1,17 @@
-import Vue from 'vue'
-import * as firebase from 'firebase/app'
-import store from '@/store'
+// import Vue from 'vue'
+// import * as firebase from 'firebase/app'
+// import store from '@/store'
 
-// Add the Firebase products that you want to use
-import 'firebase/auth'
-import 'firebase/firestore'
+// // Add the Firebase products that you want to use
+// import 'firebase/auth'
+// import 'firebase/firestore'
 
-import configs from '../configs'
+// import configs from '../configs'
 
-// Initialize Firebase
-firebase.initializeApp(configs.FIREBASE_CONFIG)
-Vue.prototype.$firebase = firebase
+// // Initialize Firebase
+// firebase.initializeApp(configs.FIREBASE_CONFIG)
+// Vue.prototype.$firebase = firebase
 
-firebase.auth().onAuthStateChanged((user) => {
-  store.dispatch('getUser', user)
-})
+// firebase.auth().onAuthStateChanged((user) => {
+//   store.dispatch('getUser', user)
+// })
