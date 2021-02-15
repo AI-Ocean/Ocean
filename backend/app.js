@@ -33,7 +33,6 @@ app.use(passport.initialize());
 
 // router
 app.get('/', (req, res) => {
-  console.log("root")
   res.json({message: 'Ocean REST API Alive.'});
 });
 app.use('/api', require('./routes/auth'));

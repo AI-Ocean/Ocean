@@ -47,7 +47,6 @@ describe(".siginup()", function () {
     // call target function
     await authController.signup(req, res)
 
-    // console.log(res.statusCode, res._getJSONData())
     expect(res.statusCode).equal(400)
   })
 
@@ -70,7 +69,6 @@ describe(".siginup()", function () {
     // call target function
     await authController.signup(req, res)
 
-    // console.log(res.statusCode, res._getJSONData())
     expect(res.statusCode).equal(400)
   })
 })

@@ -142,7 +142,6 @@ module.exports.create_job = async (req, res) => {
   try {
     job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
   } catch(err) {
-    console.log(err.response)
     return res.status(503).json(err.response.data)
   }
 

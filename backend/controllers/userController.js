@@ -77,7 +77,6 @@ module.exports.user_delete = async (req, res, next) => {
 
   try {
     const user = await userDAO.findByIdAndDelete(uid);
-    console.log(user)
     if (!user) return res.status(404).json({msg: "user not found."});
 
   } catch (err) {
