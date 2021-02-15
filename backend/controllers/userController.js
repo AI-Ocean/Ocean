@@ -1,30 +1,28 @@
 // Call User model
 let userDAO = require("../models/user");
 
-module.exports.user_list = async (req, res) => {
-  console.log(req.claims)
-  if (req.claims.role !== 'admin') {
+module.exports.users_list = async (req, res) => {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({
       message: 'Permission Denied.'
     })
   }
 
-  // let { offset, limits, order, sort } = req.query
-  // offset = Number(offset)
-  // limits = Number(limits)
+  let { offset, limits, order, sort } = req.query
+  offset = Number(offset)
+  limits = Number(limits)
+  order = Number(order) 
 
-  // const r = {
-  //   items: [],
-  //   totalCount: 0
-  // }
+  const r = {
+    items: [],
+    totalCount: 0
+  }
 
-  // const t = await db.collection('infos').doc('users').get()
-  // r.totalCount = t.data().counter
-
-  // const s = await db.collection('users').orderBy(order, sort).offset(offset).limit(limits).get()
-
-  // s.forEach(v => r.items.push(v.data()))
-  // res.json(r)
+  const t = await userDAO.find().sort({email: order}).limit(limits).skip(offset)
+  r.totalCount = t.length
+  r.items = t
+  
+  res.json(r)
 }
 
 module.exports.user_detail = async (req, res, next) => {

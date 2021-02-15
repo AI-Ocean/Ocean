@@ -1,10 +1,14 @@
-var router = require('express').Router()
-var { kubeAPI, kubeJobAPI, getSelector, getUserID, kubeAPI } = require('../../../utils')
+var { kubeAPI, kubeJobAPI, getSelector, getUserID, kubeAPI } = require('../utils')
 
-// Get Jobs
-router.get('/', async (req, res) => {
+module.exports.jobs_list = async (req, res) => {
+  let data
   // get jobs data
-  const { data } = await kubeJobAPI.get('/namespaces/ml-instance/jobs', getSelector(req.claims, 'job'))
+  try {
+    const job = await kubeJobAPI.get('/namespaces/ml-instance/jobs', getSelector(req.user, 'job'))
+    data = job.data
+  } catch (err) {
+    return res.status(503).json(err.response.body)
+  }
 
   // final response
   const response = {
@@ -22,6 +26,7 @@ router.get('/', async (req, res) => {
     // pod data
     const podres = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
     const status = (0 in podres.data.items) ? podres.data.items[0].status.phase : 'Failed'
+
     // job data
     const jobData = {
       name,
@@ -36,11 +41,10 @@ router.get('/', async (req, res) => {
     }
     response.jobs.push(jobData)
   }
-  res.send(response)
-})
+  return res.json(response)
+}
 
-// Create pod
-router.post('/', async (req, res) => {
+module.exports.create_job = async (req, res) => {
   var name = req.body.name
   var image = req.body.image
   var cpu = req.body.cpu_request
@@ -54,7 +58,7 @@ router.post('/', async (req, res) => {
     name,
     labels: {
       app: 'job',
-      user: getUserID(req.claims),
+      user: getUserID(req.user),
       accelerator: gpu_type,
       jobtype: gpu.toString()
     }
@@ -98,7 +102,7 @@ router.post('/', async (req, res) => {
               command,
               resources: { 
                 limits: { memory, cpu, 'nvidia.com/gpu': gpu },
-                requests: { memory: '10Gi', cpu: gpu, 'nvidia.com/gpu': gpu }
+                requests: { memory, cpu, 'nvidia.com/gpu': gpu }
               },
               volumeMounts: [
                 {
@@ -138,45 +142,32 @@ router.post('/', async (req, res) => {
   try {
     job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
   } catch(err) {
-    console.error(err)
-    res.status(503).send(err)
+    console.log(err.response)
+    return res.status(503).json(err.response.data)
   }
 
   const response = {
     job: job.data
   }
+  return res.json(response)
+}
 
-  res.send(response)
-})
-
-router.delete('/:id', async (req, res) => {
+module.exports.delete_job = async (req, res) => {
   var jobname = req.params.id
-  // get job pod
-  const pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
-  // delete job
-  const response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
-  // delete job pod
-  for ( const pod of pods.data.items ) {
-    const name = pod.metadata.name
-    await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
+  let pods, response
+  try {
+    // get job pod
+    pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
+    // delete job
+    response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
+
+    // delete job pod
+    for ( const pod of pods.data.items ) {
+      const name = pod.metadata.name
+      await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
+    }
+  } catch (err) {
+    return res.status(503).json(err.response.data)
   }
-  res.send(response.data)
-})
-
-// Get Job Logs
-router.get('/:id/log', async (req, res) => {
-  // get pod for job
-  var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
-  const podname = data.items[0].metadata.name
-
-  // get jobs data
-  var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log')
-
-  // final response
-  const response = {
-    logs: data
-  }
-  res.send(response)
-})
-
-module.exports = router
+  return res.send(response.data)
+}

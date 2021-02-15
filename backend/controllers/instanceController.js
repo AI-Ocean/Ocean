@@ -1,52 +1,56 @@
-var router = require('express').Router()
-var { kubeAPI, getSelector, getUserID } = require('../../../utils')
+var { kubeAPI, getSelector, getUserID } = require('../utils')
 
-// Get Instances
-router.get('/', async (req, res) => {
-  // get pods data
-  const { data } = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.claims, 'inst'))
-  var servicedata = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.claims, 'inst'))
-  servicedata = servicedata.data
+// get instances list
+module.exports.instances_list = async (req, res) => {
+  let podData, serviceData
+  try {
+    // get pods, services data
+    let pod = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.user, 'inst'))
+    podData = pod.data
+    let service = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.user, 'inst'))
+    serviceData = service.data
+  } catch (err) {
+    res.status(503).json(err.response.data)
+  }
 
   // final response
   const response = {
-    podNumber: data.items.length,
+    podNumber: podData.items.length,
     pods: []
   }
 
   // get pod details
-  data.items.forEach(pod => {
+  podData.items.forEach(pod => {
     const limits = pod.spec.containers[0].resources.limits
     const requests = pod.spec.containers[0].resources.requests
     const { name, labels } = pod.metadata
-    var nodePort = 0
+    let nodePort = 0
 
-    servicedata.items.forEach(service => {
+    serviceData.items.forEach(service => {
       if (service.metadata.name === name) {
         nodePort = service.spec.ports[0].nodePort
       }
     })
 
-    // pod data
-    const podData = {
+    // instance data
+    const data = {
       name,
       labels,
       status: pod.status.phase,
-      node_name: pod.spec.nodeName,
+      node: pod.spec.nodeName,
       limits,
       requests,
       volumes: pod.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
       nodePort
     }
 
-    response.pods.push(podData)
+    response.pods.push(data)
   })
-  res.send(response)
-})
+  res.json(response)
+}
 
-// Create pod
-router.post('/', async (req, res) => {
-  console.log(req.body)
+// create instance
+module.exports.create_instance = async (req, res) => {
   var name = req.body.name
   var image = req.body.image
   var cpu = req.body.cpu_request
@@ -59,7 +63,7 @@ router.post('/', async (req, res) => {
     name,
     labels: {
       app: 'inst',
-      user: getUserID(req.claims),
+      user: getUserID(req.user),
       accelerator: gpu_type,
       name
     }
@@ -105,7 +109,7 @@ router.post('/', async (req, res) => {
             {
               name: 'dataset',
               mountPath: '/dataset',
-              readOnly: req.claims.level > 0 ? true : false
+              readOnly: req.user.role === 'admin' ? true : false
             },
             {
               name: 'dshm',
@@ -120,6 +124,7 @@ router.post('/', async (req, res) => {
       }
     }
   }
+
   const serviceData = {
     apiVersion: 'v1',
     kind: 'Service',
@@ -136,27 +141,35 @@ router.post('/', async (req, res) => {
     }
   }
 
-  var pod, service
+  let pod, service
   try {
     pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
     service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
   } catch(err) {
-    res.statusCode(503).send(err)
+    return res.status(503).json(err.response.data)
   }
 
   const response = {
     pod: pod.data,
     service: service.data
   }
+  return res.status(201).json(response)
+}
 
-  res.send(response)
-})
-
-router.delete('/:id', async (req, res) => {
+// delete instance
+module.exports.delete_instance = async (req, res) => {
   var podname = req.params.id
-  const response = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
-  await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
-  res.send(response.data)
-})
 
-module.exports = router
+  let pod, service
+  try {
+    pod = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
+    service = await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
+  } catch (err) {
+    res.status(503).json(err.response.data)
+  }
+  const response = {
+    pod: pod.data,
+    service: service.data
+  }
+  res.status(204).json(response)
+}

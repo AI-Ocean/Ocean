@@ -32,18 +32,20 @@ exports.kubeJobAPI = axios.create({
   httpsAgent,
 })
 
-exports.getUserID = function (claims) {
-  return claims.email.split('@')[0]
+function getUserID(user) {
+  return user.email.split('@')[0]
 }
 
-exports.getSelector = function (claims, app) {
+exports.getUserID = getUserID
+
+exports.getSelector = function (user, app) {
   var params = {}
   if (app) {
     params['labelSelector'] = 'app=' + app
   }
   
-  if (claims.level > 0) {
-    params['labelSelector'] += ',user=' + claims.email.split('@')[0]
+  if (user.role !== 'admin') {
+    params['labelSelector'] += ',user=' + getUserID(user)
   }
   return { params }
 }
