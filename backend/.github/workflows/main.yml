@@ -1,0 +1,34 @@
+name: Ocean
+
+on: 
+  push:
+    branches: ['master', 'develop']
+  pull_request:
+    branches: ['master', 'develop']
+
+env:
+  USERNAME: ${{ github.actor }}
+  PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
+  IMAGE_NAME: docker.pkg.github.com/kairos03/ocean-backend/ocean-backend
+  DEV_VERSION: a4
+  STABLE_VERSION: v0.2.3
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: login docker registry
+      run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
+
+    - name: docker pull cache image
+      run: docker pull $IMAGE_NAME:latest
+
+    - name: docker build
+      run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
+
+    - name: docker push stable version
+      if: github.ref == 'refs/heads/master'
+      run: docker push $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION $IMAGE_NAME:latest
