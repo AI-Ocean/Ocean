@@ -7,7 +7,8 @@ export default new Vuex.Store({
   state: {
     title: 'origin title',
     user: null,
-    token: ''
+    token: '',
+    isInit: false
     // claims: null,
     // firebaseLoaded: false
   },
@@ -20,39 +21,18 @@ export default new Vuex.Store({
     },
     setToken (state, token) {
       state.token = token
+    },
+    setIsInit (state, isInit) {
+      state.isInit = isInit
     }
-    // setClaims (state, claims) {
-    //   state.claims = claims
-    // },
-    // setFirebaseLoaded (state, firebaseLoaded) {
-    //   state.firebaseLoaded = firebaseLoaded
-    // }
   },
   actions: {
-    // async getUser ({ commit }, user) {
-    //   commit('setUser', user)
-    //   if (user) {
-    //     const token = await user.getIdToken(true)
-    //     commit('setToken', token)
-
-    //     const { claims } = await user.getIdTokenResult(true)
-    //     commit('setClaims', claims)
-    //   }
-    //   commit('setFirebaseLoaded', true)
-    // },
-    async signInToken ({ commit }, token) {
+    async signIn ({ dispatch }, siginObj) {
       try {
-        // const { data } = await this.$axios.post('/api/signin', user)
-        commit('setToken', token)
-        // parse jwt
-        let base64Url = token.split('.')[1]
-        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        }).join(''))
-
-        const user = JSON.parse(jsonPayload)
-        commit('setUser', user)
+        const { data } = await Vue.prototype.$axios.post('/api/signin', siginObj)
+        const token = data.token
+        localStorage.setItem('token', token)
+        await dispatch('getUserInfo')
       } catch (err) {
         console.error(err)
       }
@@ -60,6 +40,15 @@ export default new Vuex.Store({
     signOut ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
+    },
+    async getUserInfo ({ commit }) {
+      const token = localStorage.getItem('token')
+      if (token) {
+        commit('setToken', token)
+        const { data } = await Vue.prototype.$axios.get('/api/users/me')
+        commit('setUser', data.user)
+      }
+      commit('setIsInit', true)
     }
   },
   getters: {

@@ -81,8 +81,7 @@ export default {
     //   this.$router.push('/')
     // }
     async siginIn () {
-      const { data } = await this.$axios.post('/api/signin', { email: this.email, password: this.password })
-      await this.$store.dispatch('signInToken', data.token)
+      await this.$store.dispatch('signIn', { email: this.email, password: this.password })
       this.$router.push('/')
     }
   }

@@ -19,17 +19,6 @@ const userCheck = (to, from, next) => {
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
   } else {
-    // if (store.state.claims.level > 1) throw Error('Only allow to User.')
-    next()
-  }
-}
-
-const guestCheck = (to, from, next) => {
-  if (!store.state.user) {
-    if (to.path !== '/sign') return next('/sign')
-  } else {
-    // if (!store.state.user.emailVerified) return next('/profile')
-    // if (store.state.claims.level > 2) throw Error('Only allow to Guest.')
     next()
   }
 }
@@ -78,7 +67,7 @@ const routes = [
     path: '/about',
     name: 'about',
     component: () => import(/* webpackChunkName: "core" */ '../views/About.vue'),
-    beforeEnter: guestCheck
+    beforeEnter: userCheck
   },
   {
     path: '/*',
@@ -102,18 +91,33 @@ const routes = [
 //   })
 // }
 
+const init = () => {
+  return new Promise((resolve, reject) => {
+    let count = 0
+    const tmr = setInterval(() => {
+      if (store.state.isInit) {
+        clearInterval(tmr)
+        resolve()
+      } else if (count++ > 500) {
+        clearInterval(tmr)
+        reject(Error('init time exceeded'))
+      }
+    }, 10)
+  })
+}
+
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   Vue.prototype.$Progress.start()
-//   waitFirebase().then(() => {
-//     next()
-//   }).catch(e => Vue.prototype.$toasted.error(e.message))
-// })
+router.beforeEach((to, from, next) => {
+  Vue.prototype.$Progress.start()
+  init().then(() => {
+    next()
+  }).catch(e => Vue.prototype.$toasted.error(e.message))
+})
 
 router.afterEach((to, from) => {
   Vue.prototype.$Progress.finish()

@@ -13,5 +13,11 @@ new Vue({
   store,
   vuetify,
   error,
+  beforeCreate () {
+    const token = localStorage.getItem('token')
+    if (token) {
+      this.$store.dispatch('getUserInfo')
+    }
+  },
   render: h => h(App)
 }).$mount('#app')

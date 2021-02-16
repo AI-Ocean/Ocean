@@ -25,6 +25,25 @@ module.exports.users_list = async (req, res) => {
   res.json(r)
 }
 
+module.exports.user_me = async (req, res, next) => {
+  let result;
+  try {
+    result = await userDAO.findById({_id: req.user._id})
+    if (!result) {
+      return res.status(404).json({msg: 'user not found.'})
+    }
+  } catch (err) {
+    return next(err)
+  }
+  return res.json({message: 'user found.', user: {
+      email: result.email,
+      role: result.role,
+      name: result.name,
+      activated: result.activated
+    }
+  });
+}
+
 module.exports.user_detail = async (req, res, next) => {
   const { uid } = req.params
   if (req.user.role !== 'admin' && req.user._id.toString() !== uid) {
@@ -40,7 +59,14 @@ module.exports.user_detail = async (req, res, next) => {
   } catch (err) {
     return next(err)
   }
-  return res.json({msg: 'user found.', data: result});
+  return res.json({message: 'user found.',  data: {
+    user: {
+      email: result.email,
+      role: result.role,
+      name: result.name,
+      activated: result.activated
+    }
+  }});
 }
 
 module.exports.user_modify = async (req, res, next) => {
@@ -61,7 +87,7 @@ module.exports.user_modify = async (req, res, next) => {
     if (role) user.role = role;
 
     await user.save();
-    return res.json({msg: 'user updated'})
+    return res.json({message: 'user updated'})
 
   } catch (err) {
     next(err)

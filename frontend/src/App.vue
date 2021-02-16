@@ -38,7 +38,7 @@
                 </v-col>
                 <v-col cols="8">
                   <v-card-text>
-                    <span class="font-weight-bold">{{ $store.state.user.displayName }}</span>
+                    <span class="font-weight-bold">{{ $store.state.user.name }}</span>
                     <br>
                     <span class="font-weight-thin">{{ $store.state.user.email }}</span>
                   </v-card-text>
@@ -117,7 +117,7 @@
     </div>
 
     <v-content>
-      <!-- <vue-progress-bar/> -->
+      <vue-progress-bar/>
       <!-- <v-container grid-list-md>
         <v-row align="center" justify="center">
             <v-card color="transparent" flat>
