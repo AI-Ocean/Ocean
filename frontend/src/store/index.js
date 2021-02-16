@@ -7,9 +7,9 @@ export default new Vuex.Store({
   state: {
     title: 'origin title',
     user: null,
-    token: '',
-    claims: null,
-    firebaseLoaded: false
+    token: ''
+    // claims: null,
+    // firebaseLoaded: false
   },
   mutations: {
     setTitle (state, payload) {
@@ -71,6 +71,9 @@ export default new Vuex.Store({
     },
     role (state) {
       return state.user ? state.user.role : null
+    },
+    isAdmin (state) {
+      return state.user && state.user.role === 'admin'
     }
   }
 })

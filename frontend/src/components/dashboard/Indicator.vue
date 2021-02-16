@@ -165,10 +165,10 @@ export default {
       ]
     },
     cpusData () {
-      return this.getChartData('cpus', this.$store.getters.level > 0)
+      return this.getChartData('cpus', this.$store.getters.isAdmin)
     },
     memoryData () {
-      return this.getChartData('memory', this.$store.getters.level > 0)
+      return this.getChartData('memory', this.$store.getters.isAdmin)
     },
     gpusData () {
       return this.getChartData('gpus')

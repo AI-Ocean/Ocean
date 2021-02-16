@@ -109,7 +109,7 @@ export default {
   },
   computed: {
     role () {
-      return this.userData.level <= 0 ? 'Admin' : this.userData.level <= 1 ? 'User' : 'Guest'
+      return this.$store.getters.isAdmin ? 'Admin' : 'User'
     }
   }
 }

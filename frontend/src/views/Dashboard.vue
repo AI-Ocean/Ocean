@@ -115,7 +115,7 @@ export default {
       if (type === 'capacity') {
         base = this.volumes
       } else {
-        if (this.$store.state.claims.level === 0) {
+        if (this.$store.getters.isAdmin) {
           base = this.instances
         } else {
           base = this.instances.concat(this.jobs)
@@ -138,7 +138,7 @@ export default {
     // user limits
     async getUserLimits () {
       var data
-      if (this.$store.state.claims.level === 0) {
+      if (this.$store.getters.isAdmin) {
         data = await this.$axios.get('/api/resources')
       } else {
         data = await this.$axios.get('/api/users/' + this.$store.state.user.uid)

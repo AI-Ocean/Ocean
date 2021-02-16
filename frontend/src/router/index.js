@@ -10,7 +10,7 @@ const adminCheck = (to, from, next) => {
     if (to.path !== '/sign') return next('/sign')
   } else {
     // if (!store.state.user.emailVerified) return next('/profile')
-    if (store.state.user.role !== 'admin') throw Error('Only allow to Admin.')
+    if (this.$store.getters.isAdmin) throw Error('Only allow to Admin.')
     next()
   }
 }

@@ -94,13 +94,13 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
 
-          <v-list-item v-if="$store.state.user && $store.state.user.role === 'admin'" link to="/admin/users">
+          <v-list-item v-if="$store.getters.isAdmin" link to="/admin/users">
             <v-list-item-icon>
               <v-icon>mdi-account-group</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Users</v-list-item-title>
           </v-list-item>
-          <v-list-item v-if="$store.state.user && $store.state.user.role === 'admin'" link to="/admin/settings">
+          <v-list-item v-if="$store.getters.isAdmin" link to="/admin/settings">
             <v-list-item-icon>
               <v-icon>mdi-cog</v-icon>
             </v-list-item-icon>
