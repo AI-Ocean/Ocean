@@ -15,6 +15,10 @@ new Vue({
   error,
   beforeCreate () {
     this.$store.dispatch('getUserInfo')
+      .catch(() => {
+        localStorage.removeItem('token')
+        router.go('/sign')
+      })
   },
   render: h => h(App)
 }).$mount('#app')

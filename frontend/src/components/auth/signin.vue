@@ -81,7 +81,12 @@ export default {
     //   this.$router.push('/')
     // }
     async siginIn () {
-      await this.$store.dispatch('signIn', { email: this.email, password: this.password })
+      try {
+        await this.$store.dispatch('signIn', { email: this.email, password: this.password })
+      } catch (e) {
+        e.message = 'Login failed'
+        throw e
+      }
       this.$router.push('/')
     }
   }

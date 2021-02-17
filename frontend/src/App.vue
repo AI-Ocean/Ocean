@@ -20,9 +20,10 @@
               v-on="on"
             >
               <v-avatar
-                size="40"
+                size="45"
+                color="blue"
               >
-                <img :src="$store.state.user.photoURL">
+                <span class="white--text headline">{{ $store.state.user.name.substring(0,2).toUpperCase() }}</span>
               </v-avatar>
             </v-btn>
           </template>
@@ -31,16 +32,17 @@
               <v-row>
                 <v-col cols="4">
                   <v-avatar
-                    size="100"
+                    size="80"
+                    color="blue"
                   >
-                    <img :src="$store.state.user.photoURL">
+                    <span class="white--text" style="font-size: 40px">{{ $store.state.user.name.substring(0,2).toUpperCase() }}</span>
                   </v-avatar>
                 </v-col>
                 <v-col cols="8">
                   <v-card-text>
-                    <span class="font-weight-bold">{{ $store.state.user.name }}</span>
+                    <span class="font-weight-bold title">{{ $store.state.user.name }}</span>
                     <br>
-                    <span class="font-weight-thin">{{ $store.state.user.email }}</span>
+                    <span class="font-weight-thin subtitle">{{ $store.state.user.email }}</span>
                   </v-card-text>
                 </v-col>
               </v-row>
@@ -180,7 +182,7 @@ export default {
       this.isMobile = window.innerWidth < 600
     },
     async signOut () {
-      this.$store.dispatch('logout')
+      this.$store.dispatch('signOut')
       this.$router.push('/sign')
     },
     toProfile () {
