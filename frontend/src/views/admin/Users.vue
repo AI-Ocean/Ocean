@@ -76,7 +76,10 @@
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
-                <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+                <v-card-title class="headline">
+                  <span> Are you sure you want to delete User? </span>
+                  <code>{{editedItem.email}}</code>
+                </v-card-title>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -124,8 +127,9 @@ export default {
       { text: 'Email', value: 'email' },
       { text: 'Name', value: 'name' },
       { text: 'GPUs', value: 'gpus' },
-      { text: 'role', value: 'role' },
-      { text: 'actions', value: 'actions', sortable: false }
+      { text: 'Role', value: 'role' },
+      { text: 'Joined', value: 'createdAt' },
+      { text: 'Actions', value: 'actions', sortable: false }
     ],
     roles: [
       { text: 'Admin', value: 'admin' },
@@ -159,8 +163,7 @@ export default {
         params: {
           offset: this.options.page > 0 ? (this.options.page - 1) * this.options.itemsPerPage : 0,
           limits: this.options.itemsPerPage,
-          order: this.options.sortBy[0],
-          sort: this.options.sortDesc[0] ? 'desc' : 'asc'
+          order: (this.options.sortDesc[0] ? '-' : '') + (this.options.sortBy[0] || '')
         }
       })
       this.items = data.items
@@ -185,19 +188,14 @@ export default {
     close () {
       this.dialog = false
     },
-    deleteItemConfirm () {
+    async deleteItemConfirm () {
+      await this.$axios.delete('/api/users/' + this.editedItem._id, this.editedItem)
+      this.$toasted.success('User deleted.')
       this.dialogDelete = false
+      await this.list()
     },
     closeDelete () {
       this.dialogDelete = false
-    },
-    async changeGpus (uid, gpus) {
-      await this.$axios.patch('/api/users/' + uid, { gpus })
-      this.$toasted.show('GPUs changed.')
-    },
-    async changeLevel (uid, level) {
-      await this.$axios.patch('/api/users/' + uid, { level })
-      this.$toasted.show('Level changed.')
     }
   },
   watch: {

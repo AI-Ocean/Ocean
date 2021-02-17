@@ -8,19 +8,20 @@ module.exports.users_list = async (req, res) => {
     })
   }
 
-  let { offset, limits, order, sort } = req.query
+  let { offset, limits, order } = req.query
   offset = Number(offset)
   limits = Number(limits)
-  order = Number(order) 
+
+  console.log(offset, limits, order)
 
   const r = {
     items: [],
     totalCount: 0
   }
-
-  let t = await userDAO.find().sort({email: order}).limit(limits).skip(offset)
+  const total = await userDAO.count()
+  let t = await userDAO.find().sort(order).limit(limits).skip(offset)
   t = t.map(x => x._doc).map(({ password, ...rest }) => rest)   // remove password data
-  r.totalCount = t.length
+  r.totalCount = total
   r.items = t
   res.json(r)
 }
