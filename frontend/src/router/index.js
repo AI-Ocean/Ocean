@@ -5,22 +5,34 @@ import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
-const adminCheck = (to, from, next) => {
-  if (!store.state.user) {
-    if (to.path !== '/sign') return next('/sign')
-  } else {
-    // if (!store.state.user.emailVerified) return next('/profile')
-    if (!store.getters.isAdmin) throw Error('Only allow to Admin.')
-    next()
-  }
-}
+// const adminCheck = (to, from, next) => {
+//   if (!store.state.user) {
+//     if (to.path !== '/sign') return next('/sign')
+//   } else {
+//     // if (!store.state.user.emailVerified) return next('/profile')
+//     if (!store.getters.isAdmin) throw Error('Only allow to Admin.')
+//     next()
+//   }
+// }
 
-const userCheck = (to, from, next) => {
+// const userCheck = (to, from, next) => {
+//   if (!store.state.user) {
+//     if (to.path !== '/sign') return next('/sign')
+//   } else {
+//     next()
+//   }
+// }
+
+const roleCheck = (to, from, next) => {
+  // user check
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')
-  } else {
-    next()
   }
+  // admin check
+  if (to.path.substring(0, 7) === '/admin' && !store.getters.isAdmin) {
+    throw Error('Only allow to Admin.')
+  }
+  return next()
 }
 
 const routes = [
@@ -28,7 +40,7 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home,
-    beforeEnter: userCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/sign',
@@ -43,31 +55,31 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: () => import(/* webpackChunkName: "core" */ '../views/Dashboard.vue'),
-    beforeEnter: userCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/profile',
     name: 'profile',
     component: () => import(/* webpackChunkName: "core" */ '../views/Profile.vue'),
-    beforeEnter: userCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/admin/users',
     name: 'users',
     component: () => import(/* webpackChunkName: "admin" */ '../views/admin/Users.vue'),
-    beforeEnter: adminCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/admin/settings',
     name: 'settings',
     component: () => import(/* webpackChunkName: "admin" */ '../views/admin/Settings.vue'),
-    beforeEnter: adminCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/about',
     name: 'about',
     component: () => import(/* webpackChunkName: "core" */ '../views/About.vue'),
-    beforeEnter: userCheck
+    beforeEnter: roleCheck
   },
   {
     path: '/*',

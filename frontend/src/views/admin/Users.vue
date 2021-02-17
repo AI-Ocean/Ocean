@@ -7,6 +7,85 @@
             Users
           </v-card-title>
           <v-card-text>
+            <v-dialog
+              v-model="dialog"
+              max-width="500px"
+            >
+              <v-card>
+                <v-card-title>
+                  <span class="headline">Edit Item</span>
+                </v-card-title>
+
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <v-text-field
+                          v-model="editedItem.name"
+                          label="Name"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <v-text-field
+                          v-model="editedItem.gpus"
+                          type="number"
+                          label="GPUs"
+                        ></v-text-field>
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <v-select
+                          v-model="editedItem.role"
+                          label="Role"
+                          :items="roles"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="close"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="save"
+                  >
+                    Save
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog v-model="dialogDelete" max-width="500px">
+              <v-card>
+                <v-card-title class="headline">Are you sure you want to delete this item?</v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
             <v-data-table
               :headers="headers"
               :items="items"
@@ -15,37 +94,21 @@
               :loading="loading"
               :footer-props="footerProps"
             >
-              <template v-slot:item.gpus="{ item }">
-                <v-edit-dialog
-                  :return-value.sync="item.gpus"
-                  @save="changeGpus(item.uid, Number(item.gpus))"
-                > {{ item.gpus }}
-                  <template v-slot:input>
-                    <v-text-field
-                      v-model="item.gpus"
-                      :rules="[gpuRules]"
-                      label="Edit"
-                      single-line
-                      type="number"
-                      autofocus
-                    ></v-text-field>
-                  </template>
-                </v-edit-dialog>
+              <template v-slot:[`item.actions`]="{ item }">
+                <v-icon
+                  small
+                  class="mr-2"
+                  @click="editItem(item)"
+                >
+                  mdi-pencil
+                </v-icon>
+                <v-icon
+                  small
+                  @click="deleteItem(item)"
+                >
+                  mdi-delete
+                </v-icon>
               </template>
-              <template v-slot:item.level="{ item }">
-                <v-edit-dialog
-                  :return-value="item.level"
-                  @save="changeLevel(item.uid, item.level)"
-                > {{ levelToName(item.level) }}
-                  <template v-slot:input>
-                    <v-select
-                      v-model="item.level"
-                      :items="select"
-                    ></v-select>
-                  </template>
-                </v-edit-dialog>
-              </template>
-
             </v-data-table>
           </v-card-text>
         </v-card>
@@ -59,16 +122,15 @@ export default {
   data: () => ({
     headers: [
       { text: 'Email', value: 'email' },
-      { text: 'Name', value: 'displayName' },
+      { text: 'Name', value: 'name' },
       { text: 'GPUs', value: 'gpus' },
-      { text: 'level', value: 'level', width: 120 }
+      { text: 'role', value: 'role' },
+      { text: 'actions', value: 'actions', sortable: false }
     ],
-    select: [
-      { text: 'Admin', value: 0 },
-      { text: 'User', value: 1 },
-      { text: 'Guest', value: 2 }
+    roles: [
+      { text: 'Admin', value: 'admin' },
+      { text: 'User', value: 'user' }
     ],
-    gpuRules: v => (v <= 32 && v >= 0) || 'Input range must be between 0 to 32',
     items: [],
     options: {
       itemsPerPage: 20,
@@ -79,7 +141,16 @@ export default {
     loading: true,
     footerProps: {
       itemsPerPageOptions: [10, 20, 30]
-    }
+    },
+
+    dialog: false,
+    editedItem: {
+      id: '',
+      name: '',
+      gpus: 0,
+      role: 'user'
+    },
+    dialogDelete: false
   }),
   methods: {
     async list () {
@@ -97,10 +168,28 @@ export default {
       this.loading = false
       return data
     },
-    levelToName (level) {
-      if (level === 0) return 'Admin'
-      else if (level === 1) return 'User'
-      else return 'Guest'
+    editItem (item) {
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
+    deleteItem (item) {
+      this.editedItem = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+    async save () {
+      await this.$axios.patch('/api/users/' + this.editedItem._id, this.editedItem)
+      this.$toasted.success('User updated.')
+      this.dialog = false
+      await this.list()
+    },
+    close () {
+      this.dialog = false
+    },
+    deleteItemConfirm () {
+      this.dialogDelete = false
+    },
+    closeDelete () {
+      this.dialogDelete = false
     },
     async changeGpus (uid, gpus) {
       await this.$axios.patch('/api/users/' + uid, { gpus })

@@ -6,17 +6,17 @@
           color="#385F73"
           dark
         >
-          <div class="d-flex flex-no-wrap justify-space-between">
-            <div>
-              <v-card-title class="headline">{{ userData.displayName }}</v-card-title>
+          <!-- <div class="d-flex flex-no-wrap justify-space-between">
+            <div> -->
+              <v-card-title class="headline">{{ this.$store.state.user.name }}</v-card-title>
               <v-card-subtitle>
-                {{ userData.email }}<br />
+                {{ this.$store.state.user.email }}<br />
                 {{ role }}
               </v-card-subtitle>
               <v-card-text>
                 <v-divider class="mb-4"></v-divider>
                 <!-- cips -->
-                <v-chip
+                <!-- <v-chip
                   class="mr-2"
                   color="green"
                   text-color="white"
@@ -26,7 +26,7 @@
                     left
                     class="ml-2 green darken-4"
                   >
-                    {{ userData.cpus }}
+                    {{ this.$store.state.user.name.cpus }}
                   </v-avatar>
                 </v-chip>
                 <v-chip
@@ -39,9 +39,9 @@
                     left
                     class="ml-2 green darken-4"
                   >
-                    {{ userData.mem }}
+                    {{ this.$store.state.user.mem }}
                   </v-avatar>
-                </v-chip>
+                </v-chip> -->
                 <v-chip
                   class="mr-2"
                   color="green"
@@ -52,43 +52,34 @@
                     left
                     class="ml-2 green darken-4"
                   >
-                    {{ userData.gpus }}
+                    {{ this.$store.state.user.gpus }}
                   </v-avatar>
                 </v-chip>
+                <v-divider class="mt-4"></v-divider>
               </v-card-text>
-            </div>
-            <v-avatar
-              class="ma-3"
-              size="125"
-              tile
-            >
-              <v-img :src="this.userData.photoURL"></v-img>
-            </v-avatar>
-          </div>
+              <v-card-actions>
+                <v-btn color="lightgray">edit profile</v-btn>
+                <v-btn color="lightgray">request quota</v-btn>
+              </v-card-actions>
+            <!-- </div>
+          </div> -->
         </v-card>
       </v-col>
     </v-row>
 
-    <v-content>
-      <vue-progress-bar/>
-      <v-container grid-list-md v-if="!userData">
-        <v-row align="center" justify="center">
-            <v-card color="transparent" flat>
-              <v-card-text class="text-center">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                  class="text-center"
-                ></v-progress-circular>
-              </v-card-text>
-              <v-card-text class="text-center">
-                Loading User Prifile.
-              </v-card-text>
-            </v-card>
-        </v-row>
-      </v-container>
-    </v-content>
-
+    <v-dialog
+      v-model="editDialog"
+      scrollable fullscreen
+      persistent :overlay="false"
+      max-width="500px"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-title primary-title>
+          title
+        </v-card-title>
+      </v-card>
+    </v-dialog>
   </v-container>
 
 </template>
@@ -96,16 +87,9 @@
 <script>
 export default {
   data: () => ({
-    userData: {}
+    editDialog: true
   }),
   methods: {
-    async getUserInfo () {
-      const r = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
-      this.userData = r.data
-    }
-  },
-  mounted () {
-    this.getUserInfo()
   },
   computed: {
     role () {

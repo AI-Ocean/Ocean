@@ -103,11 +103,11 @@ export default {
     this.getVolumes()
     this.getJobs()
 
-    setInterval(() => {
-      this.getInstances()
-      this.getVolumes()
-      this.getJobs()
-    }, 30000)
+    // setInterval(() => {
+    //   this.getInstances()
+    //   this.getVolumes()
+    //   this.getJobs()
+    // }, 30000)
   },
   methods: {
     calcUsage (type) {

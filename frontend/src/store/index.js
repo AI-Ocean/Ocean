@@ -28,18 +28,15 @@ export default new Vuex.Store({
   },
   actions: {
     async signIn ({ dispatch }, siginObj) {
-      try {
-        const { data } = await Vue.prototype.$axios.post('/api/signin', siginObj)
-        const token = data.token
-        localStorage.setItem('token', token)
-        await dispatch('getUserInfo')
-      } catch (err) {
-        console.error(err)
-      }
+      const { data } = await Vue.prototype.$axios.post('/api/signin', siginObj)
+      const token = data.token
+      localStorage.setItem('token', token)
+      await dispatch('getUserInfo')
     },
     signOut ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
+      localStorage.removeItem('token')
     },
     async getUserInfo ({ commit }) {
       console.log('getUserInfo')

@@ -36,10 +36,12 @@ module.exports.user_me = async (req, res, next) => {
     return next(err)
   }
   return res.json({message: 'user found.', user: {
+      id: result._id,
       email: result.email,
       role: result.role,
       name: result.name,
-      activated: result.activated
+      activated: result.activated,
+      gpus: result.gpus
     }
   });
 }
@@ -61,20 +63,22 @@ module.exports.user_detail = async (req, res, next) => {
   }
   return res.json({message: 'user found.',  data: {
     user: {
+      id: result._id,
       email: result.email,
       role: result.role,
       name: result.name,
-      activated: result.activated
+      activated: result.activated,
+      gpus: result.gpus
     }
   }});
 }
 
 module.exports.user_modify = async (req, res, next) => {
   const { uid } = req.params
-  const { password, name, role } = req.body
+  const { password, name, role, gpus } = req.body
 
-  // only admin can change the role
-  if (req.user.role !== 'admin' && role) {
+  // only admin can change the role and gpus
+  if (req.user.role !== 'admin' && ( role || gpus )) {
     return res.status(403).end();
   }
 
@@ -85,6 +89,7 @@ module.exports.user_modify = async (req, res, next) => {
     if (password) user.password = password;
     if (name) user.name = name;
     if (role) user.role = role;
+    if (gpus) user.gpus = gpus;
 
     await user.save();
     return res.json({message: 'user updated'})
