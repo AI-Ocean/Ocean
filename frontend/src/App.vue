@@ -117,7 +117,7 @@
     </div>
 
     <v-content>
-      <vue-progress-bar/>
+      <!-- <vue-progress-bar/> -->
       <!-- <v-container grid-list-md>
         <v-row align="center" justify="center">
             <v-card color="transparent" flat>

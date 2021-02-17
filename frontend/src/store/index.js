@@ -42,6 +42,7 @@ export default new Vuex.Store({
       commit('setUser', null)
     },
     async getUserInfo ({ commit }) {
+      console.log('getUserInfo')
       const token = localStorage.getItem('token')
       if (token) {
         commit('setToken', token)
