@@ -18,7 +18,6 @@
         ></v-text-field>
         <v-text-field
           v-model="password"
-          name="password"
           label="Password"
           type="password"
           :rules="passwordRules"
@@ -26,7 +25,6 @@
         ></v-text-field>
         <v-text-field
           v-model="passwordCheck"
-          name="password_check"
           label="Password Check"
           type="password"
           :rules="passwordCheckRules"
@@ -34,7 +32,6 @@
         ></v-text-field>
         <v-text-field
           v-model="name"
-          name="name"
           label="name"
           :rules="nameRules"
           required
@@ -67,16 +64,20 @@ export default {
     passwordRules: [
       v => !!v || 'E-mail is required',
       v => {
-        const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
+        const pattern = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
         return (
           pattern.test(v) ||
-            'Min. 8 characters with at least one capital letter, a number and a special character.')
+            'Min. 8 characters with at least a number and a special character.')
       }
+    ],
+    nameRules: [
+      v => !!v || 'Name is required',
+      v => /^[A-Za-z0-9]+$/.test(v) || 'Name only contain alphabet and numbers'
     ]
   }),
   computed: {
-    passwordCheckRule () {
-      return () => (this.password === this.passwordCheck) || 'Password must same'
+    passwordCheckRules () {
+      return [() => (this.password === this.passwordCheck) || 'Password must same']
     }
   },
   methods: {
