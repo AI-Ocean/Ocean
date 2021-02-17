@@ -39,7 +39,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-btn color="lightgray" @click="changePassword">change password</v-btn>
-                <v-btn color="lightgray">request quota</v-btn>
+                <v-btn color="lightgray" @click="requestQuota">request quota</v-btn>
               </v-card-actions>
             <!-- </div>
           </div> -->
@@ -90,6 +90,66 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="requestDialog"
+      max-width="500px"
+      persistent
+    >
+      <v-card>
+        <v-card-title primary-title>
+          Request Quota
+        </v-card-title>
+        <v-card-text>
+          <v-form
+            v-model="quotaValid"
+            lazy-validation
+          >
+            <v-text-field
+              v-model="gpus"
+              label="Request GPUs"
+              type="number"
+              suffix="Cores"
+              required
+            ></v-text-field>
+            <v-menu
+              v-model="menu"
+              :close-on-content-click="false"
+              :nudge-right="40"
+              offset-y
+              min-width="auto"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model="date"
+                  label="Usage period"
+                  :prefix="new Date().toISOString().substr(0, 10) + ' ~ '"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="date"
+                @input="menu = false"
+              ></v-date-picker>
+            </v-menu>
+            <v-text-field
+              v-model="reason"
+              label="Reason"
+              type="text"
+              hint="brief reason about this requesting"
+              persistent-hint
+              required
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" :disabled="!quotaValid" @click="submitRequest">submit</v-btn>
+          <v-btn @click="cancleRequest">cancle</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 
 </template>
@@ -118,7 +178,14 @@ export default {
           pattern.test(v) ||
             'Min. 8 characters with at least a number and a special character.')
       }
-    ]
+    ],
+
+    quotaValid: false,
+    requestDialog: false,
+    gpus: 0,
+    reason: '',
+    menu: false,
+    date: new Date().toISOString().substr(0, 10)
   }),
   computed: {
     role () {
@@ -165,6 +232,19 @@ export default {
       this.newPassword = ''
       this.passwordCheck = ''
       this.editDialog = false
+    },
+
+    requestQuota () {
+      this.gpus = this.$store.state.user.gpus
+      this.reason = ''
+      this.requestDialog = true
+    },
+    submitRequest () {
+      // TODO
+      this.requestDialog = false
+    },
+    cancleRequest () {
+      this.requestDialog = false
     }
   },
   mounted () {
