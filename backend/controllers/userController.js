@@ -18,10 +18,10 @@ module.exports.users_list = async (req, res) => {
     totalCount: 0
   }
 
-  const t = await userDAO.find().sort({email: order}).limit(limits).skip(offset)
+  let t = await userDAO.find().sort({email: order}).limit(limits).skip(offset)
+  t = t.map(x => x._doc).map(({ password, ...rest }) => rest)   // remove password data
   r.totalCount = t.length
   r.items = t
-  
   res.json(r)
 }
 
@@ -35,15 +35,8 @@ module.exports.user_me = async (req, res, next) => {
   } catch (err) {
     return next(err)
   }
-  return res.json({message: 'user found.', user: {
-      id: result._id,
-      email: result.email,
-      role: result.role,
-      name: result.name,
-      activated: result.activated,
-      gpus: result.gpus
-    }
-  });
+  const {password, ...rest} = result._doc   // remove password
+  return res.json({message: 'user found.', user: rest });
 }
 
 module.exports.user_detail = async (req, res, next) => {
@@ -61,16 +54,8 @@ module.exports.user_detail = async (req, res, next) => {
   } catch (err) {
     return next(err)
   }
-  return res.json({message: 'user found.',  data: {
-    user: {
-      id: result._id,
-      email: result.email,
-      role: result.role,
-      name: result.name,
-      activated: result.activated,
-      gpus: result.gpus
-    }
-  }});
+  const {password, ...rest} = result._doc   // remove password
+  return res.json({message: 'user found.', user: result });
 }
 
 module.exports.user_modify = async (req, res, next) => {
