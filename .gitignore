@@ -1,3 +1,5 @@
+node_modules
+
 ### VisualStudioCode ###
 .vscode/
 
@@ -7,5 +9,3 @@
 
 ### environment file ###
 .env
-
-**/.firebaserc

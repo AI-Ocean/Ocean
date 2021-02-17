@@ -60,26 +60,6 @@ export default {
     ]
   }),
   methods: {
-    // async signInWithGoogle () {
-    //   const provider = new this.$firebase.auth.GoogleAuthProvider()
-    //   await this.$firebase.auth().signInWithPopup(provider)
-    //   const user = this.$firebase.auth().currentUser
-    //   await user.getIdToken()
-    //   await this.$store.dispatch('getUser', user)
-
-    //   // just after signup or guest
-    //   if (this.$store.state.claims.level === undefined || this.$store.state.claims.level >= 2) {
-    //     // user email is not khu.ac.kr domain
-    //     if (user.email.split('@')[1] !== 'khu.ac.kr') {
-    //       alert('Only KHU member allowd!')
-    //       await user.delete()
-    //     } else {
-    //       alert('Please wait for administrator approval.')
-    //       await this.$firebase.auth().signOut()
-    //     }
-    //   }
-    //   this.$router.push('/')
-    // }
     async siginIn () {
       try {
         await this.$store.dispatch('signIn', { email: this.email, password: this.password })

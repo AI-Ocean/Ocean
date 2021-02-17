@@ -88,21 +88,6 @@ const routes = [
   }
 ]
 
-// const waitFirebase = () => {
-//   return new Promise((resolve, reject) => {
-//     let count = 0
-//     const tmr = setInterval(() => {
-//       if (store.state.firebaseLoaded) {
-//         clearInterval(tmr)
-//         resolve()
-//       } else if (count++ > 500) {
-//         clearInterval(tmr)
-//         reject(Error('Firebase load time exceeded'))
-//       }
-//     }, 10)
-//   })
-// }
-
 const init = () => {
   return new Promise((resolve, reject) => {
     let count = 0

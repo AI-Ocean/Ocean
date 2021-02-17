@@ -9,8 +9,6 @@ export default new Vuex.Store({
     user: null,
     token: '',
     isInit: false
-    // claims: null,
-    // firebaseLoaded: false
   },
   mutations: {
     setTitle (state, payload) {
