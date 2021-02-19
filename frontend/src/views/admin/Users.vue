@@ -51,6 +51,13 @@
                           :items="roles"
                         ></v-select>
                       </v-col>
+                      <v-col
+                        cols="12"
+                        sm="6"
+                        md="4"
+                      >
+                        <v-checkbox label="Activated" v-model="editedItem.activated"></v-checkbox>
+                      </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
@@ -97,6 +104,12 @@
               :loading="loading"
               :footer-props="footerProps"
             >
+              <template v-slot:[`item.activated`]="{ item }">
+                <v-checkbox v-model="item.activated" readonly></v-checkbox>
+              </template>
+              <template v-slot:[`item.lastSignin`]="{ item }">
+                <span> {{lastLoginTime(item.lastSignin)}} </span>
+              </template>
               <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
                   small
@@ -128,12 +141,18 @@ export default {
       { text: 'Name', value: 'name' },
       { text: 'GPUs', value: 'gpus' },
       { text: 'Role', value: 'role' },
+      { text: 'Activated', value: 'activated' },
       { text: 'Joined', value: 'createdAt' },
+      { text: 'LastSignin', value: 'lastSignin' },
       { text: 'Actions', value: 'actions', sortable: false }
     ],
     roles: [
       { text: 'Admin', value: 'admin' },
       { text: 'User', value: 'user' }
+    ],
+    activateds: [
+      { text: 'True', value: true },
+      { text: 'False', value: false }
     ],
     items: [],
     options: {
@@ -152,7 +171,8 @@ export default {
       id: '',
       name: '',
       gpus: 0,
-      role: 'user'
+      role: 'user',
+      activated: false
     },
     dialogDelete: false
   }),
@@ -196,6 +216,11 @@ export default {
     },
     closeDelete () {
       this.dialogDelete = false
+    },
+    lastLoginTime (datetime) {
+      if (!datetime) return 'Not Signin Yet.'
+      let delta = Date.now() - Date.parse(datetime)
+      return Math.round(delta / (24 * 60 * 60 * 1000)) + ' days ago'
     }
   },
   watch: {

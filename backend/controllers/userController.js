@@ -59,7 +59,7 @@ module.exports.user_detail = async (req, res, next) => {
 
 module.exports.user_modify = async (req, res, next) => {
   const { uid } = req.params
-  const { password, name, role, gpus } = req.body
+  const { password, name, role, gpus, activated } = req.body
 
   // only admin can change the role and gpus
   if (req.user.role !== 'admin' && ( role || gpus )) {
@@ -74,6 +74,7 @@ module.exports.user_modify = async (req, res, next) => {
     if (name) user.name = name;
     if (role) user.role = role;
     if (gpus) user.gpus = gpus;
+    if (activated) user.activated = activated;
 
     await user.save();
     return res.json({message: 'user updated'})

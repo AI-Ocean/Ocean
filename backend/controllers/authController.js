@@ -37,8 +37,9 @@ module.exports.signup = async function (req, res, next) {
 module.exports.signin = function (req, res, next) {
   passport.authenticate("local", { session: false }, (err, user) => {
     if (err || !user) return res.status(401).end();
-    req.login(user, { session: false }, (error) => {
+    req.login(user, { session: false }, async (error) => {
       if (error) next(error);
+      // issue token
       const token = jwt.sign(
         { 
           email: user.email,
@@ -51,6 +52,16 @@ module.exports.signin = function (req, res, next) {
           issuer: 'kairos03',
           subject: 'userInfo'
         })
+        // record last signin time
+        try {
+          let userInst = await userDAO.findById(user._id)
+          console.log(userInst)
+          userInst.lastSignin = new Date()
+          console.log(userInst)
+          await userInst.save()
+        } catch (err) {
+          return next(err)
+        }
         return res.json({ token });
     });
   })(req, res);
