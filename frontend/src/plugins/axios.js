@@ -13,7 +13,6 @@ localAPI.interceptors.request.use((req) => {
   req.headers.authorization = 'Bearer ' + store.state.token
   return req
 }, (error) => {
-  console.log(error)
   return Promise.reject(error)
 })
 

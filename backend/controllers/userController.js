@@ -12,13 +12,11 @@ module.exports.users_list = async (req, res) => {
   offset = Number(offset)
   limits = Number(limits)
 
-  console.log(offset, limits, order)
-
   const r = {
     items: [],
     totalCount: 0
   }
-  const total = await userDAO.count()
+  const total = await userDAO.countDocuments()
   let t = await userDAO.find().sort(order).limit(limits).skip(offset)
   t = t.map(x => x._doc).map(({ password, ...rest }) => rest)   // remove password data
   r.totalCount = total

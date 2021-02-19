@@ -5,25 +5,15 @@ import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
-// const adminCheck = (to, from, next) => {
-//   if (!store.state.user) {
-//     if (to.path !== '/sign') return next('/sign')
-//   } else {
-//     // if (!store.state.user.emailVerified) return next('/profile')
-//     if (!store.getters.isAdmin) throw Error('Only allow to Admin.')
-//     next()
-//   }
-// }
-
-// const userCheck = (to, from, next) => {
-//   if (!store.state.user) {
-//     if (to.path !== '/sign') return next('/sign')
-//   } else {
-//     next()
-//   }
-// }
-
 const roleCheck = (to, from, next) => {
+  // token check
+  if (store.state.token) {
+    var payload = JSON.parse(atob(store.state.token.split('.')[1]))
+    if (payload.exp - (Date.now() / 1000) < 0) {
+      store.dispatch('signOut')
+      next('/sign')
+    }
+  }
   // user check
   if (!store.state.user) {
     if (to.path !== '/sign') return next('/sign')

@@ -36,10 +36,15 @@ export default new Vuex.Store({
       commit('setUser', null)
       localStorage.removeItem('token')
     },
-    async getUserInfo ({ commit }) {
-      console.log('getUserInfo')
+    async getUserInfo ({ commit, dispatch }) {
       const token = localStorage.getItem('token')
       if (token) {
+        // token exp check
+        var payload = JSON.parse(atob(token.split('.')[1]))
+        if (payload.exp - (Date.now() / 1000) < 0) {
+          dispatch('signOut')
+        }
+        // check ok
         commit('setToken', token)
         const { data } = await Vue.prototype.$axios.get('/api/users/me')
         commit('setUser', data.user)
