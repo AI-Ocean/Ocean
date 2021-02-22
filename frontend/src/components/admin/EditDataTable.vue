@@ -2,6 +2,9 @@
   <v-data-table
     :headers="headers"
     :items="data"
+    :options.sync="defaultOptions"
+    :footerProps="footerProps"
+    :loading="loading"
   >
     <template v-slot:top>
       <v-toolbar flat color="transparent" >
@@ -12,8 +15,8 @@
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
-        <v-dialog v-model="dialog" max-width="1000px">
-          <template v-slot:activator="{ on }">
+        <v-dialog v-model="dialog" max-width="700px">
+          <template v-if="defaultOptions.add" v-slot:activator="{ on }">
             <v-btn dark icon v-on="on">
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
@@ -34,9 +37,29 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-dialog v-model="deleteDialog" max-width="500px">
+          <v-card>
+            <v-card-title>
+              <span class="headline">Delete Item</span>
+            </v-card-title>
+
+            <v-card-text>
+              <slot name="deleteDialog" :item="editedItem"> Are you sure to delete <code>{{editedItem}}</code> </slot>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn v-if="defaultOptions.edit" text @click="closeDelete">Cancel</v-btn>
+              <v-btn v-if="defaultOptions.delete" text @click="confirmDelete">Delete</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-toolbar>
     </template>
-    <template v-slot:item.actions="{ item }">
+    <template v-for="info in headers" v-slot:[`item.${info.value}`]="{ item }">
+      <slot :name="`${info.value}`" v-bind:item="item">{{item[`${info.value}`]}}</slot>
+    </template>
+    <template v-slot:[`item.actions`]="{ item }">
       <v-icon
         small
         class="mr-2"
@@ -59,17 +82,26 @@ export default {
   name: 'EditDataTable',
 
   props: {
-    title: String,
+    loading: Boolean,
+    options: Object,
+    footerProps: Object,
     headers: Array,
     data: Array,
+
+    title: String,
     defaultItem: Object
   },
 
   data: () => ({
     dialog: false,
+    deleteDialog: false,
     editedItem: {},
     editedIndex: -1,
-    menu: false
+    defaultOptions: {
+      add: true,
+      edit: true,
+      delete: true
+    }
   }),
 
   computed: {
@@ -79,23 +111,22 @@ export default {
   },
 
   methods: {
+    initDialogs () {
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+
     editItem (item) {
       this.editedIndex = this.data.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
 
-    deleteItem (item) {
-      const index = this.data.indexOf(item)
-      confirm('Are you sure you want to delete this item?') && this.data.splice(index, 1) && this.$emit('delete', item)
-    },
-
     close () {
       this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+      this.initDialogs()
     },
 
     save () {
@@ -107,7 +138,27 @@ export default {
         this.$emit('add', this.editedItem)
       }
       this.close()
+    },
+
+    deleteItem (item) {
+      this.editedIndex = this.data.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.deleteDialog = true
+    },
+
+    closeDelete () {
+      this.deleteDialog = false
+      this.initDialogs()
+    },
+
+    confirmDelete () {
+      this.data.splice(this.editedIndex, 1)
+      this.$emit('delete', this.editedItem)
+      this.closeDelete()
     }
+  },
+  mounted () {
+    Object.assign(this.defaultOptions, this.options)
   }
 }
 </script>

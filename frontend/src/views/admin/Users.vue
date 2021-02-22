@@ -3,129 +3,49 @@
     <v-row>
       <v-col>
         <v-card>
-          <v-card-title primary-title>
-            Users
-          </v-card-title>
           <v-card-text>
-            <v-dialog
-              v-model="dialog"
-              max-width="500px"
-            >
-              <v-card>
-                <v-card-title>
-                  <span class="headline">Edit Item</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.name"
-                          label="Name"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-text-field
-                          v-model="editedItem.gpus"
-                          type="number"
-                          label="GPUs"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-select
-                          v-model="editedItem.role"
-                          label="Role"
-                          :items="roles"
-                        ></v-select>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-checkbox label="Activated" v-model="editedItem.activated"></v-checkbox>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="save"
-                  >
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-            <v-dialog v-model="dialogDelete" max-width="500px">
-              <v-card>
-                <v-card-title class="headline">
-                  <span> Are you sure you want to delete User? </span>
-                  <code>{{editedItem.email}}</code>
-                </v-card-title>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
-            <v-data-table
+            <edit-data-table
+              title="Users"
               :headers="headers"
-              :items="items"
+              :data="items"
+              :defaultItem="defaultItem"
               :options.sync="options"
-              :server-items-length="totalCount"
+              :footerProps="footerProps"
               :loading="loading"
-              :footer-props="footerProps"
+              @change="save"
+              @delete="deleteItem"
             >
-              <template v-slot:[`item.activated`]="{ item }">
+              <template v-slot:activated="{ item }">
                 <v-checkbox v-model="item.activated" readonly></v-checkbox>
               </template>
-              <template v-slot:[`item.lastSignin`]="{ item }">
-                <span> {{lastLoginTime(item.lastSignin)}} </span>
+              <template v-slot:createdAt="{ item }">
+                <span> {{ joinedDate(item.createdAt) }} </span>
               </template>
-              <template v-slot:[`item.actions`]="{ item }">
-                <v-icon
-                  small
-                  class="mr-2"
-                  @click="editItem(item)"
-                >
-                  mdi-pencil
-                </v-icon>
-                <v-icon
-                  small
-                  @click="deleteItem(item)"
-                >
-                  mdi-delete
-                </v-icon>
+              <template v-slot:lastSignin="{ item }">
+                <span> {{ lastLoginTime(item.lastSignin) }} </span>
               </template>
-            </v-data-table>
+              <template v-slot:dialog="{ item }">
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="item.name" label="Name"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="item.gpus" type="number" label="GPUs"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-select v-model="item.role" label="Role" :items="roles"></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-checkbox label="Activated" v-model="item.activated"></v-checkbox>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </template>
+              <template v-slot:deleteDialog="{ item }">
+                <span class="subtitle-1"> Are you sure to delete <code>{{item.email}}</code>?</span>
+              </template>
+            </edit-data-table>
           </v-card-text>
         </v-card>
       </v-col>
@@ -134,7 +54,9 @@
 </template>
 
 <script>
+import EditDataTable from '../../components/admin/EditDataTable.vue'
 export default {
+  components: { EditDataTable },
   data: () => ({
     headers: [
       { text: 'Email', value: 'email' },
@@ -158,7 +80,8 @@ export default {
     options: {
       itemsPerPage: 20,
       sortBy: ['email'],
-      sortDesc: [false]
+      sortDesc: [false],
+      add: false
     },
     totalCount: 0,
     loading: true,
@@ -166,9 +89,8 @@ export default {
       itemsPerPageOptions: [10, 20, 30]
     },
 
-    dialog: false,
-    editedItem: {
-      id: '',
+    defaultItem: {
+      _id: '',
       name: '',
       gpus: 0,
       role: 'user',
@@ -191,37 +113,42 @@ export default {
       this.loading = false
       return data
     },
-    editItem (item) {
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
-    },
-    deleteItem (item) {
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
-    },
-    async save () {
-      await this.$axios.patch('/api/users/' + this.editedItem._id, this.editedItem)
+    async save (item) {
+      await this.$axios.patch('/api/users/' + item._id, item)
       this.$toasted.success('User updated.')
-      this.dialog = false
       await this.list()
     },
-    close () {
-      this.dialog = false
-    },
-    async deleteItemConfirm () {
-      await this.$axios.delete('/api/users/' + this.editedItem._id, this.editedItem)
+    async deleteItem (item) {
+      await this.$axios.delete('/api/users/' + item._id, item)
       this.$toasted.success('User deleted.')
       this.dialogDelete = false
       await this.list()
     },
-    closeDelete () {
-      this.dialogDelete = false
+    joinedDate (datetime) {
+      let d = new Date(datetime)
+      let month = '' + (d.getMonth() + 1)
+      let day = '' + d.getDate()
+      let year = d.getFullYear()
+
+      if (month.length < 2) {
+        month = '0' + month
+      }
+      if (day.length < 2) {
+        day = '0' + day
+      }
+
+      return [year, month, day].join('-')
     },
     lastLoginTime (datetime) {
-      if (!datetime) return 'Not Signin Yet.'
+      if (!datetime) return 'Not signin yet.'
       let delta = Date.now() - Date.parse(datetime)
       return Math.round(delta / (24 * 60 * 60 * 1000)) + ' days ago'
     }
+  },
+  mounted: function () {
+    this.$nextTick(async () => {
+      await this.list()
+    })
   },
   watch: {
     options: {
