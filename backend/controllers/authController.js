@@ -55,9 +55,7 @@ module.exports.signin = function (req, res, next) {
         // record last signin time
         try {
           let userInst = await userDAO.findById(user._id)
-          console.log(userInst)
           userInst.lastSignin = new Date()
-          console.log(userInst)
           await userInst.save()
         } catch (err) {
           return next(err)

@@ -2,26 +2,27 @@
   <v-container grid-list-md fluid>
     <v-row>
       <v-col md="6">
-        <notice-card/>
+        <!-- <notice-card/> -->
+        HOME!!!!!!!!!!!!!!!!!!!!!!
       </v-col>
       <v-col md="6">
-        <schedules-card/>
+        <!-- <schedules-card/> -->
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import NoticeCard from '@/components/home/notice'
-import SchedulesCard from '@/components/home/schedules'
+// import NoticeCard from '@/components/home/notice'
+// import SchedulesCard from '@/components/home/schedules'
 
 export default {
   name: 'home',
   data: () => ({
-  }),
-  components: {
-    NoticeCard,
-    SchedulesCard
-  }
+  })
+  // components: {
+  //   NoticeCard,
+  //   SchedulesCard
+  // }
 }
 </script>

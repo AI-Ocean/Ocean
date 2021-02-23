@@ -49,8 +49,8 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn v-if="defaultOptions.edit" text @click="closeDelete">Cancel</v-btn>
-              <v-btn v-if="defaultOptions.delete" text @click="confirmDelete">Delete</v-btn>
+              <v-btn text @click="closeDelete">Cancel</v-btn>
+              <v-btn text @click="confirmDelete">Delete</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -61,14 +61,14 @@
     </template>
     <template v-slot:[`item.actions`]="{ item }">
       <v-icon
-        small
+        v-if="defaultOptions.edit"
         class="mr-2"
         @click="editItem(item)"
       >
         mdi-pencil
       </v-icon>
       <v-icon
-        small
+        v-if="defaultOptions.delete"
         @click="deleteItem(item)"
       >
         mdi-delete
@@ -106,7 +106,7 @@ export default {
 
   computed: {
     formTitle () {
-      return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+      return this.editedIndex === -1 ? `New ${this.title}` : `Edit ${this.title}`
     }
   },
 
@@ -127,6 +127,7 @@ export default {
     close () {
       this.dialog = false
       this.initDialogs()
+      this.$emit('close')
     },
 
     save () {

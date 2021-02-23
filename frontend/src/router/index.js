@@ -7,19 +7,19 @@ Vue.use(VueRouter)
 
 const roleCheck = (to, from, next) => {
   // token check
-  if (store.state.token) {
-    var payload = JSON.parse(atob(store.state.token.split('.')[1]))
+  if (store.state.userStore.token) {
+    var payload = JSON.parse(atob(store.state.userStore.token.split('.')[1]))
     if (payload.exp - (Date.now() / 1000) < 0) {
       store.dispatch('signOut')
       next('/sign')
     }
   }
   // user check
-  if (!store.state.user) {
+  if (!store.state.userStore.user) {
     if (to.path !== '/sign') return next('/sign')
   }
   // admin check
-  if (to.path.substring(0, 7) === '/admin' && !store.getters.isAdmin) {
+  if (to.path.substring(0, 7) === '/admin' && !store.userStore.getters.isAdmin) {
     throw Error('Only allow to Admin.')
   }
   return next()
@@ -37,7 +37,7 @@ const routes = [
     name: 'sign',
     component: () => import(/* webpackChunkName: "core" */ '../views/Sign.vue'),
     beforeEnter: (to, from, next) => {
-      if (store.state.user) return next('/')
+      if (store.state.userStore.user) return next('/')
       next()
     }
   },
@@ -45,6 +45,12 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: () => import(/* webpackChunkName: "core" */ '../views/Dashboard.vue'),
+    beforeEnter: roleCheck
+  },
+  {
+    path: '/instances',
+    name: 'instances',
+    component: () => import(/* webpackChunkName: "core" */ '../views/Instances.vue'),
     beforeEnter: roleCheck
   },
   {
@@ -82,7 +88,7 @@ const init = () => {
   return new Promise((resolve, reject) => {
     let count = 0
     const tmr = setInterval(() => {
-      if (store.state.isInit) {
+      if (store.state.userStore.isInit) {
         clearInterval(tmr)
         resolve()
       } else if (count++ > 500) {

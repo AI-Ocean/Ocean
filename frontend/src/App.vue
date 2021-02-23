@@ -1,29 +1,20 @@
 <template>
   <v-app>
     <div>
-      <v-app-bar
-        dark
-        flat
-        app
-        class="grey darken-3"
-      >
-        <v-app-bar-nav-icon v-if="$store.state.user && isMobile" @click="drawer = true"></v-app-bar-nav-icon>
+      <v-app-bar dark flat app class="grey darken-3">
+        <v-app-bar-nav-icon v-if="user && isMobile" @click="drawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title>
           Ocean
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-menu offset-y v-if="$store.state.user">
+        <v-btn icon>
+          <v-icon color="white">mdi-bell-outline</v-icon>
+        </v-btn>
+        <v-menu offset-y v-if="user">
           <template v-slot:activator="{ on }">
-            <v-btn
-              dark
-              icon
-              v-on="on"
-            >
-              <v-avatar
-                size="45"
-                color="blue"
-              >
-                <span class="white--text headline">{{ $store.state.user.name.substring(0,2).toUpperCase() }}</span>
+            <v-btn dark icon v-on="on">
+              <v-avatar size="45" color="blue">
+                <span class="white--text headline">{{ user.name.substring(0,2).toUpperCase() }}</span>
               </v-avatar>
             </v-btn>
           </template>
@@ -31,18 +22,14 @@
             <v-container grid-list-md>
               <v-row>
                 <v-col cols="4">
-                  <v-avatar
-                    size="80"
-                    color="blue"
-                  >
-                    <span class="white--text" style="font-size: 40px">{{ $store.state.user.name.substring(0,2).toUpperCase() }}</span>
+                  <v-avatar size="80" color="blue">
+                    <span class="white--text" style="font-size: 40px">{{ user.name.substring(0,2).toUpperCase() }}</span>
                   </v-avatar>
                 </v-col>
                 <v-col cols="8">
                   <v-card-text>
-                    <span class="font-weight-bold title">{{ $store.state.user.name }}</span>
-                    <br>
-                    <span class="font-weight-thin subtitle">{{ $store.state.user.email }}</span>
+                    <span class="font-weight-bold title">{{ user.name }}</span><br>
+                    <span class="font-weight-thin subtitle">{{ user.email }}</span>
                   </v-card-text>
                 </v-col>
               </v-row>
@@ -59,7 +46,7 @@
 
       <v-navigation-drawer
         v-model="drawer"
-        v-if="$store.state.user"
+        v-if="user"
         app
         mini-variant-width="56"
         :permanent="!isMobile"
@@ -89,25 +76,48 @@
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
 
-          <v-list-item link to="/dashboard">
+          <!-- <v-list-item link to="/dashboard">
             <v-list-item-icon>
               <v-icon>mdi-monitor-dashboard</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item> -->
+          <v-list-item link to="/instances">
+            <v-list-item-icon>
+              <v-icon>mdi-server</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Instances</v-list-item-title>
           </v-list-item>
+          <v-list-item link to="/jobs">
+            <v-list-item-icon>
+              <v-icon>mdi-rocket-launch</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Jobs</v-list-item-title>
+          </v-list-item>
+          <v-list-item link to="/volumes">
+            <v-list-item-icon>
+              <v-icon>mdi-database</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Volumes</v-list-item-title>
+          </v-list-item>
+          <v-divider></v-divider>
 
-          <v-list-item v-if="$store.getters.isAdmin" link to="/admin/users">
-            <v-list-item-icon>
-              <v-icon>mdi-account-group</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Users</v-list-item-title>
-          </v-list-item>
-          <v-list-item v-if="$store.getters.isAdmin" link to="/admin/settings">
-            <v-list-item-icon>
-              <v-icon>mdi-cog</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Settings</v-list-item-title>
-          </v-list-item>
+          <template v-if="user.role === 'admin'">
+            <v-list-item link to="/admin/users">
+              <v-list-item-icon>
+                <v-icon>mdi-account-group</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Users</v-list-item-title>
+            </v-list-item>
+            <v-list-item link to="/admin/settings">
+              <v-list-item-icon>
+                <v-icon>mdi-cog</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Settings</v-list-item-title>
+            </v-list-item>
+            <v-divider></v-divider>
+          </template>
+
           <v-list-item link to="/about">
             <v-list-item-icon>
               <v-icon>mdi-information</v-icon>
@@ -119,24 +129,7 @@
     </div>
 
     <v-content>
-      <!-- <vue-progress-bar/> -->
-      <!-- <v-container grid-list-md>
-        <v-row align="center" justify="center">
-            <v-card color="transparent" flat>
-              <v-card-text class="text-center">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                  class="text-center"
-                ></v-progress-circular>
-              </v-card-text>
-              <v-card-text class="text-center">
-                Loading Authentication.
-              </v-card-text>
-            </v-card>
-        </v-row>
-      </v-container> -->
-      <router-view/>
+      <router-view></router-view>
     </v-content>
 
     <v-footer>
@@ -147,24 +140,20 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+// const userStore = 'userStore'
+
 export default {
   name: 'App',
   data: () => ({
     isMobile: false,
-    drawer: false,
-    items: [
-      {
-        text: 'Home',
-        icon: 'mdi-home',
-        to: '/'
-      },
-      {
-        text: 'About',
-        icon: 'mdi-information',
-        to: '/about'
-      }
-    ]
+    drawer: false
   }),
+  computed: {
+    ...mapState({
+      user: state => state.userStore.user
+    })
+  },
 
   beforeDestroy () {
     if (typeof window !== 'undefined') {

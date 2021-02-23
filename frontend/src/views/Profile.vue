@@ -10,15 +10,15 @@
           <!-- <div class="d-flex flex-no-wrap justify-space-between">
             <div> -->
               <v-card-title>
-                <span v-if="!isEditName" class="headline">{{ name }}</span>
+                <span v-if="!isEditName" class="headline">{{ user.name }}</span>
                 <div class="ma-0"><v-text-field v-model="editedName" v-if="isEditName" :rules="nameRules"></v-text-field></div>
                 <v-icon small right text--secondary v-if="!isEditName" @click="editName">mdi-pencil-outline</v-icon>
                 <v-icon small right text--secondary v-if="isEditName" @click="saveName">mdi-check-circle</v-icon>
                 <v-icon small right text--secondary v-if="isEditName" @click="cancleName">mdi-close-circle</v-icon>
               </v-card-title>
               <v-card-subtitle>
-                {{ this.$store.state.user.email }}<br />
-                {{ role }}
+                {{ user.email }}<br />
+                {{ user.role }}
               </v-card-subtitle>
               <v-card-text>
                 <v-divider class="mb-4"></v-divider>
@@ -32,7 +32,7 @@
                     left
                     class="ml-2 green darken-4"
                   >
-                    {{ this.$store.state.user.gpus }}
+                    {{ user.gpus }}
                   </v-avatar>
                 </v-chip>
                 <v-divider class="mt-4"></v-divider>
@@ -155,6 +155,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   data: () => ({
     name: '',
@@ -188,9 +190,9 @@ export default {
     date: new Date().toISOString().substr(0, 10)
   }),
   computed: {
-    role () {
-      return this.$store.getters.isAdmin ? 'Admin' : 'User'
-    },
+    ...mapState('userStore', {
+      user: state => state.user
+    }),
     passwordCheckRules () {
       return [() => (this.newPassword === this.passwordCheck) || 'Password must same']
     }
@@ -201,7 +203,7 @@ export default {
       this.isEditName = !this.isEditName
     },
     async saveName () {
-      await this.$axios.patch('/api/users/' + this.$store.state.user._id, { name: this.editedName })
+      await this.$axios.patch('/api/users/' + this.user._id, { name: this.editedName })
       this.name = this.editedName
       await this.$store.dispatch('getUserInfo')
       this.$toasted.success('Name changed')
@@ -217,13 +219,13 @@ export default {
     async savePassword () {
       // Re-signin
       try {
-        await this.$store.dispatch('signIn', { email: this.$store.state.user.email, password: this.curPassword })
+        await this.$store.dispatch('signIn', { email: this.user.email, password: this.curPassword })
       } catch (err) {
         err.message = 'Incorrect current password'
         throw err
       }
       // change password
-      await this.$axios.patch('/api/users/' + this.$store.state.user._id, { password: this.newPassword })
+      await this.$axios.patch('/api/users/' + this.user._id, { password: this.newPassword })
       this.$toasted.success('Password changed')
       this.editDialog = false
     },
@@ -235,7 +237,7 @@ export default {
     },
 
     requestQuota () {
-      this.gpus = this.$store.state.user.gpus
+      this.gpus = this.user.gpus
       this.reason = ''
       this.requestDialog = true
     },
@@ -248,7 +250,7 @@ export default {
     }
   },
   mounted () {
-    this.name = this.$store.state.user.name
+    this.name = this.user.name
   }
 }
 </script>

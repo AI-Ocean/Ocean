@@ -63,7 +63,6 @@
 </template>
 
 <script>
-// import api from '@/api'
 import Indicator from '@/components/dashboard/Indicator'
 import Instances from '@/components/dashboard/Instances'
 import Volumes from '@/components/dashboard/Volumes'
@@ -102,12 +101,6 @@ export default {
     this.getInstances()
     this.getVolumes()
     this.getJobs()
-
-    // setInterval(() => {
-    //   this.getInstances()
-    //   this.getVolumes()
-    //   this.getJobs()
-    // }, 30000)
   },
   methods: {
     calcUsage (type) {
@@ -131,7 +124,6 @@ export default {
       this.resources.cpus.using = this.calcUsage('cpus')
       this.resources.memory.using = this.calcUsage('memory')
       this.resources.gpus.using = this.calcUsage('gpus')
-      // update using resources
       this.resources.capacity.using = this.calcUsage('capacity')
     },
 
@@ -141,7 +133,7 @@ export default {
       if (this.$store.getters.isAdmin) {
         data = await this.$axios.get('/api/resources')
       } else {
-        data = await this.$axios.get('/api/users/' + this.$store.state.user.uid)
+        data = await this.$axios.get('/api/users/me')
       }
       data = data.data
       this.resources.cpus.limit = Number(data.cpus)

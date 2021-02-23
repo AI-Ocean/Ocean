@@ -1,94 +1,108 @@
 <template>
   <v-card tile>
     <!-- header -->
-    <v-toolbar flat dark>
+    <!-- <v-toolbar flat dark>
       <v-toolbar-title>
         Instances
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="dialog=true" v-if="instances.length <= 0 || $store.getters.level <= 0">
         <v-icon color="white">mdi-plus-box</v-icon>
-      </v-btn>
+      </v-btn> -->
 
-      <!-- form dialog -->
-      <v-dialog
-        v-model="dialog"
-        max-width="500"
-      >
-        <v-card>
-          <v-card-title>
-            New Instance
-          </v-card-title>
-          <v-card-text>
+      <v-card-text>
+        <edit-data-table
+          title="Instances"
+          :headers="headers"
+          :data="instances"
+          :defaultItem="defaultItem"
+          :options.sync="options"
+          :footerProps="footerProps"
+          :loading="loading"
+          @add="add"
+          @delete="deleteItem"
+          @close="close"
+        >
+          <template v-slot:dialog="{ item }">
             <v-form
               ma-4
               ref="form"
               v-model="valid"
             >
-              <v-text-field
-                v-model.trim="name"
-                counter="30"
-                :rules="nameRules"
-                label="Name"
-                :prefix="namePrefix"
-                required
-              >
-              </v-text-field>
-              <v-combobox
-                v-model.trim="image"
-                :items="imagesList"
-                :hide-no-data="!searchImage"
-                :search-input.sync="searchImage"
-                label="Image"
-                required
-                persistent-hint
-                hint="You can add other image"
-              >
-                <template v-slot:no-data>
-                  <v-list-item>
-                    <span class="subheading">Create</span>
-                      {{ searchImage }}
-                  </v-list-item>
-                </template>
-              </v-combobox>
-              <v-select
-                v-model="instanceType"
-                :items="instancesList"
-                label="Instance Type"
-                auto
-                required
-                :hint="`CPU: ${instanceType.cpus}, Memory: ${instanceType.memory}, GPU: ${instanceType.gpuType} x ${instanceType.gpus}`"
-                persistent-hint
-              >
-              </v-select>
-              <v-select
-                v-model="volume"
-                :items="volumes"
-                label="Volumes"
-                :rules="volumeRules"
-                required
-                chips
-              >
-              </v-select>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model.trim="item.name"
+                      counter="30"
+                      :rules="nameRules"
+                      label="Name"
+                      :prefix="namePrefix"
+                      required
+                    >
+                    </v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-combobox
+                      v-model.trim="item.image"
+                      :items="imagesList"
+                      :hide-no-data="!searchImage"
+                      :search-input.sync="searchImage"
+                      label="Image"
+                      required
+                      persistent-hint
+                      hint="You can add other image"
+                    >
+                      <template v-slot:no-data>
+                        <v-list-item>
+                          <span class="subheading">Create</span>
+                            {{ searchImage }}
+                        </v-list-item>
+                      </template>
+                    </v-combobox>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                      v-model="item.instanceType"
+                      :items="instancesList"
+                      label="Instance Type"
+                      auto
+                      required
+                      :hint="instanceTypeHint(item)"
+                      persistent-hint
+                    >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                      v-model="item.volume"
+                      :items="volumes"
+                      label="Volumes"
+                      :rules="volumeRules"
+                      required
+                      chips
+                    >
+                    </v-select>
+                  </v-col>
+                </v-row>
+              </v-container>
             </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="gray" @click="onCancle">
-              Cancle
-            </v-btn>
-            <v-btn color="success" @click="onCreate" :disabled="!valid">
-              Create
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <!-- end form dialog -->
-    </v-toolbar>
+          </template>
+          <template v-slot:status="{ item }">
+            <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
+          </template>
+          <template v-slot:volumes="{ item }">
+            <v-chip class="ma-1" v-for="(vol, index) in item.volumes" :key="index">{{vol}}</v-chip>
+          </template>
+        </edit-data-table>
+      </v-card-text>
+
+      <!-- form dialog -->
+    <!-- </v-toolbar> -->
     <!-- end header -->
 
     <!-- data table -->
-    <v-data-table
+    <!-- <v-data-table
       :headers="instancesHeader"
       :items="instances"
       :loading="loading"
@@ -111,10 +125,10 @@
           </v-icon>
         </v-btn>
       </template>
-    </v-data-table>
+    </v-data-table> -->
     <!-- end data table -->
 
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <!-- <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title>
           Delete Instances
@@ -129,31 +143,25 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
   </v-card>
 </template>
 
 <script>
+import EditDataTable from '../../components/admin/EditDataTable.vue'
 export default {
   name: 'Instances',
+  components: { EditDataTable },
   props: {
-    resources: {
-      type: Object
-    },
-    instances: {
-      type: Array
-    },
-    volumes: {
-      type: Array
-    },
-    loading: {
-      type: Boolean
-    }
+    resources: Object,
+    instances: Array,
+    volumes: Array,
+    loading: Boolean
   },
   data: () => ({
     // instances
-    instancesHeader: [
+    headers: [
       { text: 'Status', value: 'status', width: 80, sortable: false, filterable: false },
       { text: 'Name', value: 'name', width: 200, sortable: false, filterable: false },
       { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
@@ -161,7 +169,7 @@ export default {
       { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
       { text: 'SSH port', value: 'port', sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
+      { text: 'Actions', value: 'actions', width: 70, sortable: false, filterable: false }
     ],
 
     imagesList: [
@@ -175,18 +183,31 @@ export default {
       { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
+    defaultItem: {
+      name: '',
+      image: undefined,
+      searchImage: '',
+      instanceType: '',
+      volume: ''
+    },
+
     options: {
-      itemsPerPage: 30
+      itemsPerPage: 20,
+      add: true,
+      edit: false
+    },
+    footerProps: {
+      itemsPerPageOptions: [10, 20, 30]
     },
 
     // form
-    dialog: false,
+    // dialog: false,
     valid: false,
-    name: undefined,
-    image: '',
+    // name: undefined,
+    // image: '',
     searchImage: '',
-    instanceType: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' },
-    volume: undefined,
+    // instanceType: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' },
+    // volume: undefined,
 
     // data table
     deleteDialog: false,
@@ -201,21 +222,21 @@ export default {
       else return 'mdi-alert-circle'
     },
 
-    openDeleteDialog (name) {
-      this.deleteDialog = true
-      this.targetName = name
-    },
+    // openDeleteDialog (name) {
+    //   this.deleteDialog = true
+    //   this.targetName = name
+    // },
 
-    resetForm () {
-      this.$refs.form.resetValidation()
-      this.$refs.form.reset()
-      this.instanceType = { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' }
-    },
+    // resetForm () {
+    //   this.$refs.form.resetValidation()
+    //   this.$refs.form.reset()
+    //   this.instanceType = { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' }
+    // },
 
     onGet () {
       this.$emit('get')
     },
-    onCreate () {
+    add () {
       // request create pods
       this.$emit('create', {
         name: this.namePrefix + this.name,
@@ -226,21 +247,22 @@ export default {
         gpu_type: this.instanceType.gpuType,
         volume_name: this.volume
       })
-
-      // reset dialog
-      this.dialog = false
-      this.resetForm()
     },
-    onCancle () {
-      this.$emit('cancle')
-
-      // reset dialog
-      this.dialog = false
-      this.resetForm()
-    },
-    onDelete (name) {
-      this.deleteDialog = false
+    deleteItem (name) {
       this.$emit('delete', name)
+    },
+    close () {
+      this.$refs.form.resetValidation()
+    },
+
+    instanceTypeHint (item) {
+      if (item.instanceType) {
+        return `CPU: ${item.instanceType ? item.instanceType.cpus : ''},
+              Memory: ${item.instanceType ? item.instanceType.memory : ''},
+              GPU: ${item.instanceType ? item.instanceType.gpuType : ''} x
+              ${item.instanceType ? item.instanceType.gpus : ''}`
+      }
+      return ''
     }
   },
   computed: {

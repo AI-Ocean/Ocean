@@ -10,7 +10,7 @@ const localAPI = axios.create({
 })
 
 localAPI.interceptors.request.use((req) => {
-  req.headers.authorization = 'Bearer ' + store.state.token
+  req.headers.authorization = 'Bearer ' + store.state.userStore.token
   return req
 }, (error) => {
   return Promise.reject(error)
@@ -21,7 +21,7 @@ localAPI.interceptors.response.use((res) => {
 }, async (err) => {
   if (err.response.status === 403 && err.config.resend === undefined) {
     err.config.resend = true
-    await store.dispatch('getUser', store.state.user)
+    await store.dispatch('getUser', store.state.userStore.user)
     return localAPI(err.config)
   }
   return Promise.reject(err)
