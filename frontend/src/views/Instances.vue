@@ -136,7 +136,7 @@ export default {
 
     options: {
       itemsPerPage: 20,
-      update: false,
+      update: false
     },
 
     footerProps: {
