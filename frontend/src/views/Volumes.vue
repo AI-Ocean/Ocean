@@ -13,7 +13,7 @@
                 :footerProps="footerProps"
                 :loading="isLoading"
                 @create="createItem"
-                @delete="deleteVolume"
+                @delete="deleteItem"
               >
                 <template v-slot:dialog="{ item }">
                   <v-form ma-4 ref="form" v-model="valid">
@@ -241,18 +241,21 @@ export default {
 
     /// CRUD
     createItem (payload) {
-      console.log(payload)
       payload.name = this.namePrefix + payload.name
-      console.log(payload)
       this.createVolume(payload)
+    },
+    deleteItem (payload) {
+      this.deleteVolume(payload.name)
     },
 
     /// utils
     usedAt (volName) {
       let used = []
-      this.instances.map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
-      this.jobs.map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
-      return true
+      this.instances.filter(v => v.status !== 'Succeeded' && v.status !== 'Failed')
+        .map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
+      this.jobs.filter(v => v.status !== 'Succeeded' && v.status !== 'Failed')
+        .map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
+      return used
     },
     isDeletable (item) {
       return item.name !== 'dataset-pvc' && !this.usedVolumes.has(item.name)
