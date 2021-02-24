@@ -56,18 +56,20 @@
       <slot :name="`${info.value}`" v-bind:item="item">{{item[`${info.value}`]}}</slot>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
-      <v-icon
-        v-if="defaultOptions.update"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        v-if="defaultOptions.delete"
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
+      <slot name="action" v-bind:item="item" :updateItem="editItem" :deleteItem="deleteItem">
+        <v-icon
+          v-if="defaultOptions.update"
+          @click="editItem(item)"
+        >
+          mdi-pencil
+        </v-icon>
+        <v-icon
+          v-if="defaultOptions.delete"
+          @click="deleteItem(item)"
+        >
+          mdi-delete
+        </v-icon>
+      </slot>
     </template>
   </v-data-table>
 </template>

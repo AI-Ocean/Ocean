@@ -1,152 +1,74 @@
 <template>
   <v-container grid-list-md fluid>
-      <v-row>
-        <v-col>
-          <v-card tile>
-            <v-card-text>
-              <edit-data-table
-                title="Volumes"
-                :headers="headers"
-                :data="volumes"
-                :defaultItem="defaultItem"
-                :options.sync="options"
-                :footerProps="footerProps"
-                :loading="isLoading"
-                @create="createItem"
-                @delete="deleteItem"
-              >
-                <template v-slot:dialog="{ item }">
-                  <v-form ma-4 ref="form" v-model="valid">
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12">
-                          <v-text-field
-                            v-model.trim="item.name"
-                            counter="30"
-                            :rules="nameRules"
-                            label="Name"
-                            :prefix="namePrefix"
-                            required
-                          >
-                          </v-text-field>
-                        </v-col>
-                        <v-col cols="12">
-                          <v-text-field
-                            v-model.number="item.capacity"
-                            :rules="capRules"
-                            type="number"
-                            label="Capacity"
-                            required
-                            :suffix="' / ' + remainResources('capacity') + ' Gi'"
-                          >
-                          </v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-form>
-                </template>
-                <template v-slot:used="{ item }">
-                  <v-chip class="ma-1" v-for="(name, index) in usedAt(item.name)" :key="index">{{name}}</v-chip>
-                </template>
-              </edit-data-table>
-            </v-card-text>
-    <!-- <v-toolbar flat dark>
-      <v-toolbar-title>
-        Volumes
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="dialog=true">
-        <v-icon color="white">mdi-plus-box</v-icon>
-      </v-btn> -->
-
-      <!-- form dialog -->
-      <!-- <v-dialog
-        v-model="dialog"
-        max-width="500"
-      >
-        <v-card>
-          <v-card-title>
-            New Volume
-          </v-card-title>
+    <v-row>
+      <v-col>
+        <v-card tile>
           <v-card-text>
-            <v-form
-              ma-4
-              ref="form"
-              v-model="valid"
+            <edit-data-table
+              title="Volumes"
+              :headers="headers"
+              :data="volumes"
+              :defaultItem="defaultItem"
+              :options.sync="options"
+              :footerProps="footerProps"
+              :loading="isLoading"
+              @create="createItem"
+              @delete="deleteItem"
             >
-              <v-text-field
-                v-model.trim="name"
-                counter="30"
-                :prefix="'vol-' + $store.getters.namePrefix"
-                :rules="name_rules"
-                label="Name"
-                required
-              >
-              </v-text-field>
-              <v-text-field
-                v-model.number="capacity"
-                :rules="cap_rules"
-                type="number"
-                label="Capacity"
-                required
-                :suffix="' / ' + remainResources('capacity') + ' Gi'"
-              >
-              </v-text-field>
-            </v-form>
+              <template v-slot:dialog="{ item }">
+                <v-form ma-4 ref="form" v-model="valid">
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12">
+                        <v-text-field
+                          v-model.trim="item.name"
+                          counter="30"
+                          :rules="nameRules"
+                          label="Name"
+                          :prefix="namePrefix"
+                          required
+                        >
+                        </v-text-field>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-text-field
+                          v-model.number="item.capacity"
+                          :rules="capRules"
+                          type="number"
+                          label="Capacity"
+                          required
+                          :suffix="' / ' + remainResources('capacity') + ' Gi'"
+                        >
+                        </v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-form>
+              </template>
+              <template v-slot:capacity="{ item }">
+                <span>{{item.capacity}} GB</span>
+              </template>
+              <template v-slot:used="{ item }">
+                <v-chip class="ma-1" v-for="(name, index) in usedAt(item.name)" :key="index">{{name}}</v-chip>
+              </template>
+              <template v-slot:action="{ item, deleteItem }">
+                <v-tooltip left :disabled="usedAt(item.name).length === 0">
+                  <template v-slot:activator="{ on }">
+                    <div v-on="on">
+                      <v-icon
+                        v-on="on"
+                        :disabled="usedAt(item.name).length !== 0"
+                        @click="deleteItem(item)"
+                      >
+                        mdi-delete
+                      </v-icon>
+                    </div>
+                  </template>
+                  <span>Delete the Instance or Jobs in used</span>
+                </v-tooltip>
+              </template>
+            </edit-data-table>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="gray" @click="onCancle">
-              Cancle
-            </v-btn>
-            <v-btn color="success" @click="onCreate" :disabled="!valid">
-              Create
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog> -->
-      <!-- end form dialog -->
-    <!-- </v-toolbar> -->
-    <!-- end header -->
-
-    <!-- data table -->
-    <!-- <v-data-table
-      :headers="volumesHeader"
-      :items="volumes"
-      :loading="loading"
-      :options.sync="options"
-      hide-default-footer
-    >
-      <template v-slot:item.name="{ item }">
-        <v-chip class="ma-1">{{ item.name }}</v-chip>
-      </template>
-      <template v-slot:item.delete="{ item }">
-        <v-btn icon :disabled="!isDeletable(item)" @click="openDeleteDialog(item.name)">
-          <v-icon>
-            mdi-trash-can
-          </v-icon>
-        </v-btn>
-      </template>
-    </v-data-table> -->
-    <!-- end data table -->
-
-    <!-- <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title>
-          Delete Volume
-        </v-card-title>
-        <v-card-text>
-          Are you sure to delete <code> {{ targetName }} </code>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color='red' @click="onDelete(targetName)">
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog> -->
-
         </v-card>
       </v-col>
     </v-row>
@@ -165,10 +87,10 @@ export default {
   data: () => ({
     // volumes
     headers: [
-      { text: 'Name', value: 'name', sortable: true, filterable: false },
-      { text: 'Capacity', value: 'capacity', sortable: true, filterable: false },
-      { text: 'Status', value: 'status', sortable: false, filterable: false },
-      { text: 'Used', value: 'used', sortable: false, filterable: false },
+      { text: 'Name', value: 'name', width: 300, sortable: true, filterable: false },
+      { text: 'Capacity', value: 'capacity', width: 100, sortable: true, filterable: false },
+      { text: 'Status', value: 'status', width: 100, sortable: false, filterable: false },
+      { text: 'In Used', value: 'used', sortable: false, filterable: false },
       { text: 'Actions', value: 'actions', width: 80, sortable: false, filterable: false }
     ],
 
@@ -258,7 +180,7 @@ export default {
       return used
     },
     isDeletable (item) {
-      return item.name !== 'dataset-pvc' && !this.usedVolumes.has(item.name)
+      return !this.usedVolumes.has(item.name)
     }
 
   },
