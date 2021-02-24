@@ -64,15 +64,15 @@
 
 <script>
 import Indicator from '@/components/dashboard/Indicator'
-import Instances from '@/components/dashboard/Instances'
-import Volumes from '@/components/dashboard/Volumes'
+// import Instances from '@/components/dashboard/Instances'
+// import Volumes from '@/components/dashboard/Volumes'
 import Jobs from '@/components/dashboard/Jobs'
 
 export default {
   components: {
     Indicator,
-    Instances,
-    Volumes,
+    // Instances,
+    // Volumes,
     Jobs
   },
   data: () => ({

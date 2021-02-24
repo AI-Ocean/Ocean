@@ -136,7 +136,7 @@ export default {
 
     options: {
       itemsPerPage: 20,
-      update: false
+      update: false,
     },
 
     footerProps: {
@@ -147,52 +147,7 @@ export default {
     valid: false,
     searchImage: ''
   }),
-  methods: {
-    ...mapActions(resourceStore, [
-      'getUserLimits',
-      'getInstances',
-      'createInstance',
-      'deleteInstance',
-      'getVolumes'
-    ]),
 
-    // stataus icon
-    getStatusIcon (status) {
-      if (status === 'Running') return 'mdi-check-circle'
-      else if (status === 'Succeeded') return 'mdi-check-decagram'
-      else if (status === 'Pending' || status === 'Terminating') return 'mdi-loading'
-      else return 'mdi-alert-circle'
-    },
-
-    /// CRUD
-    createItem (payload) {
-      const newPayload = {}
-      newPayload.name = this.namePrefix + payload.name
-      newPayload.image = payload.image
-      newPayload.cpu_request = payload.instanceType.cpus
-      newPayload.memory_request = payload.instanceType.memory
-      newPayload.gpu_request = payload.instanceType.gpus
-      newPayload.gpu_type = payload.instanceType.gpuType
-      newPayload.volume = payload.volume
-      this.createInstance(newPayload)
-    },
-    deleteItem (payload) {
-      this.deleteInstance(payload.name)
-    },
-    close () {
-      this.$refs.form.resetValidation()
-    },
-
-    instanceTypeHint (item) {
-      if (item.instanceType) {
-        return `CPU: ${item.instanceType ? item.instanceType.cpus : ''},
-              Memory: ${item.instanceType ? item.instanceType.memory : ''},
-              GPU: ${item.instanceType ? item.instanceType.gpuType : ''} x
-              ${item.instanceType ? item.instanceType.gpus : ''}`
-      }
-      return ''
-    }
-  },
   computed: {
     ...mapState(resourceStore, [
       'resources',
@@ -227,6 +182,55 @@ export default {
       ]
     }
   },
+
+  methods: {
+    ...mapActions(resourceStore, [
+      'getUserLimits',
+      'getInstances',
+      'createInstance',
+      'deleteInstance',
+      'getVolumes'
+    ]),
+
+    // stataus icon
+    getStatusIcon (status) {
+      if (status === 'Running') return 'mdi-check-circle'
+      else if (status === 'Succeeded') return 'mdi-check-decagram'
+      else if (status === 'Pending' || status === 'Terminating') return 'mdi-loading'
+      else return 'mdi-alert-circle'
+    },
+
+    /// CRUD
+    createItem (payload) {
+      const newPayload = {
+        name: this.namePrefix + payload.name,
+        image: payload.image,
+        cpu_request: payload.instanceType.cpus,
+        memory_request: payload.instanceType.memory,
+        gpu_request: payload.instanceType.gpus,
+        gpu_type: payload.instanceType.gpuType,
+        volume: payload.volume
+      }
+      this.createInstance(newPayload)
+    },
+    deleteItem (payload) {
+      this.deleteInstance(payload.name)
+    },
+    close () {
+      this.$refs.form.resetValidation()
+    },
+
+    instanceTypeHint (item) {
+      if (item.instanceType) {
+        return `CPU: ${item.instanceType ? item.instanceType.cpus : ''},
+              Memory: ${item.instanceType ? item.instanceType.memory : ''},
+              GPU: ${item.instanceType ? item.instanceType.gpuType : ''} x
+              ${item.instanceType ? item.instanceType.gpus : ''}`
+      }
+      return ''
+    }
+  },
+
   async created () {
     await this.getUserLimits()
 

@@ -5,11 +5,7 @@ const calcUsage = (state, type) => {
   if (type === 'capacity') {
     base = state.volumes
   } else {
-    // if (this.$store.getters.isAdmin) {
-    //   base = state.instances
-    // } else {
     base = state.instances.concat(state.jobs)
-    // }
     base = base.filter(v => v.status === 'Running' || v.status === 'Pending')
   }
   return base

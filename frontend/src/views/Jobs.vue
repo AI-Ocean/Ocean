@@ -1,249 +1,362 @@
 <template>
-  <v-card tile>
-    <!-- header -->
-    <v-toolbar flat dark>
-      <v-toolbar-title>
-        Jobs
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="openDialog">
-        <v-icon color="white">mdi-plus-box</v-icon>
-      </v-btn>
-      <v-divider class="mx-2" vertical></v-divider>
-      <v-btn icon @click="openCopyDialog" :disabled="selected.length !== 1">
-        <v-icon color="white">mdi-content-copy</v-icon>
-      </v-btn>
-      <v-divider class="mx-2" vertical></v-divider>
-      <v-btn icon @click="openDeleteDialog" :disabled="selected.length < 1">
-        <v-icon color="white">mdi-trash-can</v-icon>
-      </v-btn>
-    </v-toolbar>
-    <!-- end header -->
+  <v-container grid-list-md fluid>
+    <v-row>
+      <v-col>
+        <v-card tile>
+          <!-- header -->
+          <!-- end header -->
 
-    <!-- data table -->
-    <v-data-table
-      v-model="selected"
-      hide-default-footer
-      show-select
-      item-key="name"
-      :headers="jobsHeader"
-      :items="jobs"
-      :loading="loading"
-      :options.sync="options"
-    >
-      <template v-slot:[`item.status`]="{ item }">
-        <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
-      </template>
-      <template v-slot:[`item.gpus`]="{ item }">
-        {{ convertGpuToJobType(Number(item.gpus)) }}
-      </template>
-      <template v-slot:[`item.command`]="{ item }">
-        {{ item.command.join(' ') }}
-      </template>
-      <template v-slot:[`item.volumes`]="{ item }">
-        <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
-      </template>
-      <template v-slot:[`item.duration`]="{ item }">
-        {{ calcTime(item.startTime, item.completionTime) }}
-      </template>
-      <template v-slot:[`item.age`]="{ item }">
-        {{ calcTime(item.startTime) }}
-      </template>
-      <template v-slot:[`item.logs`]="{ item }">
-        <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
-      </template>
-    </v-data-table>
-    <!-- end data table -->
-
-    <!-- form dialog -->
-    <v-dialog
-      v-model="dialog"
-      max-width="500"
-    >
-      <v-card>
-        <v-card-title>
-          New job
-        </v-card-title>
-        <v-card-text>
-          <v-form
-            ma-4
-            ref="form"
-            v-model="valid"
+          <!-- data table -->
+          <edit-data-table
+            title="Jobs"
+            showSelect
+            :headers="headers"
+            :data="jobs"
+            :defaultItem="defaultItem"
+            :options.sync="options"
+            :footerProps="footerProps"
+            :loading="isLoading"
+            @create="createItem"
+            @delete="deleteItem"
+            @close="close"
           >
-            <v-text-field
-              v-model.trim="name"
-              counter="30"
-              :rules="nameRules"
-              label="Name"
-              :prefix="namePrefix"
-              required
-            ></v-text-field>
-            <span v-if="repeat <= 5">Names:
-              <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
-            </span>
-            <v-combobox
-              v-model.trim="image"
-              :items="imagesList"
-              :hide-no-data="!searchImage"
-              :search-input.sync="searchImage"
-              label="Image"
-              required
-              persistent-hint
-              hint="You can add other image"
-            >
-              <template v-slot:no-data>
-                <v-list-item>
-                  <span class="subheading">Create</span>
-                    {{ searchImage }}
-                </v-list-item>
-              </template>
-            </v-combobox>
-            <v-row>
-              <v-col cols=8>
-                <v-select
-                  v-model="jobType"
-                  :items="jobsList"
-                  :rules="jobTypeRules"
-                  label="Job Type"
-                  auto
-                  la
-                  required
-                  :hint="jobTypeHint"
-                  persistent-hint
-                  :error-messages="gpuErrorMessages"
-                  ref="jobType"
-                ></v-select>
-              </v-col>
-              <v-col cols=1>
-              </v-col>
-              <v-col cols=3>
-                <v-text-field
-                  v-model.number="repeat"
-                  type="number"
-                  :rules="repeatRules"
-                  label="Repeat"
-                  @click:append-outer="increment"
-                  @click:prepend="decrement"
-                  required
-                  :error-messages="gpuErrorMessages"
-                  ref="repeat"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-select
-              v-model="volume"
-              :items="volumes"
-              label="Volumes"
-              :rules="requiredRules"
-              required
-              chips
-            ></v-select>
-            <v-text-field
-              v-model="command"
-              :rules="commandRules"
-              type="string"
-              label="Command"
-              required
-              hint="Shell Command to Run"
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="gray" @click="onCancle">
-            Cancle
-          </v-btn>
-          <v-btn color="success" @click="onCreate" :disabled="!valid">
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- end form dialog -->
+          <template v-slot:topActions="{ }">
+            <v-btn icon @click="openDialog">
+              <v-icon color="white">mdi-plus-box</v-icon>
+            </v-btn>
+            <v-divider class="mx-2" vertical></v-divider>
+            <v-btn icon @click="openCopyDialog" :disabled="selected.length !== 1">
+              <v-icon color="white">mdi-content-copy</v-icon>
+            </v-btn>
+            <v-divider class="mx-2" vertical></v-divider>
+            <v-btn icon @click="openDeleteDialog" :disabled="selected.length < 1">
+              <v-icon color="white">mdi-trash-can</v-icon>
+            </v-btn>
+          </template>
 
-    <!-- delete dialog -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title>
-          Delete Jobs
-        </v-card-title>
-        <v-card-text>
-          Are you sure to delete <code> {{ selected.map(x => x.name).join(',') }} </code>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color='red' @click="onDelete()">
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- end delete dialog -->
+          <template v-slot:status="{ item }">
+            <v-icon :class="item.status">{{ getStatusIcon(item.status) }}</v-icon>
+          </template>
+          <template v-slot:gpus="{ item }">
+            {{ convertGpuToJobType(Number(item.gpus)) }}
+          </template>
+          <template v-slot:command="{ item }">
+            {{ item.command.join(' ') }}
+          </template>
+          <template v-slot:volumes="{ item }">
+            <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
+          </template>
+          <template v-slot:duration="{ item }">
+            {{ calcTime(item.startTime, item.completionTime) }}
+          </template>
+          <template v-slot:age="{ item }">
+            {{ calcTime(item.startTime) }}
+          </template>
+          <template v-slot:logs="{ item }">
+            <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>logs</v-btn>
+          </template>
 
-    <!-- log dialog -->
-    <v-dialog tile v-model="logDialog" max-width="1500" overlay-opacity=100>
-      <v-card>
-        <v-card-title>
-          Job Logs
-          <v-spacer></v-spacer>
-          <v-switch
-            v-model="logReverse"
-            label="Reverse"
-          ></v-switch>
-        </v-card-title>
-        <v-card-text>
-          <v-textarea
-            readonly
-            solo
-            flat
-            hide-details
-            rows="20"
-            background-color="grey darken-3"
-            :loading="podLogsLoading"
-            :value="reverseText(podLogs, logReverse)">
-          </v-textarea>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn @click="logDialog=false">
-            close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- end log dialog -->
+          <template v-slot:dialog="{ item }">
+            <v-form ma-4 ref="form" v-model="valid">
+              <v-text-field
+                v-model.trim="item.name"
+                counter="30"
+                :rules="nameRules"
+                label="Name"
+                :prefix="namePrefix"
+                required
+              ></v-text-field>
+              <span v-if="item.repeat <= 5">Names:
+                <span v-for="(cn) in candidateNames(namePrefix + item.name, item.repeat)" :key="cn"><code>{{ cn }}</code>{{' '}}</span>
+              </span>
+              <v-combobox
+                v-model.trim="item.image"
+                :items="imagesList"
+                :hide-no-data="!searchImage"
+                :search-input.sync="searchImage"
+                :rules="imageRules"
+                label="Image"
+                required
+                persistent-hint
+                hint="You can add other image"
+              >
+                <template v-slot:no-data>
+                  <v-list-item>
+                    <span class="subheading">Create</span>
+                      {{ searchImage }}
+                  </v-list-item>
+                </template>
+              </v-combobox>
+              <v-row>
+                <v-col cols=8>
+                  <v-select
+                    v-model="item.jobType"
+                    :items="jobsList"
+                    :rules="jobTypeRules"
+                    label="Job Type"
+                    auto
+                    la
+                    required
+                    :hint="jobTypeHint"
+                    persistent-hint
+                    :error-messages="gpuErrorMessages"
+                    ref="jobType"
+                  ></v-select>
+                </v-col>
+                <v-col cols=1>
+                </v-col>
+                <v-col cols=3>
+                  <v-text-field
+                    v-model.number="item.repeat"
+                    type="number"
+                    :rules="repeatRules"
+                    label="Repeat"
+                    @click:append-outer="increment"
+                    @click:prepend="decrement"
+                    required
+                    :error-messages="gpuErrorMessages"
+                    ref="repeat"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-select
+                v-model="item.volume"
+                :items="volumes"
+                item-text="name"
+                label="Volumes"
+                :rules="requiredRules"
+                required
+                chips
+              ></v-select>
+              <v-text-field
+                v-model="item.command"
+                :rules="commandRules"
+                type="string"
+                label="Command"
+                required
+                hint="Shell Command to Run"
+              ></v-text-field>
+            </v-form>
+          </template>
+        </edit-data-table>
+          <!-- <v-data-table
+            v-model="selected"
+            hide-default-footer
+            show-select
+            item-key="name"
+            :headers="jobsHeader"
+            :items="jobs"
+            :loading="loading"
+            :options.sync="options"
+          >
+            <template v-slot:[`item.status`]="{ item }">
+              <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
+            </template>
+            <template v-slot:[`item.gpus`]="{ item }">
+              {{ convertGpuToJobType(Number(item.gpus)) }}
+            </template>
+            <template v-slot:[`item.command`]="{ item }">
+              {{ item.command.join(' ') }}
+            </template>
+            <template v-slot:[`item.volumes`]="{ item }">
+              <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
+            </template>
+            <template v-slot:[`item.duration`]="{ item }">
+              {{ calcTime(item.startTime, item.completionTime) }}
+            </template>
+            <template v-slot:[`item.age`]="{ item }">
+              {{ calcTime(item.startTime) }}
+            </template>
+            <template v-slot:[`item.logs`]="{ item }">
+              <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
+            </template>
+          </v-data-table> -->
+          <!-- end data table -->
 
-  </v-card>
+          <!-- form dialog -->
+          <!-- <v-dialog
+            v-model="dialog"
+            max-width="500"
+          >
+            <v-card>
+              <v-card-title>
+                New job
+              </v-card-title>
+              <v-card-text>
+                <v-form
+                  ma-4
+                  ref="form"
+                  v-model="valid"
+                >
+                  <v-text-field
+                    v-model.trim="name"
+                    counter="30"
+                    :rules="nameRules"
+                    label="Name"
+                    :prefix="namePrefix"
+                    required
+                  ></v-text-field>
+                  <span v-if="repeat <= 5">Names:
+                    <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
+                  </span>
+                  <v-combobox
+                    v-model.trim="image"
+                    :items="imagesList"
+                    :hide-no-data="!searchImage"
+                    :search-input.sync="searchImage"
+                    label="Image"
+                    required
+                    persistent-hint
+                    hint="You can add other image"
+                  >
+                    <template v-slot:no-data>
+                      <v-list-item>
+                        <span class="subheading">Create</span>
+                          {{ searchImage }}
+                      </v-list-item>
+                    </template>
+                  </v-combobox>
+                  <v-row>
+                    <v-col cols=8>
+                      <v-select
+                        v-model="jobType"
+                        :items="jobsList"
+                        :rules="jobTypeRules"
+                        label="Job Type"
+                        auto
+                        la
+                        required
+                        :hint="jobTypeHint"
+                        persistent-hint
+                        :error-messages="gpuErrorMessages"
+                        ref="jobType"
+                      ></v-select>
+                    </v-col>
+                    <v-col cols=1>
+                    </v-col>
+                    <v-col cols=3>
+                      <v-text-field
+                        v-model.number="repeat"
+                        type="number"
+                        :rules="repeatRules"
+                        label="Repeat"
+                        @click:append-outer="increment"
+                        @click:prepend="decrement"
+                        required
+                        :error-messages="gpuErrorMessages"
+                        ref="repeat"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-select
+                    v-model="volume"
+                    :items="volumes"
+                    label="Volumes"
+                    :rules="requiredRules"
+                    required
+                    chips
+                  ></v-select>
+                  <v-text-field
+                    v-model="command"
+                    :rules="commandRules"
+                    type="string"
+                    label="Command"
+                    required
+                    hint="Shell Command to Run"
+                  ></v-text-field>
+                </v-form>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="gray" @click="onCancle">
+                  Cancle
+                </v-btn>
+                <v-btn color="success" @click="onCreate" :disabled="!valid">
+                  Create
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog> -->
+          <!-- end form dialog -->
+
+          <!-- delete dialog -->
+          <!-- <v-dialog v-model="deleteDialog" max-width="400">
+            <v-card>
+              <v-card-title>
+                Delete Jobs
+              </v-card-title>
+              <v-card-text>
+                Are you sure to delete <code> {{ selected.map(x => x.name).join(',') }} </code>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color='red' @click="onDelete()">
+                  Delete
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog> -->
+          <!-- end delete dialog -->
+
+          <!-- log dialog -->
+          <!-- <v-dialog tile v-model="logDialog" max-width="1500" overlay-opacity=100>
+            <v-card>
+              <v-card-title>
+                Job Logs
+                <v-spacer></v-spacer>
+                <v-switch
+                  v-model="logReverse"
+                  label="Reverse"
+                ></v-switch>
+              </v-card-title>
+              <v-card-text>
+                <v-textarea
+                  readonly
+                  solo
+                  flat
+                  hide-details
+                  rows="20"
+                  background-color="grey darken-3"
+                  :loading="podLogsLoading"
+                  :value="reverseText(podLogs, logReverse)">
+                </v-textarea>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="logDialog=false">
+                  close
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog> -->
+          <!-- end log dialog -->
+
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapState, mapActions, mapGetters } from 'vuex'
+import EditDataTable from '@/components/admin/EditDataTable.vue'
+
+const resourceStore = 'resourceStore'
+
 export default {
   name: 'Jobs',
-  props: {
-    resources: {
-      type: Object
-    },
-    jobs: {
-      type: Array
-    },
-    volumes: {
-      type: Array
-    },
-    loading: {
-      type: Boolean
-    }
-  },
+  components: { EditDataTable },
   data: () => ({
     // jobs
-    jobsHeader: [
-      { text: 'Status', value: 'status', width: 10, sortable: false, filterable: false },
-      { text: 'Name', value: 'name', width: 80, sortable: false, filterable: false },
-      { text: 'Type', value: 'gpus', width: 10, align: 'end', sortable: false, filterable: false },
+    headers: [
+      { text: 'Status', value: 'status', width: 100, sortable: true, filterable: false },
+      { text: 'Name', value: 'name', width: 300, sortable: true, filterable: false },
+      { text: 'Type', value: 'gpus', width: 100, sortable: true, filterable: false },
       { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
-      { text: 'Command', value: 'command', width: 200, sortable: false, filterable: false },
-      { text: 'Duration', value: 'duration', width: 20, sortable: false, filterable: false },
-      { text: 'Age', value: 'age', width: 20, sortable: false, filterable: false },
-      { text: 'Logs', value: 'logs', width: 100, sortable: false, filterable: false }
+      { text: 'Command', value: 'command', width: 300, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 100, sortable: true, filterable: false },
+      { text: 'Age', value: 'age', width: 100, sortable: true, filterable: false },
+      { text: 'Logs', value: 'logs', width: 150, sortable: false, filterable: false }
     ],
 
     imagesList: [
@@ -253,41 +366,131 @@ export default {
     ],
 
     jobsList: [
-      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } }
+      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 32, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 64, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 128, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g3.large', value: { name: 'g3.large', cpus: 16, memory: 128, gpus: 4, gpuType: 'nvidia-rtx-3090' } },
+      { text: 'v100.xlarge', value: { name: 'v100.xlarge', cpus: 32, memory: 256, gpus: 8, gpuType: 'nvidia-tesla-v100' } }
     ],
 
+    defaultItem: {
+      name: '',
+      image: undefined,
+      searchImage: '',
+      jobType: '',
+      repeat: 1,
+      volume: '',
+      command: ''
+    },
+
     options: {
-      itemsPerPage: 20
+      itemsPerPage: 20,
+      deleteTop: true,
+      copy: true
+    },
+
+    footerProps: {
+      itemsPerPageOptions: [10, 20, 30]
     },
 
     // form
-    dialog: false,
+    // dialog: false,
     valid: false,
-    name: '',
-    image: '',
+    // name: '',
+    // image: '',
     searchImage: '',
-    repeat: 1,
-    jobType: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' },
-    volume: undefined,
-    command: '',
+    // repeat: 1,
+    // jobType: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' },
+    // volume: undefined,
+    // command: '',
     gpuErrorMessages: '',
 
     // data table
-    selected: [],
-    deleteDialog: false,
-    targetName: '',
+    // selected: [],
+    // deleteDialog: false,
+    // targetName: '',
     logDialog: false,
     logReverse: false,
     podLogs: 'No Logs.',
     podLogsLoading: false
   }),
-  created () {
-    this.jobType = this.jobsList[0].value
-    this.volume = this.volumes[0]
+
+  computed: {
+    ...mapState(resourceStore, [
+      'resources',
+      'instances',
+      'jobs',
+      'volumes'
+    ]),
+    ...mapGetters(resourceStore, [
+      'isLoading',
+      'remainResources'
+    ]),
+
+    // namePrefix
+    namePrefix () {
+      return 'jobs-' + this.$store.getters.namePrefix
+    },
+
+    // hint
+    jobTypeHint () {
+      if (this.jobType) {
+        return `CPU: ${this.jobType.cpus}, Memory: ${this.jobType.memory}, GPU: ${this.jobType.gpuType} x ${this.jobType.gpus}`
+      } else {
+        return ''
+      }
+    },
+
+    // rule
+    nameRules () {
+      return [
+        v => (v && v.length >= 1) || 'Name is required',
+        v => (v && v.length <= 30) || 'Name must be less then 30 characters',
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -'
+      ]
+    },
+    imageRules () {
+      return [
+        v => !!v || 'Image is required'
+      ]
+    },
+    repeatRules () {
+      return [
+        v => !!v || 'Repeat is required',
+        v => (v && Number.isInteger(v)) || 'Repeat must be integer',
+        v => (v && v >= 1) || 'Repeat must be larger then 1',
+        v => (v && v <= 5) || 'Repeat must be less then 5',
+        this.gpuRules
+      ]
+    },
+    jobTypeRules () {
+      return [
+        v => !!v || 'Job Type is required',
+        this.gpuRules
+      ]
+    },
+    commandRules () {
+      return [
+        v => !!v || 'Command is required'
+      ]
+    },
+    requiredRules () {
+      return [
+        v => !!v || 'Required item.'
+      ]
+    }
   },
+
   methods: {
+    ...mapActions(resourceStore, [
+      'getUserLimits',
+      'getInstances',
+      'getVolumes',
+      'getJobs',
+      'createJob',
+      'deleteJob'
+    ]),
+
     // stataus icon
     getStatusIcon (status) {
       if (status === 'Succeeded') return 'mdi-check-decagram'
@@ -295,8 +498,29 @@ export default {
       else return 'mdi-alert-circle'
     },
 
-    remainResources (type) {
-      return (this.resources[type].limit - this.resources[type].using)
+    // CRUD
+    createItem (payload) {
+      // request create pods
+      let name = this.namePrefix + payload.name
+      let body = {
+        image: payload.image,
+        cpu_request: payload.jobType.cpus,
+        memory_request: payload.jobType.memory,
+        gpu_request: payload.jobType.gpus,
+        gpu_type: payload.jobType.gpuType,
+        volume_name: payload.volume,
+        command: payload.command.split(' ')
+      }
+
+      this.candidateNames(name, payload.repeat).forEach(cn => {
+        body.name = cn
+        this.createJob(body)
+      })
+    },
+    deleteItem (payload) {
+    },
+    close () {
+      this.$refs.form.resetValidation()
     },
 
     // reverse text
@@ -315,46 +539,6 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
-    openDeleteDialog () {
-      this.deleteDialog = true
-    },
-
-    openDialog () {
-      this.dialog = true
-      this.volume = this.volumes[0]
-    },
-
-    openCopyDialog () {
-      this.name = this.selected[0].name.split('-').slice(2, -1).join('-')
-      this.volume = this.selected[0].volumes[0]
-      this.command = this.selected[0].command.join(' ')
-
-      if (this.selected[0].gpus === 1) {
-        this.jobType = this.jobsList[0].value
-      } else if (this.selected[0].gpus === 2) {
-        this.jobType = this.jobsList[1].value
-      } else if (this.selected[0].gpus === 4) {
-        this.jobType = this.jobsList[2].value
-      }
-      this.dialog = true
-    },
-
-    resetDialog () {
-      this.dialog = false
-      this.$refs.form.resetValidation()
-
-      this.name = ''
-      this.jobType = this.jobsList[0].value
-      this.repeat = 1
-      this.volume = this.volumes[0]
-      this.command = ''
-    },
-
-    onGet () {
-      this.$emit('get')
-      this.volume = this.volumes[0]
-    },
-
     onCreate () {
       // request create pods
       let name = this.namePrefix + this.name
@@ -368,7 +552,7 @@ export default {
         command: this.command.split(' ')
       }
 
-      this.candinateNames(name).forEach(n => {
+      this.candidateNames(name).forEach(n => {
         body.name = n
         this.$emit('create', { ...body })
       })
@@ -413,7 +597,7 @@ export default {
       return result
     },
 
-    // converter
+    // converter TODO
     convertGpuToJobType (gpu) {
       let type
       if (gpu === 1) {
@@ -422,6 +606,8 @@ export default {
         type = 'g2.medium'
       } else if (gpu === 4) {
         type = 'g2.large'
+      } else if (gpu === 8) {
+        type = 'g2.xlarge'
       }
       return type
     },
@@ -438,10 +624,10 @@ export default {
       return true
     },
 
-    candinateNames (name) {
+    candidateNames (name, repeat) {
       let candidate = []
       let i = 0
-      while (candidate.length < this.repeat) {
+      while (candidate.length < repeat) {
         let newName = name + '-' + i
         if (!this.jobs.map(v => v.name).includes(newName)) {
           candidate.push(newName)
@@ -451,54 +637,12 @@ export default {
       return candidate
     }
   },
-  computed: {
-    // namePrefix
-    namePrefix () {
-      return 'jobs-' + this.$store.getters.namePrefix
-    },
+  async created () {
+    await this.getUserLimits()
 
-    // hint
-    jobTypeHint () {
-      if (this.jobType) {
-        return `CPU: ${this.jobType.cpus}, Memory: ${this.jobType.memory}, GPU: ${this.jobType.gpuType} x ${this.jobType.gpus}`
-      } else {
-        return ''
-      }
-    },
-
-    // rule
-    nameRules () {
-      return [
-        v => (v && v.length >= 1) || 'Name is required',
-        v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -'
-      ]
-    },
-    repeatRules () {
-      return [
-        v => !!v || 'Repeat is required',
-        v => (v && Number.isInteger(v)) || 'Repeat must be integer',
-        v => (v && v >= 1) || 'Repeat must be larger then 1',
-        v => (v && v <= 5) || 'Repeat must be less then 5',
-        this.gpuRules
-      ]
-    },
-    jobTypeRules () {
-      return [
-        v => !!v || 'Job Type is required',
-        this.gpuRules
-      ]
-    },
-    commandRules () {
-      return [
-        v => !!v || 'Command is required'
-      ]
-    },
-    requiredRules () {
-      return [
-        v => !!v || 'Required item.'
-      ]
-    }
+    await this.getInstances()
+    await this.getVolumes()
+    await this.getJobs()
   }
 }
 </script>

@@ -1,10 +1,13 @@
 <template>
   <v-data-table
+    v-model="selected"
+    item-key="name"
     :headers="headers"
     :items="data"
     :options.sync="defaultOptions"
     :footerProps="footerProps"
     :loading="loading"
+    :show-select="showSelect"
   >
     <template v-slot:top>
       <v-toolbar flat color="transparent" >
@@ -12,8 +15,8 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="700px">
-          <template v-if="defaultOptions.create" v-slot:activator="{ on }">
-            <v-btn dark icon v-on="on">
+          <template v-slot:activator="{ on }">
+            <v-btn v-if="defaultOptions.create" dark icon v-on="on">
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
           </template>
@@ -33,7 +36,15 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-btn v-if="defaultOptions.copy" dark icon @click="editItem(selected[0])">
+          <v-icon>mdi-content-copy</v-icon>
+        </v-btn>
         <v-dialog v-model="deleteDialog" max-width="500px">
+          <template v-if="defaultOptions.deleteTop" v-slot:activator="{ on }">
+            <v-btn dark icon v-on="on">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </template>
           <v-card>
             <v-card-title>
               <span class="headline">Delete Item</span>
@@ -84,6 +95,7 @@ export default {
     footerProps: Object,
     headers: Array,
     data: Array,
+    showSelect: Boolean,
 
     title: String,
     defaultItem: Object
@@ -92,12 +104,15 @@ export default {
   data: () => ({
     dialog: false,
     deleteDialog: false,
+    selected: [],
     editedItem: {},
     editedIndex: -1,
     defaultOptions: {
       create: true,
       update: true,
-      delete: true
+      delete: true,
+      deleteTop: false,
+      copy: false
     }
   }),
 
@@ -109,10 +124,8 @@ export default {
 
   methods: {
     initDialogs () {
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.editedIndex = -1
     },
 
     editItem (item) {
@@ -123,8 +136,10 @@ export default {
 
     close () {
       this.dialog = false
-      this.initDialogs()
-      this.$emit('close')
+      setTimeout(() => {
+        this.initDialogs()
+        this.$emit('close')
+      }, 100)
     },
 
     save () {
@@ -155,6 +170,7 @@ export default {
   },
   mounted () {
     Object.assign(this.defaultOptions, this.options)
+    this.initDialogs()
   }
 }
 </script>
