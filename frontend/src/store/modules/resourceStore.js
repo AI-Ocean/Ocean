@@ -66,6 +66,7 @@ const resourceStore = {
       state.loadingInstances = load
     }
   },
+
   actions: {
     // user limits
     async getUserLimits ({ state, commit, rootState, rootGetters }) {
@@ -178,17 +179,98 @@ const resourceStore = {
       dispatch('updateUsage')
       commit('setLoadingVolumes', false)
     },
+    async createVolume ({ state, commit, dispatch }, data) {
+      console.log(data)
+      await Vue.prototype.$axios.post('/api/volumes', data)
+      let volumes = state.volumes
+      volumes.push({
+        name: data.name,
+        capacity: data.capacity,
+        status: 'Pending'
+      })
+      commit('setVolumes', volumes)
+      dispatch('updateUsage')
+    },
+    async deleteVolume ({ state, commit, dispatch }, name) {
+      await Vue.prototype.$axios.delete('/api/volumes/' + name)
 
-    signOut ({ commit }) {
-      commit('setToken', null)
-      commit('setUser', null)
-      localStorage.removeItem('token')
+      let volumes = state.volumes
+      volumes[volumes.findIndex(v => v.name === name)].status = 'Terminating'
+      commit('setVolumes', volumes)
+      dispatch('updateUsage')
+    },
+
+    /*
+     * Jobs
+     */
+    async getJobs ({ commit, dispatch }) {
+      commit('setLoadingJobs', true)
+
+      //  init
+      var newJobs = []
+
+      // get instances
+      const { data } = await Vue.prototype.$axios.get('/api/jobs')
+      // update instances
+      data.jobs.forEach(element => {
+        const { name, status, limits, volumes, command, startTime, completionTime } = element
+        const job = {
+          name,
+          status,
+          cpus: limits.cpu,
+          memory: limits.memory.slice(0, -2),
+          gpus: limits['nvidia.com/gpu'],
+          volumes: [],
+          command,
+          startTime,
+          completionTime
+        }
+        volumes.forEach(element => {
+          job.volumes.push(element.persistentVolumeClaim.claimName)
+        })
+        newJobs.push(job)
+      })
+
+      commit('setJobs', newJobs)
+      dispatch('updateUsage')
+      commit('setLoadingJobs', false)
+    },
+    async createJob ({ state, commit, dispatch }, data) {
+      await Vue.prototype.$axios.post('/api/jobs', data)
+      let jobs = state.jobs
+      jobs.push({
+        name: data.name,
+        status: 'Pending',
+        cpus: data.cpu_request,
+        memory: data.memory_request,
+        gpus: data.gpu_request,
+        volumes: [data.volume_name],
+        command: data.command,
+        startTime: new Date(),
+        completionTime: new Date()
+      })
+      commit('setJobs', jobs)
+      dispatch('updateUsage')
+    },
+    async deleteJob ({ state, commit, dispatch }, name) {
+      await Vue.prototype.$axios.delete('/api/jobs/' + name)
+      let jobs = state.jobs
+      jobs[jobs.findIndex(v => v.name === name)].status = 'Terminating'
+      commit('setJobs', jobs)
+      dispatch('updateUsage')
     }
   },
+
   getters: {
     isLoading (state) {
       return state.loadingInstances || state.loadingVolumes || state.loadingJobs
+    },
+    remainResources (state) {
+      return function (type) {
+        return state.resources[type].limit - state.resources[type].using
+      }
     }
+
   }
 }
 

@@ -9,14 +9,10 @@
     <template v-slot:top>
       <v-toolbar flat color="transparent" >
         <v-toolbar-title>{{ title }}</v-toolbar-title>
-        <v-divider
-          class="mx-4"
-          inset
-          vertical
-        ></v-divider>
+        <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <v-dialog v-model="dialog" max-width="700px">
-          <template v-if="defaultOptions.add" v-slot:activator="{ on }">
+          <template v-if="defaultOptions.create" v-slot:activator="{ on }">
             <v-btn dark icon v-on="on">
               <v-icon>mdi-plus-box</v-icon>
             </v-btn>
@@ -44,7 +40,7 @@
             </v-card-title>
 
             <v-card-text>
-              <slot name="deleteDialog" :item="editedItem"> Are you sure to delete <code>{{editedItem}}</code> </slot>
+              <slot name="deleteDialog" :item="editedItem"> Are you sure to delete <code>{{editedItem.name}}</code> </slot>
             </v-card-text>
 
             <v-card-actions>
@@ -61,8 +57,7 @@
     </template>
     <template v-slot:[`item.actions`]="{ item }">
       <v-icon
-        v-if="defaultOptions.edit"
-        class="mr-2"
+        v-if="defaultOptions.update"
         @click="editItem(item)"
       >
         mdi-pencil
@@ -98,8 +93,8 @@ export default {
     editedItem: {},
     editedIndex: -1,
     defaultOptions: {
-      add: true,
-      edit: true,
+      create: true,
+      update: true,
       delete: true
     }
   }),
@@ -132,11 +127,12 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
-        Object.assign(this.data[this.editedIndex], this.editedItem)
-        this.$emit('change', this.editedItem)
+        // Object.assign(this.data[this.editedIndex], this.editedItem)
+        console.log(this.editedItem)
+        this.$emit('update', this.editedItem)
       } else {
-        this.data.push(this.editedItem)
-        this.$emit('add', this.editedItem)
+        // this.data.push(this.editedItem)
+        this.$emit('create', this.editedItem)
       }
       this.close()
     },
@@ -153,7 +149,7 @@ export default {
     },
 
     confirmDelete () {
-      this.data.splice(this.editedIndex, 1)
+      // this.data.splice(this.editedIndex, 1)
       this.$emit('delete', this.editedItem)
       this.closeDelete()
     }

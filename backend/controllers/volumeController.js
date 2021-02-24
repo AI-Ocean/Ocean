@@ -31,7 +31,7 @@ module.exports.get_volumes_list = async (req, res) => {
 
 module.exports.create_volume = async (req, res) => {
   var name = req.body.name
-  var storage = req.body.storage_request + 'Gi'
+  var capacity = req.body.capacity + 'Gi'
 
   const metadata = {
     name,
@@ -43,7 +43,7 @@ module.exports.create_volume = async (req, res) => {
   const spec = {
     storageClassName: 'nfs',
     accessModes: [ 'ReadWriteOnce' ],
-    resources: { requests: { storage } }
+    resources: { requests: { 'storage': capacity } }
   }
 
   const volumeData = {
@@ -58,6 +58,7 @@ module.exports.create_volume = async (req, res) => {
     const vol = await kubeAPI.post('/namespaces/ml-instance/persistentvolumeclaims', volumeData)
     data = vol.data
   } catch (err) {
+    console.error(err.response.data)
     return res.status(503).json(err.response.data)
   }
   return res.status(201).json(data)

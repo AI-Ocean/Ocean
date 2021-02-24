@@ -54,6 +54,18 @@ const routes = [
     beforeEnter: roleCheck
   },
   {
+    path: '/volumes',
+    name: 'volumes',
+    component: () => import(/* webpackChunkName: "core" */ '../views/Volumes.vue'),
+    beforeEnter: roleCheck
+  },
+  {
+    path: '/jobs',
+    name: 'jobs',
+    component: () => import(/* webpackChunkName: "core" */ '../views/Jobs.vue'),
+    beforeEnter: roleCheck
+  },
+  {
     path: '/profile',
     name: 'profile',
     component: () => import(/* webpackChunkName: "core" */ '../views/Profile.vue'),

@@ -17,11 +17,7 @@
               @close="close"
             >
               <template v-slot:dialog="{ item }">
-                <v-form
-                  ma-4
-                  ref="form"
-                  v-model="valid"
-                >
+                <v-form ma-4 ref="form" v-model="valid">
                   <v-container>
                     <v-row>
                       <v-col cols="12">
@@ -139,9 +135,9 @@ export default {
 
     options: {
       itemsPerPage: 20,
-      add: true,
       edit: false
     },
+
     footerProps: {
       itemsPerPageOptions: [10, 20, 30]
     },
@@ -202,7 +198,6 @@ export default {
       'instances',
       'volumes'
     ]),
-
     ...mapGetters(resourceStore, [
       'isLoading'
     ]),
@@ -210,6 +205,7 @@ export default {
     namePrefix () {
       return 'inst-' + this.$store.getters.namePrefix
     },
+
     // rule
     nameRules () {
       return [
@@ -231,12 +227,10 @@ export default {
     }
   },
   async created () {
-    this.loading = false
     await this.getUserLimits()
 
     await this.getInstances()
     await this.getVolumes()
-    this.loading = true
   }
 }
 </script>

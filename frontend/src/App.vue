@@ -82,23 +82,24 @@
             </v-list-item-icon>
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item> -->
+
           <v-list-item link to="/instances">
             <v-list-item-icon>
               <v-icon>mdi-server</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Instances</v-list-item-title>
           </v-list-item>
-          <v-list-item link to="/jobs">
-            <v-list-item-icon>
-              <v-icon>mdi-rocket-launch</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Jobs</v-list-item-title>
-          </v-list-item>
           <v-list-item link to="/volumes">
             <v-list-item-icon>
               <v-icon>mdi-database</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Volumes</v-list-item-title>
+          </v-list-item>
+          <v-list-item link to="/jobs">
+            <v-list-item-icon>
+              <v-icon>mdi-rocket-launch</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Jobs</v-list-item-title>
           </v-list-item>
           <v-divider></v-divider>
 

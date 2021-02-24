@@ -1,16 +1,66 @@
 <template>
-  <v-card tile>
-    <v-toolbar flat dark>
+  <v-container grid-list-md fluid>
+      <v-row>
+        <v-col>
+          <v-card tile>
+            <v-card-text>
+              <edit-data-table
+                title="Volumes"
+                :headers="headers"
+                :data="volumes"
+                :defaultItem="defaultItem"
+                :options.sync="options"
+                :footerProps="footerProps"
+                :loading="isLoading"
+                @create="createItem"
+                @delete="deleteVolume"
+              >
+                <template v-slot:dialog="{ item }">
+                  <v-form ma-4 ref="form" v-model="valid">
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model.trim="item.name"
+                            counter="30"
+                            :rules="nameRules"
+                            label="Name"
+                            :prefix="namePrefix"
+                            required
+                          >
+                          </v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model.number="item.capacity"
+                            :rules="capRules"
+                            type="number"
+                            label="Capacity"
+                            required
+                            :suffix="' / ' + remainResources('capacity') + ' Gi'"
+                          >
+                          </v-text-field>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-form>
+                </template>
+                <template v-slot:used="{ item }">
+                  <v-chip class="ma-1" v-for="(name, index) in usedAt(item.name)" :key="index">{{name}}</v-chip>
+                </template>
+              </edit-data-table>
+            </v-card-text>
+    <!-- <v-toolbar flat dark>
       <v-toolbar-title>
         Volumes
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="dialog=true">
         <v-icon color="white">mdi-plus-box</v-icon>
-      </v-btn>
+      </v-btn> -->
 
       <!-- form dialog -->
-      <v-dialog
+      <!-- <v-dialog
         v-model="dialog"
         max-width="500"
       >
@@ -54,13 +104,13 @@
             </v-btn>
           </v-card-actions>
         </v-card>
-      </v-dialog>
+      </v-dialog> -->
       <!-- end form dialog -->
-    </v-toolbar>
+    <!-- </v-toolbar> -->
     <!-- end header -->
 
     <!-- data table -->
-    <v-data-table
+    <!-- <v-data-table
       :headers="volumesHeader"
       :items="volumes"
       :loading="loading"
@@ -77,10 +127,10 @@
           </v-icon>
         </v-btn>
       </template>
-    </v-data-table>
+    </v-data-table> -->
     <!-- end data table -->
 
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <!-- <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title>
           Delete Volume
@@ -95,109 +145,126 @@
           </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
-  </v-card>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapState, mapActions, mapGetters } from 'vuex'
+import EditDataTable from '@/components/admin/EditDataTable.vue'
+
+const resourceStore = 'resourceStore'
+
 export default {
-  name: 'VolumesForm',
-  props: {
-    resources: {
-      type: Object
-    },
-    volumes: {
-      type: Array
-    },
-    usedVolumes: {
-      type: Set
-    },
-    loading: {
-      type: Boolean
-    }
-  },
+  name: 'Volumes',
+  components: { EditDataTable },
   data: () => ({
     // volumes
-    volumesHeader: [
-      { text: 'Name', value: 'name', sortable: false, filterable: false },
-      { text: 'Capacity', value: 'capacity', sortable: false, filterable: false },
+    headers: [
+      { text: 'Name', value: 'name', sortable: true, filterable: false },
+      { text: 'Capacity', value: 'capacity', sortable: true, filterable: false },
       { text: 'Status', value: 'status', sortable: false, filterable: false },
-      { text: '', value: 'delete', width: 70, sortable: false, filterable: false }
+      { text: 'Used', value: 'used', sortable: false, filterable: false },
+      { text: 'Actions', value: 'actions', width: 80, sortable: false, filterable: false }
     ],
 
+    defaultItem: {
+      name: '',
+      capacity: 0
+    },
+
     options: {
-      itemsPerPage: 30
+      itemsPerPage: 20,
+      update: false
+    },
+
+    footerProps: {
+      itemsPerPageOptions: [10, 20, 30]
     },
 
     // form
-    dialog: false,
-    valid: false,
-
-    name: '',
-    capacity: undefined,
-
-    // data table
-    deleteDialog: false,
-    targetName: ''
+    valid: false
   }),
-  methods: {
-    remainResources (type) {
-      return (this.resources[type].limit - this.resources[type].using)
-    },
-    isDeletable (item) {
-      return item.name !== 'dataset-pvc' && !this.usedVolumes.has(item.name)
-    },
-
-    openDeleteDialog (name) {
-      this.deleteDialog = true
-      this.targetName = name
-    },
-
-    onGet () {
-      this.$emit('get')
-    },
-    onCreate () {
-      this.$emit('create', {
-        name: 'vol-' + this.$store.getters.namePrefix + this.name,
-        storage_request: this.capacity
-      })
-
-      // reset dialog
-      this.dialog = false
-      this.$refs.form.reset()
-      this.$refs.form.resetValidation()
-    },
-    onCancle () {
-      this.$emit('cancle')
-
-      // reset dialog
-      this.dialog = false
-      this.$refs.form.reset()
-      this.$refs.form.resetValidation()
-    },
-    onDelete (name) {
-      this.deleteDialog = false
-      this.$emit('delete', name)
-    }
-  },
   computed: {
+    ...mapState(resourceStore, [
+      'resources',
+      'instances',
+      'jobs',
+      'volumes'
+    ]),
+    ...mapGetters(resourceStore, [
+      'isLoading',
+      'remainResources'
+    ]),
+
+    usedVolumes () {
+      var set = new Set()
+      this.instances.map(v => v.volumes.forEach(v => set.add(v)))
+      this.jobs.map(v => v.volumes.forEach(v => set.add(v)))
+      return set
+    },
+
+    namePrefix () {
+      return 'vol-' + this.$store.getters.namePrefix
+    },
+
     // rule
-    name_rules () {
+    nameRules () {
       return [
         v => (v && v.length >= 1) || 'Name is required',
         v => (v && v.length <= 30) || 'Name must be less then 30 characters',
-        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
-        v => !this.volumes.map(v => v.name).includes(this.$store.getters.namePrefix + v) || 'Name already exist'
+        v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -',
+        v => !this.volumes.map(v => v.name).includes(this.namePrefix + v) || 'Name already exist'
       ]
     },
-    cap_rules () {
+    capRules () {
       return [
         v => !!v || 'Capacity is required',
         v => v <= this.remainResources('capacity') ||
           `Capacity must be less then ${this.remainResources('capacity')} limit`
       ]
     }
+  },
+  methods: {
+    ...mapActions(resourceStore, [
+      'getUserLimits',
+      'getInstances',
+      'getVolumes',
+      'getJobs',
+      'createVolume',
+      'deleteVolume'
+    ]),
+
+    /// CRUD
+    createItem (payload) {
+      console.log(payload)
+      payload.name = this.namePrefix + payload.name
+      console.log(payload)
+      this.createVolume(payload)
+    },
+
+    /// utils
+    usedAt (volName) {
+      let used = []
+      this.instances.map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
+      this.jobs.map(v => v.volumes.includes(volName) ? used.push(v.name) : null)
+      return true
+    },
+    isDeletable (item) {
+      return item.name !== 'dataset-pvc' && !this.usedVolumes.has(item.name)
+    }
+
+  },
+  async created () {
+    await this.getUserLimits()
+
+    await this.getVolumes()
+    await this.getInstances()
+    await this.getJobs()
   }
 }
 </script>
