@@ -57,7 +57,7 @@ module.exports.create_instance = async (req, res) => {
   var memory = req.body.memory_request + 'Gi'
   var gpu = req.body.gpu_request
   var gpu_type = req.body.gpu_type
-  var claimName = req.body.volume_name
+  var claimName = req.body.volume
 
   const metadata = {
     name,

@@ -129,11 +129,8 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
-        // Object.assign(this.data[this.editedIndex], this.editedItem)
-        console.log(this.editedItem)
         this.$emit('update', this.editedItem)
       } else {
-        // this.data.push(this.editedItem)
         this.$emit('create', this.editedItem)
       }
       this.close()

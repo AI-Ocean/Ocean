@@ -14,6 +14,7 @@
               :loading="isLoading"
               @create="createItem"
               @delete="deleteItem"
+              @close="close"
             >
               <template v-slot:dialog="{ item }">
                 <v-form ma-4 ref="form" v-model="valid">
@@ -168,6 +169,9 @@ export default {
     },
     deleteItem (payload) {
       this.deleteVolume(payload.name)
+    },
+    close () {
+      this.$refs.form.resetValidation()
     },
 
     /// utils

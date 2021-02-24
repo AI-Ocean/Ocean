@@ -12,7 +12,7 @@
               :options.sync="options"
               :footerProps="footerProps"
               :loading="isLoading"
-              @add="add"
+              @create="createItem"
               @delete="deleteItem"
               @close="close"
             >
@@ -67,6 +67,7 @@
                         <v-select
                           v-model="item.volume"
                           :items="volumes"
+                          item-text="name"
                           label="Volumes"
                           :rules="volumeRules"
                           required
@@ -104,14 +105,14 @@ export default {
   data: () => ({
     // instances
     headers: [
-      { text: 'Status', value: 'status', width: 80, sortable: false, filterable: false },
-      { text: 'Name', value: 'name', width: 200, sortable: false, filterable: false },
-      { text: 'CPUs', value: 'cpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'Memory', value: 'memory', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'GPUs', value: 'gpus', width: 80, align: 'end', sortable: false, filterable: false },
-      { text: 'SSH port', value: 'port', sortable: false, filterable: false },
+      { text: 'Status', value: 'status', width: 100, sortable: false, filterable: false },
+      { text: 'Name', value: 'name', width: 300, sortable: false, filterable: false },
+      { text: 'CPUs', value: 'cpus', width: 100, align: 'end', sortable: false, filterable: false },
+      { text: 'Memory', value: 'memory', width: 100, align: 'end', sortable: false, filterable: false },
+      { text: 'GPUs', value: 'gpus', width: 100, align: 'end', sortable: false, filterable: false },
+      { text: 'SSH port', value: 'port', width: 150, sortable: false, filterable: false },
       { text: 'Volumes', value: 'volumes', sortable: false, filterable: false },
-      { text: 'Actions', value: 'actions', width: 70, sortable: false, filterable: false }
+      { text: 'Actions', value: 'actions', width: 100, sortable: false, filterable: false }
     ],
 
     imagesList: [
@@ -135,7 +136,7 @@ export default {
 
     options: {
       itemsPerPage: 20,
-      edit: false
+      update: false
     },
 
     footerProps: {
@@ -163,20 +164,20 @@ export default {
       else return 'mdi-alert-circle'
     },
 
-    add () {
-      // request create pods
-      this.$emit('create', {
-        name: this.namePrefix + this.name,
-        image: this.image,
-        cpu_request: this.instanceType.cpus,
-        memory_request: this.instanceType.memory,
-        gpu_request: this.instanceType.gpus,
-        gpu_type: this.instanceType.gpuType,
-        volume_name: this.volume
-      })
+    /// CRUD
+    createItem (payload) {
+      const newPayload = {}
+      newPayload.name = this.namePrefix + payload.name
+      newPayload.image = payload.image
+      newPayload.cpu_request = payload.instanceType.cpus
+      newPayload.memory_request = payload.instanceType.memory
+      newPayload.gpu_request = payload.instanceType.gpus
+      newPayload.gpu_type = payload.instanceType.gpuType
+      newPayload.volume = payload.volume
+      this.createInstance(newPayload)
     },
-    deleteItem (name) {
-      this.$emit('delete', name)
+    deleteItem (payload) {
+      this.deleteInstance(payload.name)
     },
     close () {
       this.$refs.form.resetValidation()

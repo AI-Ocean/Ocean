@@ -130,6 +130,7 @@ const resourceStore = {
       commit('setLoadingInstances', false)
     },
     async createInstance ({ state, commit, dispatch }, data) {
+      console.log(data)
       await Vue.prototype.$axios.post('/api/instances', data)
 
       let instances = state.instances
@@ -140,7 +141,7 @@ const resourceStore = {
         cpus: data.cpu_request,
         memory: data.memory_request,
         gpus: data.gpu_request,
-        volumes: [data.volume_name]
+        volumes: [data.volume]
       })
       commit('setInstances', instances)
       dispatch('updateUsage')
@@ -180,7 +181,6 @@ const resourceStore = {
       commit('setLoadingVolumes', false)
     },
     async createVolume ({ state, commit, dispatch }, data) {
-      console.log(data)
       await Vue.prototype.$axios.post('/api/volumes', data)
       let volumes = state.volumes
       volumes.push({
