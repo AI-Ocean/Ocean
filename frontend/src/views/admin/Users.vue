@@ -16,7 +16,9 @@
               @delete="deleteItem"
             >
               <template v-slot:activated="{ item }">
-                <v-checkbox v-model="item.activated" readonly></v-checkbox>
+                <!-- <v-checkbox v-model="item.activated" readonly></v-checkbox> -->
+                <v-icon v-if="item.activated">mdi-checkbox-marked</v-icon>
+                <v-icon v-else>mdi-checkbox-blank-outline</v-icon>
               </template>
               <template v-slot:createdAt="{ item }">
                 <span> {{ joinedDate(item.createdAt) }} </span>
@@ -62,6 +64,7 @@ export default {
       { text: 'Email', value: 'email' },
       { text: 'Name', value: 'name' },
       { text: 'GPUs', value: 'gpus' },
+      { text: 'Capacity', value: 'capacity' },
       { text: 'Role', value: 'role' },
       { text: 'Activated', value: 'activated' },
       { text: 'Joined', value: 'createdAt' },
@@ -81,7 +84,7 @@ export default {
       itemsPerPage: 20,
       sortBy: ['email'],
       sortDesc: [false],
-      add: false
+      create: false
     },
     totalCount: 0,
     loading: true,

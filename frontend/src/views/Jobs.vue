@@ -347,7 +347,6 @@ export default {
   name: 'Jobs',
   components: { EditDataTable },
   data: () => ({
-    // jobs
     headers: [
       { text: 'Status', value: 'status', width: 100, sortable: true, filterable: false },
       { text: 'Name', value: 'name', width: 300, sortable: true, filterable: false },
@@ -394,15 +393,8 @@ export default {
     },
 
     // form
-    // dialog: false,
     valid: false,
-    // name: '',
-    // image: '',
     searchImage: '',
-    // repeat: 1,
-    // jobType: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' },
-    // volume: undefined,
-    // command: '',
     gpuErrorMessages: '',
 
     // data table
@@ -540,38 +532,6 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
-    // onCreate () {
-    //   // request create pods
-    //   let name = this.namePrefix + this.name
-    //   let body = {
-    //     image: this.image,
-    //     cpu_request: this.jobType.cpus,
-    //     memory_request: this.jobType.memory,
-    //     gpu_request: this.jobType.gpus,
-    //     gpu_type: this.jobType.gpuType,
-    //     volume_name: this.volume,
-    //     command: this.command.split(' ')
-    //   }
-
-    //   this.candidateNames(name).forEach(n => {
-    //     body.name = n
-    //     this.$emit('create', { ...body })
-    //   })
-    //   this.resetDialog()
-    // },
-
-    // onCancle () {
-    //   this.$emit('cancle')
-    //   this.resetDialog()
-    // },
-
-    onDelete () {
-      this.deleteDialog = false
-      this.selected.forEach(e => this.$emit('delete', e.name))
-      this.selected = []
-      // this.$emit('delete', name)
-    },
-
     async viewLogs (name) {
       this.podLogs = 'No Logs.'
       this.logDialog = true
@@ -617,7 +577,7 @@ export default {
     gpuRules () {
       if (this.jobType) {
         let condition = (this.jobType.gpus * this.repeat <= this.remainResources('gpus') ||
-                        this.$store.state.claims.level === 0)
+                         this.$store.state.claims.level === 0)
         this.gpuErrorMessages = condition
           ? ''
           : `GPUs must be less then ${this.remainResources('gpus')} limit`

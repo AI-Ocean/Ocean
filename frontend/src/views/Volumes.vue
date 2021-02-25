@@ -14,37 +14,34 @@
               :loading="isLoading"
               @create="createItem"
               @delete="deleteItem"
-              @close="close"
             >
               <template v-slot:dialog="{ item }">
-                <v-form ma-4 ref="form" v-model="valid">
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model.trim="item.name"
-                          counter="30"
-                          :rules="nameRules"
-                          label="Name"
-                          :prefix="namePrefix"
-                          required
-                        >
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model.number="item.capacity"
-                          :rules="capRules"
-                          type="number"
-                          label="Capacity"
-                          required
-                          :suffix="' / ' + remainResources('capacity') + ' Gi'"
-                        >
-                        </v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model.trim="item.name"
+                        counter="30"
+                        :rules="nameRules"
+                        label="Name"
+                        :prefix="namePrefix"
+                        required
+                      >
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model.number="item.capacity"
+                        :rules="capRules"
+                        type="number"
+                        label="Capacity"
+                        required
+                        :suffix="' / ' + remainResources('capacity') + ' Gi'"
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </template>
               <template v-slot:capacity="{ item }">
                 <span>{{item.capacity}} GB</span>
@@ -107,10 +104,8 @@ export default {
 
     footerProps: {
       itemsPerPageOptions: [10, 20, 30]
-    },
+    }
 
-    // form
-    valid: false
   }),
   computed: {
     ...mapState(resourceStore, [
@@ -169,9 +164,6 @@ export default {
     },
     deleteItem (payload) {
       this.deleteVolume(payload.name)
-    },
-    close () {
-      this.$refs.form.resetValidation()
     },
 
     /// utils

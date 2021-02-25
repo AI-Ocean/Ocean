@@ -26,7 +26,9 @@
             </v-card-title>
 
             <v-card-text>
-              <slot name="dialog" :item="editedItem"></slot>
+              <v-form ma-4 ref="form" v-model="valid">
+                <slot name="dialog" :item="editedItem"></slot>
+              </v-form>
             </v-card-text>
 
             <v-card-actions>
@@ -113,6 +115,7 @@ export default {
 
   data: () => ({
     dialog: false,
+    valid: false,
     deleteDialog: false,
     selected: [],
     editedItem: {},
@@ -149,11 +152,16 @@ export default {
       this.dialog = false
       setTimeout(() => {
         this.initDialogs()
+        this.$refs.form.resetValidation()
         this.$emit('close')
       }, 100)
     },
 
     save () {
+      this.$refs.form.validate()
+      if (!this.valid) {
+        return
+      }
       if (this.editedIndex > -1) {
         this.$emit('update', this.editedItem)
       } else {

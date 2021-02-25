@@ -71,12 +71,11 @@ const resourceStore = {
         data = await Vue.prototype.$axios.get('/api/resources')
         data = data.data
       } else {
-        data = rootState.user
+        data = rootState.userStore.user
       }
-
       const resources = state.resources
-      resources.cpus.limit = Number(data.cpus)
-      resources.memory.limit = Number(data.mem)
+      // resources.cpus.limit = Number(data.cpus)
+      // resources.memory.limit = Number(data.mem)
       resources.gpus.limit = Number(data.gpus)
       resources.capacity.limit = Number(data.capacity)
       commit('setResources', resources)
@@ -85,8 +84,8 @@ const resourceStore = {
     updateUsage ({ state, commit }) {
       // update using resources
       const resources = state.resources
-      resources.cpus.using = calcUsage(state, 'cpus')
-      resources.memory.using = calcUsage(state, 'memory')
+      // resources.cpus.using = calcUsage(state, 'cpus')
+      // resources.memory.using = calcUsage(state, 'memory')
       resources.gpus.using = calcUsage(state, 'gpus')
       resources.capacity.using = calcUsage(state, 'capacity')
       commit('setResources', resources)
