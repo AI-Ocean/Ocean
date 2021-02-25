@@ -141,7 +141,7 @@
 </template>
 
 <script>
-import EditDataTable from '@/components/admin/EditDataTable'
+import EditDataTable from '@/components/EditDataTable'
 
 export default {
   components: {

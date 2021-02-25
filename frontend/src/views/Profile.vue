@@ -190,8 +190,8 @@ export default {
     date: new Date().toISOString().substr(0, 10)
   }),
   computed: {
-    ...mapState('userStore', {
-      user: state => state.user
+    ...mapState({
+      user: state => state.userStore.user
     }),
     passwordCheckRules () {
       return [() => (this.newPassword === this.passwordCheck) || 'Password must same']

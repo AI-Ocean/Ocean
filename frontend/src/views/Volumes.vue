@@ -75,7 +75,7 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex'
-import EditDataTable from '@/components/admin/EditDataTable.vue'
+import EditDataTable from '@/components/EditDataTable.vue'
 
 const resourceStore = 'resourceStore'
 
@@ -143,7 +143,7 @@ export default {
       return [
         v => !!v || 'Capacity is required',
         v => v <= this.remainResources('capacity') ||
-          `Capacity must be less then ${this.remainResources('capacity')} limit`
+          `Quota exceeded. Capacity must be less then ${this.remainResources('capacity')}`
       ]
     }
   },

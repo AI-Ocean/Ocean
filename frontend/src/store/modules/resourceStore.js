@@ -125,7 +125,6 @@ const resourceStore = {
       commit('setLoadingInstances', false)
     },
     async createInstance ({ state, commit, dispatch }, data) {
-      console.log(data)
       await Vue.prototype.$axios.post('/api/instances', data)
 
       let instances = state.instances

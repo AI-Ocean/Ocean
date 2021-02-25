@@ -14,70 +14,68 @@
               :loading="isLoading"
               @create="createItem"
               @delete="deleteItem"
-              @close="close"
             >
               <template v-slot:dialog="{ item }">
-                <v-form ma-4 ref="form" v-model="valid">
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12">
-                        <v-text-field
-                          v-model.trim="item.name"
-                          counter="30"
-                          :rules="nameRules"
-                          label="Name"
-                          :prefix="namePrefix"
-                          required
-                        >
-                        </v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-combobox
-                          v-model.trim="item.image"
-                          :items="imagesList"
-                          :hide-no-data="!searchImage"
-                          :search-input.sync="searchImage"
-                          :rules="imageRules"
-                          label="Image"
-                          required
-                          persistent-hint
-                          hint="You can add other image"
-                        >
-                          <template v-slot:no-data>
-                            <v-list-item>
-                              <span class="subheading">Create</span>
-                                {{ searchImage }}
-                            </v-list-item>
-                          </template>
-                        </v-combobox>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-select
-                          v-model="item.instanceType"
-                          :items="instancesList"
-                          label="Instance Type"
-                          auto
-                          required
-                          :hint="instanceTypeHint(item)"
-                          persistent-hint
-                        >
-                        </v-select>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-select
-                          v-model="item.volume"
-                          :items="volumes"
-                          item-text="name"
-                          label="Volumes"
-                          :rules="volumeRules"
-                          required
-                          chips
-                        >
-                        </v-select>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-form>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model.trim="item.name"
+                        counter="30"
+                        :rules="nameRules"
+                        label="Name"
+                        :prefix="namePrefix"
+                        required
+                      >
+                      </v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-combobox
+                        v-model.trim="item.image"
+                        :items="imagesList"
+                        :hide-no-data="!searchImage"
+                        :search-input.sync="searchImage"
+                        :rules="imageRules"
+                        label="Image"
+                        required
+                        persistent-hint
+                        hint="You can add other image"
+                      >
+                        <template v-slot:no-data>
+                          <v-list-item>
+                            <span class="subheading">Create</span>
+                              {{ searchImage }}
+                          </v-list-item>
+                        </template>
+                      </v-combobox>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-select
+                        v-model="item.instanceType"
+                        :items="instancesList"
+                        label="Instance Type"
+                        :rules="instanceTypeRules"
+                        auto
+                        required
+                        :hint="instanceTypeHint(item)"
+                        persistent-hint
+                      >
+                      </v-select>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-select
+                        v-model="item.volume"
+                        :items="volumes"
+                        item-text="name"
+                        label="Volumes"
+                        :rules="volumeRules"
+                        required
+                        chips
+                      >
+                      </v-select>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </template>
               <template v-slot:status="{ item }">
                 <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
@@ -95,7 +93,7 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex'
-import EditDataTable from '@/components/admin/EditDataTable.vue'
+import EditDataTable from '@/components/EditDataTable.vue'
 
 const resourceStore = 'resourceStore'
 
@@ -122,8 +120,8 @@ export default {
     ],
 
     instancesList: [
-      { text: 'g1.small', value: { name: 'g1.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-gtx-1080ti' } },
-      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
+      { text: 'g1.small', value: { name: 'g1.small', cpus: 4, memory: 32, gpus: 1, gpuType: 'nvidia-gtx-1080ti' } },
+      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 32, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } }
     ],
 
     defaultItem: {
@@ -144,7 +142,6 @@ export default {
     },
 
     // form
-    valid: false,
     searchImage: ''
   }),
 
@@ -155,7 +152,8 @@ export default {
       'volumes'
     ]),
     ...mapGetters(resourceStore, [
-      'isLoading'
+      'isLoading',
+      'remainResources'
     ]),
 
     namePrefix () {
@@ -174,6 +172,12 @@ export default {
     volumeRules () {
       return [
         v => !!v || 'Volume is required'
+      ]
+    },
+    instanceTypeRules () {
+      return [
+        v => !!v || 'InstanceType is required',
+        v => v.gpus <= this.remainResources('gpus') || `Quota exceeded. GPU must be less then ${this.remainResources('gpus')}`
       ]
     },
     imageRules () {
@@ -215,9 +219,6 @@ export default {
     },
     deleteItem (payload) {
       this.deleteInstance(payload.name)
-    },
-    close () {
-      this.$refs.form.resetValidation()
     },
 
     instanceTypeHint (item) {

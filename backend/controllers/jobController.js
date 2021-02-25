@@ -175,12 +175,16 @@ module.exports.get_job_log = async (req, res) => {
   // get pod for job
   try {
     var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
+    if (data.items.length <= 0) {
+      return res.status(404).json('resource not found')
+    }
     const podname = data.items[0].metadata.name
 
     // get jobs data
-    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log')
+    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log?timestamps=true') //&sinceTime=2021-02-24T01:50:00Z&limitBytes=204800
   } catch (err) {
-    return res.status(503).json(res.response.data)
+    console.error(err)
+    return res.status(503).json(err.response)
   }
 
   // final response

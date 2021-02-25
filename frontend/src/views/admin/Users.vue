@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import EditDataTable from '../../components/admin/EditDataTable.vue'
+import EditDataTable from '@/components/EditDataTable.vue'
 export default {
   components: { EditDataTable },
   data: () => ({

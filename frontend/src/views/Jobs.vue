@@ -53,284 +53,101 @@
             {{ calcTime(item.startTime) }}
           </template>
           <template v-slot:logs="{ item }">
-            <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>logs</v-btn>
+            <v-btn text @click="openLogDialog(item.name)">
+              <v-icon>mdi-open-in-new</v-icon> logs
+            </v-btn>
           </template>
 
           <template v-slot:dialog="{ item }">
-            <v-form ma-4 ref="form" v-model="valid">
-              <v-text-field
-                v-model.trim="item.name"
-                counter="30"
-                :rules="nameRules"
-                label="Name"
-                :prefix="namePrefix"
-                required
-              ></v-text-field>
-              <span v-if="item.repeat <= 5">Names:
-                <span v-for="(cn) in candidateNames(namePrefix + item.name, item.repeat)" :key="cn"><code>{{ cn }}</code>{{' '}}</span>
-              </span>
-              <v-combobox
-                v-model.trim="item.image"
-                :items="imagesList"
-                :hide-no-data="!searchImage"
-                :search-input.sync="searchImage"
-                :rules="imageRules"
-                label="Image"
-                required
-                persistent-hint
-                hint="You can add other image"
-              >
-                <template v-slot:no-data>
-                  <v-list-item>
-                    <span class="subheading">Create</span>
-                      {{ searchImage }}
-                  </v-list-item>
-                </template>
-              </v-combobox>
-              <v-row>
-                <v-col cols=8>
-                  <v-select
-                    v-model="item.jobType"
-                    :items="jobsList"
-                    :rules="jobTypeRules"
-                    label="Job Type"
-                    auto
-                    la
-                    required
-                    :hint="jobTypeHint"
-                    persistent-hint
-                    :error-messages="gpuErrorMessages"
-                    ref="jobType"
-                  ></v-select>
-                </v-col>
-                <v-col cols=1>
-                </v-col>
-                <v-col cols=3>
-                  <v-text-field
-                    v-model.number="item.repeat"
-                    type="number"
-                    :rules="repeatRules"
-                    label="Repeat"
-                    @click:append-outer="increment"
-                    @click:prepend="decrement"
-                    required
-                    :error-messages="gpuErrorMessages"
-                    ref="repeat"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-              <v-select
-                v-model="item.volume"
-                :items="volumes"
-                item-text="name"
-                label="Volumes"
-                :rules="requiredRules"
-                required
-                chips
-              ></v-select>
-              <v-text-field
-                v-model="item.command"
-                :rules="commandRules"
-                type="string"
-                label="Command"
-                required
-                hint="Shell Command to Run"
-              ></v-text-field>
-            </v-form>
+            <v-text-field
+              v-model.trim="item.name"
+              counter="30"
+              :rules="nameRules"
+              label="Name"
+              :prefix="namePrefix"
+              required
+            ></v-text-field>
+            <span v-if="item.repeat <= 5">Names:
+              <span v-for="(cn) in candidateNames(namePrefix + item.name, item.repeat)" :key="cn"><code>{{ cn }}</code>{{' '}}</span>
+            </span>
+            <v-combobox
+              v-model.trim="item.image"
+              :items="imagesList"
+              :hide-no-data="!searchImage"
+              :search-input.sync="searchImage"
+              :rules="imageRules"
+              label="Image"
+              required
+              persistent-hint
+              hint="You can add other image"
+            >
+              <template v-slot:no-data>
+                <v-list-item>
+                  <span class="subheading">Create</span>
+                    {{ searchImage }}
+                </v-list-item>
+              </template>
+            </v-combobox>
+            <v-row>
+              <v-col cols=8>
+                <v-select
+                  v-model="item.jobType"
+                  :items="jobsList"
+                  :rules="[...jobTypeRules, gpuRules(item)]"
+                  label="Job Type"
+                  auto
+                  la
+                  required
+                  :hint="jobTypeHint(item)"
+                  persistent-hint
+                  :error-messages="gpuErrorMessages"
+                  ref="jobType"
+                ></v-select>
+              </v-col>
+              <v-col cols=1>
+              </v-col>
+              <v-col cols=3>
+                <v-text-field
+                  v-model.number="item.repeat"
+                  type="number"
+                  :rules="[...repeatRules, gpuRules(item)]"
+                  label="Repeat"
+                  @click:append-outer="increment"
+                  @click:prepend="decrement"
+                  required
+                  :error-messages="gpuErrorMessages"
+                  ref="repeat"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-select
+              v-model="item.volume"
+              :items="volumes"
+              item-text="name"
+              label="Volumes"
+              :rules="requiredRules"
+              required
+              chips
+            ></v-select>
+            <v-text-field
+              v-model="item.command"
+              :rules="commandRules"
+              type="string"
+              label="Command"
+              required
+              hint="Shell Command to Run"
+            ></v-text-field>
           </template>
         </edit-data-table>
-          <!-- <v-data-table
-            v-model="selected"
-            hide-default-footer
-            show-select
-            item-key="name"
-            :headers="jobsHeader"
-            :items="jobs"
-            :loading="loading"
-            :options.sync="options"
-          >
-            <template v-slot:[`item.status`]="{ item }">
-              <v-icon :class="item.status" :alt="item.status">{{ getStatusIcon(item.status) }}</v-icon>
-            </template>
-            <template v-slot:[`item.gpus`]="{ item }">
-              {{ convertGpuToJobType(Number(item.gpus)) }}
-            </template>
-            <template v-slot:[`item.command`]="{ item }">
-              {{ item.command.join(' ') }}
-            </template>
-            <template v-slot:[`item.volumes`]="{ item }">
-              <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
-            </template>
-            <template v-slot:[`item.duration`]="{ item }">
-              {{ calcTime(item.startTime, item.completionTime) }}
-            </template>
-            <template v-slot:[`item.age`]="{ item }">
-              {{ calcTime(item.startTime) }}
-            </template>
-            <template v-slot:[`item.logs`]="{ item }">
-              <v-btn text @click="viewLogs(item.name)"><v-icon>mdi-open-in-new</v-icon>view logs</v-btn>
-            </template>
-          </v-data-table> -->
-          <!-- end data table -->
 
-          <!-- form dialog -->
-          <!-- <v-dialog
-            v-model="dialog"
-            max-width="500"
-          >
-            <v-card>
-              <v-card-title>
-                New job
-              </v-card-title>
-              <v-card-text>
-                <v-form
-                  ma-4
-                  ref="form"
-                  v-model="valid"
-                >
-                  <v-text-field
-                    v-model.trim="name"
-                    counter="30"
-                    :rules="nameRules"
-                    label="Name"
-                    :prefix="namePrefix"
-                    required
-                  ></v-text-field>
-                  <span v-if="repeat <= 5">Names:
-                    <span v-for="(item) in candinateNames(name)" :key="item"><code>{{ item }}</code>{{' '}}</span>
-                  </span>
-                  <v-combobox
-                    v-model.trim="image"
-                    :items="imagesList"
-                    :hide-no-data="!searchImage"
-                    :search-input.sync="searchImage"
-                    label="Image"
-                    required
-                    persistent-hint
-                    hint="You can add other image"
-                  >
-                    <template v-slot:no-data>
-                      <v-list-item>
-                        <span class="subheading">Create</span>
-                          {{ searchImage }}
-                      </v-list-item>
-                    </template>
-                  </v-combobox>
-                  <v-row>
-                    <v-col cols=8>
-                      <v-select
-                        v-model="jobType"
-                        :items="jobsList"
-                        :rules="jobTypeRules"
-                        label="Job Type"
-                        auto
-                        la
-                        required
-                        :hint="jobTypeHint"
-                        persistent-hint
-                        :error-messages="gpuErrorMessages"
-                        ref="jobType"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols=1>
-                    </v-col>
-                    <v-col cols=3>
-                      <v-text-field
-                        v-model.number="repeat"
-                        type="number"
-                        :rules="repeatRules"
-                        label="Repeat"
-                        @click:append-outer="increment"
-                        @click:prepend="decrement"
-                        required
-                        :error-messages="gpuErrorMessages"
-                        ref="repeat"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-select
-                    v-model="volume"
-                    :items="volumes"
-                    label="Volumes"
-                    :rules="requiredRules"
-                    required
-                    chips
-                  ></v-select>
-                  <v-text-field
-                    v-model="command"
-                    :rules="commandRules"
-                    type="string"
-                    label="Command"
-                    required
-                    hint="Shell Command to Run"
-                  ></v-text-field>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="gray" @click="onCancle">
-                  Cancle
-                </v-btn>
-                <v-btn color="success" @click="onCreate" :disabled="!valid">
-                  Create
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog> -->
-          <!-- end form dialog -->
-
-          <!-- delete dialog -->
-          <!-- <v-dialog v-model="deleteDialog" max-width="400">
-            <v-card>
-              <v-card-title>
-                Delete Jobs
-              </v-card-title>
-              <v-card-text>
-                Are you sure to delete <code> {{ selected.map(x => x.name).join(',') }} </code>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color='red' @click="onDelete()">
-                  Delete
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog> -->
-          <!-- end delete dialog -->
-
-          <!-- log dialog -->
-          <!-- <v-dialog tile v-model="logDialog" max-width="1500" overlay-opacity=100>
-            <v-card>
-              <v-card-title>
-                Job Logs
-                <v-spacer></v-spacer>
-                <v-switch
-                  v-model="logReverse"
-                  label="Reverse"
-                ></v-switch>
-              </v-card-title>
-              <v-card-text>
-                <v-textarea
-                  readonly
-                  solo
-                  flat
-                  hide-details
-                  rows="20"
-                  background-color="grey darken-3"
-                  :loading="podLogsLoading"
-                  :value="reverseText(podLogs, logReverse)">
-                </v-textarea>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn @click="logDialog=false">
-                  close
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog> -->
-          <!-- end log dialog -->
-
+        <v-dialog v-model="logDialog" scrollable>
+          <log-viewer
+            :loading="logLoading"
+            :logs="logs"
+            @load="loadLog"
+            @close="() => {logDialog = false}"
+          ></log-viewer>
+        </v-dialog>
         </v-card>
       </v-col>
     </v-row>
@@ -339,13 +156,14 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex'
-import EditDataTable from '@/components/admin/EditDataTable.vue'
+import EditDataTable from '@/components/EditDataTable.vue'
+import LogViewer from '@/components/LogViewer.vue'
 
 const resourceStore = 'resourceStore'
 
 export default {
   name: 'Jobs',
-  components: { EditDataTable },
+  components: { EditDataTable, LogViewer },
   data: () => ({
     headers: [
       { text: 'Status', value: 'status', width: 100, sortable: true, filterable: false },
@@ -398,13 +216,13 @@ export default {
     gpuErrorMessages: '',
 
     // data table
-    // selected: [],
-    // deleteDialog: false,
-    // targetName: '',
     logDialog: false,
-    logReverse: false,
-    podLogs: 'No Logs.',
-    podLogsLoading: false
+    logLoading: false,
+    logs: [],
+    logPodName: ''
+    // logReverse: false,
+    // podLogs: 'No Logs.',
+    // podLogsLoading: false
   }),
 
   computed: {
@@ -424,15 +242,6 @@ export default {
       return 'jobs-' + this.$store.getters.namePrefix
     },
 
-    // hint
-    jobTypeHint () {
-      if (this.jobType) {
-        return `CPU: ${this.jobType.cpus}, Memory: ${this.jobType.memory}, GPU: ${this.jobType.gpuType} x ${this.jobType.gpus}`
-      } else {
-        return ''
-      }
-    },
-
     // rule
     nameRules () {
       return [
@@ -446,19 +255,18 @@ export default {
         v => !!v || 'Image is required'
       ]
     },
+    // gpu rules
     repeatRules () {
       return [
         v => !!v || 'Repeat is required',
         v => (v && Number.isInteger(v)) || 'Repeat must be integer',
         v => (v && v >= 1) || 'Repeat must be larger then 1',
-        v => (v && v <= 5) || 'Repeat must be less then 5',
-        this.gpuRules
+        v => (v && v <= 5) || 'Repeat must be less then 5'
       ]
     },
     jobTypeRules () {
       return [
-        v => !!v || 'Job Type is required',
-        this.gpuRules
+        v => !!v || 'Job Type is required'
       ]
     },
     commandRules () {
@@ -513,15 +321,7 @@ export default {
       this.deleteJob(payload.name)
     },
     close () {
-      this.$refs.form.resetValidation()
-    },
-
-    // reverse text
-    reverseText (text, reverse = false) {
-      if (reverse) {
-        text = text.split('\n').reverse().join('\n')
-      }
-      return text
+      this.gpuErrorMessages = ''
     },
 
     // dialog repeat
@@ -532,15 +332,23 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
-    async viewLogs (name) {
-      this.podLogs = 'No Logs.'
+    async openLogDialog (name) {
+      this.log = []
+      this.logPodName = name
       this.logDialog = true
-      this.podLogsLoading = true
-      const { data } = await this.$axios.get('/api/jobs/' + name + '/log')
+      await this.loadLog(name)
+    },
+    async loadLog () {
+      this.logLoading = true
+      const { data } = await this.$axios.get('/api/jobs/' + this.logPodName + '/log')
       if (data.logs.length >= 1) {
-        this.podLogs = data.logs
+        this.logs = data.logs.split('\n').map(v => {
+          let row = v.split('Z')
+          return { timestamp: row[0], message: row.slice(1).join('Z') }
+        })
       }
-      this.podLogsLoading = false
+      this.logs.splice(-1, 1)
+      this.logLoading = false
     },
 
     // calculate duration
@@ -562,25 +370,34 @@ export default {
     convertGpuToJobType (gpu) {
       let type
       if (gpu === 1) {
-        type = 'g2.small'
+        return 'g2.small'
       } else if (gpu === 2) {
-        type = 'g2.medium'
+        return 'g2.medium'
       } else if (gpu === 4) {
-        type = 'g2.large'
+        return 'g2.large'
       } else if (gpu === 8) {
-        type = 'g2.xlarge'
+        return 'g2.xlarge'
       }
       return type
     },
 
-    // gpu rules
-    gpuRules () {
-      if (this.jobType) {
-        let condition = (this.jobType.gpus * this.repeat <= this.remainResources('gpus') ||
-                         this.$store.state.claims.level === 0)
+    // hint
+    jobTypeHint (item) {
+      if (item.jobType) {
+        return `CPU: ${item.jobType.cpus}, Memory: ${item.jobType.memory}, GPU: ${item.jobType.gpuType} x ${item.jobType.gpus}`
+      } else {
+        return ''
+      }
+    },
+
+    // rules
+    gpuRules (item) {
+      if (item.jobType) {
+        let condition = (item.jobType.gpus * item.repeat <= this.remainResources('gpus') ||
+                         this.$store.getters.isAdmin)
         this.gpuErrorMessages = condition
           ? ''
-          : `GPUs must be less then ${this.remainResources('gpus')} limit`
+          : `Quota exceeded. GPU must be less then ${this.remainResources('gpus')}`
       }
       return true
     },
