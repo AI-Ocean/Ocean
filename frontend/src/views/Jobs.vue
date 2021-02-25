@@ -518,6 +518,7 @@ export default {
       })
     },
     deleteItem (payload) {
+      this.deleteJob(payload.name)
     },
     close () {
       this.$refs.form.resetValidation()
@@ -539,30 +540,30 @@ export default {
       this.repeat = parseInt(this.repeat) - 1
     },
 
-    onCreate () {
-      // request create pods
-      let name = this.namePrefix + this.name
-      let body = {
-        image: this.image,
-        cpu_request: this.jobType.cpus,
-        memory_request: this.jobType.memory,
-        gpu_request: this.jobType.gpus,
-        gpu_type: this.jobType.gpuType,
-        volume_name: this.volume,
-        command: this.command.split(' ')
-      }
+    // onCreate () {
+    //   // request create pods
+    //   let name = this.namePrefix + this.name
+    //   let body = {
+    //     image: this.image,
+    //     cpu_request: this.jobType.cpus,
+    //     memory_request: this.jobType.memory,
+    //     gpu_request: this.jobType.gpus,
+    //     gpu_type: this.jobType.gpuType,
+    //     volume_name: this.volume,
+    //     command: this.command.split(' ')
+    //   }
 
-      this.candidateNames(name).forEach(n => {
-        body.name = n
-        this.$emit('create', { ...body })
-      })
-      this.resetDialog()
-    },
+    //   this.candidateNames(name).forEach(n => {
+    //     body.name = n
+    //     this.$emit('create', { ...body })
+    //   })
+    //   this.resetDialog()
+    // },
 
-    onCancle () {
-      this.$emit('cancle')
-      this.resetDialog()
-    },
+    // onCancle () {
+    //   this.$emit('cancle')
+    //   this.resetDialog()
+    // },
 
     onDelete () {
       this.deleteDialog = false
@@ -656,6 +657,7 @@ export default {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
 .Pending {
   animation-name: spin;
   animation-duration: 1000ms;
@@ -672,5 +674,13 @@ export default {
 
 .Failed {
   color: red;
+}
+
+.Terminating {
+  color: red;
+  animation-name: spin;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 </style>

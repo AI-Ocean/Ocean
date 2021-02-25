@@ -36,12 +36,12 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-btn v-if="defaultOptions.copy" dark icon @click="editItem(selected[0])">
+        <v-btn v-if="defaultOptions.copy" dark icon @click="editItem(selected[0])" :disabled="selected.length !== 1">
           <v-icon>mdi-content-copy</v-icon>
         </v-btn>
         <v-dialog v-model="deleteDialog" max-width="500px">
           <template v-if="defaultOptions.deleteTop" v-slot:activator="{ on }">
-            <v-btn dark icon v-on="on">
+            <v-btn dark icon v-on="on" :disabled="selected.length <= 0">
               <v-icon>mdi-delete</v-icon>
             </v-btn>
           </template>
@@ -51,7 +51,17 @@
             </v-card-title>
 
             <v-card-text>
-              <slot name="deleteDialog" :item="editedItem"> Are you sure to delete <code>{{editedItem.name}}</code> </slot>
+              <slot name="deleteDialog" :item="editedItem" :selected="selected">
+                Are you sure to delete:
+                <template v-if="selected.length > 0">
+                  <div v-for="(item) in selected" :key="item.name">
+                    <code>{{item.name}}</code>
+                  </div>
+                </template>
+                <template v-else-if="editedItem">
+                  <code>{{editedItem.name}}</code>
+                </template>
+              </slot>
             </v-card-text>
 
             <v-card-actions>
@@ -126,6 +136,7 @@ export default {
     initDialogs () {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.editedIndex = -1
+      this.selected = []
     },
 
     editItem (item) {
@@ -163,8 +174,11 @@ export default {
     },
 
     confirmDelete () {
-      // this.data.splice(this.editedIndex, 1)
-      this.$emit('delete', this.editedItem)
+      if (this.selected.length > 0) {
+        this.selected.forEach(v => this.$emit('delete', v))
+      } else {
+        this.$emit('delete', this.editedItem)
+      }
       this.closeDelete()
     }
   },
