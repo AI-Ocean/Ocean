@@ -3,9 +3,6 @@
     <v-row>
       <v-col>
         <v-card tile>
-          <!-- header -->
-          <!-- end header -->
-
           <!-- data table -->
           <edit-data-table
             title="Jobs"
@@ -183,11 +180,11 @@ export default {
     ],
 
     jobsList: [
-      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 32, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 64, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 128, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } },
-      { text: 'g3.large', value: { name: 'g3.large', cpus: 16, memory: 128, gpus: 4, gpuType: 'nvidia-rtx-3090' } },
-      { text: 'v100.xlarge', value: { name: 'v100.xlarge', cpus: 32, memory: 256, gpus: 8, gpuType: 'nvidia-tesla-v100' } }
+      { text: 'g2.small', value: { name: 'g2.small', cpus: 4, memory: 16, gpus: 1, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.medium', value: { name: 'g2.medium', cpus: 8, memory: 32, gpus: 2, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g2.large', value: { name: 'g2.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-2080ti' } },
+      { text: 'g3.large', value: { name: 'g3.large', cpus: 16, memory: 64, gpus: 4, gpuType: 'nvidia-rtx-3090' } },
+      { text: 'v100.xlarge', value: { name: 'v100.xlarge', cpus: 32, memory: 128, gpus: 8, gpuType: 'nvidia-tesla-v100' } }
     ],
 
     defaultItem: {
@@ -220,9 +217,6 @@ export default {
     logLoading: false,
     logs: [],
     logPodName: ''
-    // logReverse: false,
-    // podLogs: 'No Logs.',
-    // podLogsLoading: false
   }),
 
   computed: {
@@ -284,9 +278,7 @@ export default {
   methods: {
     ...mapActions(resourceStore, [
       'getUserLimits',
-      'getInstances',
-      'getVolumes',
-      'getJobs',
+      'getAllWorkloads',
       'createJob',
       'deleteJob'
     ]),
@@ -340,6 +332,7 @@ export default {
     },
     async loadLog () {
       this.logLoading = true
+      this.getAllWorkloads()
       const { data } = await this.$axios.get('/api/jobs/' + this.logPodName + '/log')
       if (data.logs.length >= 1) {
         this.logs = data.logs.split('\n').map(v => {
@@ -418,9 +411,7 @@ export default {
   async created () {
     await this.getUserLimits()
 
-    await this.getInstances()
-    await this.getVolumes()
-    await this.getJobs()
+    await this.getAllWorkloads()
   }
 }
 </script>

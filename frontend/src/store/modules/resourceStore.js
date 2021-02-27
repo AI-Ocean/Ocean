@@ -84,8 +84,8 @@ const resourceStore = {
     updateUsage ({ state, commit }) {
       // update using resources
       const resources = state.resources
-      // resources.cpus.using = calcUsage(state, 'cpus')
-      // resources.memory.using = calcUsage(state, 'memory')
+      resources.cpus.using = calcUsage(state, 'cpus')
+      resources.memory.using = calcUsage(state, 'memory')
       resources.gpus.using = calcUsage(state, 'gpus')
       resources.capacity.using = calcUsage(state, 'capacity')
       commit('setResources', resources)
@@ -252,6 +252,13 @@ const resourceStore = {
       jobs[jobs.findIndex(v => v.name === name)].status = 'Terminating'
       commit('setJobs', jobs)
       dispatch('updateUsage')
+    },
+
+    /// all
+    async getAllWorkloads ({ dispatch }) {
+      await dispatch('getInstances')
+      await dispatch('getVolumes')
+      await dispatch('getJobs')
     }
   },
 

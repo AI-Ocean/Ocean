@@ -1,10 +1,15 @@
 <template>
   <v-container grid-list-md fluid>
     <v-row>
-      <v-col md="6">
+      <v-col md="12">
         <!-- <notice-card/> -->
-        HOME!!!!!!!!!!!!!!!!!!!!!!
-        <indicator></indicator>
+        <!-- HOME!!!!!!!!!!!!!!!!!!!!!! -->
+        <indicator
+          :instances="instances"
+          :volumes="volumes"
+          :jobs="jobs"
+          :resources="resources"
+        ></indicator>
       </v-col>
       <v-col md="6">
         <!-- <schedules-card/> -->
@@ -14,18 +19,34 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex'
 import Indicator from '../components/dashboard/Indicator.vue'
-// import NoticeCard from '@/components/home/notice'
-// import SchedulesCard from '@/components/home/schedules'
+const resourceStore = 'resourceStore'
 
 export default {
   components: { Indicator },
   name: 'home',
   data: () => ({
-  })
-  // components: {
-  //   NoticeCard,
-  //   SchedulesCard
-  // }
+  }),
+  computed: {
+    ...mapState(resourceStore, [
+      'instances',
+      'volumes',
+      'jobs',
+      'resources'
+    ])
+  },
+
+  methods: {
+    ...mapActions(resourceStore, [
+      'getUserLimits',
+      'getAllWorkloads'
+    ])
+  },
+
+  async created () {
+    await this.getUserLimits()
+    await this.getAllWorkloads()
+  }
 }
 </script>

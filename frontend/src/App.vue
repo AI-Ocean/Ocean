@@ -103,13 +103,7 @@
             </v-list-item-icon>
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
-
-          <!-- <v-list-item link to="/dashboard">
-            <v-list-item-icon>
-              <v-icon>mdi-monitor-dashboard</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item> -->
+          <v-divider></v-divider>
 
           <v-list-item link to="/jobs">
             <v-list-item-icon>
@@ -117,7 +111,6 @@
             </v-list-item-icon>
             <v-list-item-title>Jobs</v-list-item-title>
           </v-list-item>
-          <v-divider></v-divider>
           <v-list-item link to="/instances">
             <v-list-item-icon>
               <v-icon>mdi-server</v-icon>

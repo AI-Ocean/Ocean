@@ -63,17 +63,17 @@
 </template>
 
 <script>
-import Indicator from '@/components/dashboard/Indicator'
+// import Indicator from '@/components/dashboard/Indicator'
 // import Instances from '@/components/dashboard/Instances'
 // import Volumes from '@/components/dashboard/Volumes'
-import Jobs from '@/components/dashboard/Jobs'
+// import Jobs from '@/components/dashboard/Jobs'
 
 export default {
   components: {
-    Indicator,
+    // Indicator,
     // Instances,
     // Volumes,
-    Jobs
+    // Jobs
   },
   data: () => ({
     resources: {
