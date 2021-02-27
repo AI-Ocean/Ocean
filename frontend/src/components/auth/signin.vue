@@ -24,20 +24,13 @@
           :type="showPassword ? 'text' : 'password'"
           required
           @click:append="showPassword = !showPassword"
+          @keyup.enter="siginIn"
         ></v-text-field>
       </v-form>
     </v-card-text>
 
     <v-card-actions>
-      <!-- <v-spacer></v-spacer> -->
       <v-btn color="primary" block dark @click="siginIn">Sign In</v-btn>
-      <!-- <v-btn color="primary" block @click="signInWithGoogle">
-        <v-icon dark>mdi-google</v-icon>
-        <v-divider vertical class="mx-3"></v-divider>
-        <v-spacer></v-spacer>
-        Signin with Google Account
-        <v-spacer></v-spacer>
-      </v-btn> -->
     </v-card-actions>
     <v-card-text>
       <span>Don't have an account yet? &nbsp;<a @click="$emit('changeForm')">Register now</a></span>
