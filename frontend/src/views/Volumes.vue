@@ -98,7 +98,7 @@ export default {
     },
 
     options: {
-      itemsPerPage: 20,
+      itemsPerPage: 10,
       update: false
     },
 

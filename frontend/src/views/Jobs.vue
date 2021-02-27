@@ -38,13 +38,13 @@
             <v-icon :class="item.status">{{ getStatusIcon(item.status) }}</v-icon>
           </template>
           <template v-slot:gpus="{ item }">
-            {{ convertGpuToJobType(Number(item.gpus)) }}
-          </template>
-          <template v-slot:command="{ item }">
-            {{ item.command.join(' ') }}
+            <v-chip class="ma-1">{{ convertGpuToJobType(Number(item.gpus)) }}</v-chip>
           </template>
           <template v-slot:volumes="{ item }">
             <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
+          </template>
+          <template v-slot:command="{ item }">
+            {{item.command.join(' ')}}
           </template>
           <template v-slot:duration="{ item }">
             {{ calcTime(item.startTime, item.completionTime) }}
@@ -54,7 +54,7 @@
           </template>
           <template v-slot:logs="{ item }">
             <v-btn text @click="openLogDialog(item.name)">
-              <v-icon>mdi-open-in-new</v-icon> logs
+              <v-icon>mdi-open-in-new</v-icon>
             </v-btn>
           </template>
 
@@ -166,14 +166,14 @@ export default {
   components: { EditDataTable, LogViewer },
   data: () => ({
     headers: [
-      { text: 'Status', value: 'status', width: 100, sortable: true, filterable: false },
-      { text: 'Name', value: 'name', width: 300, sortable: true, filterable: false },
-      { text: 'Type', value: 'gpus', width: 100, sortable: true, filterable: false },
-      { text: 'Volumes', value: 'volumes', width: 100, sortable: false, filterable: false },
-      { text: 'Command', value: 'command', width: 300, sortable: false, filterable: false },
-      { text: 'Duration', value: 'duration', width: 100, sortable: true, filterable: false },
-      { text: 'Age', value: 'age', width: 100, sortable: true, filterable: false },
-      { text: 'Logs', value: 'logs', width: 150, sortable: false, filterable: false }
+      { text: 'Status', value: 'status', width: 10, sortable: true, filterable: false },
+      { text: 'Name', value: 'name', width: 50, sortable: true, filterable: false },
+      { text: 'Type', value: 'gpus', width: 10, sortable: true, filterable: false },
+      { text: 'Volumes', value: 'volumes', width: 10, sortable: false, filterable: false },
+      { text: 'Command', value: 'command', width: 50, sortable: false, filterable: false },
+      { text: 'Duration', value: 'duration', width: 20, sortable: true, filterable: false },
+      { text: 'Age', value: 'age', width: 10, sortable: true, filterable: false },
+      { text: 'Logs', value: 'logs', width: 10, sortable: false, filterable: false }
     ],
 
     imagesList: [
@@ -201,7 +201,7 @@ export default {
     },
 
     options: {
-      itemsPerPage: 20,
+      itemsPerPage: 10,
       deleteTop: true,
       copy: true
     },
