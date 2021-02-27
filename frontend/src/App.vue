@@ -7,9 +7,37 @@
           Ocean
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon color="white">mdi-bell-outline</v-icon>
-        </v-btn>
+
+        <v-menu offset-y v-if="user">
+          <template v-slot:activator="{ on }">
+            <v-btn dark icon v-on="on">
+              <v-badge
+                content="1"
+                value="1"
+                color="green"
+                overlap
+              >
+                <v-icon>mdi-bell-outline</v-icon>
+              </v-badge>
+            </v-btn>
+          </template>
+          <v-card>
+            <!-- <v-card-text> -->
+              <v-list>
+                <v-list-item>
+                  <v-list-item-subtitle>Notifications</v-list-item-subtitle>
+                </v-list-item>
+                <v-list-item link>
+                  <v-list-item-title>
+                    Job 'job-test-1' is finished.
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            <!-- </v-card-text> -->
+          </v-card>
+        </v-menu>
+        <div>
+        </div>
         <v-menu offset-y v-if="user">
           <template v-slot:activator="{ on }">
             <v-btn dark icon v-on="on">
@@ -83,6 +111,13 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item> -->
 
+          <v-list-item link to="/jobs">
+            <v-list-item-icon>
+              <v-icon>mdi-rocket-launch</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Jobs</v-list-item-title>
+          </v-list-item>
+          <v-divider></v-divider>
           <v-list-item link to="/instances">
             <v-list-item-icon>
               <v-icon>mdi-server</v-icon>
@@ -95,13 +130,13 @@
             </v-list-item-icon>
             <v-list-item-title>Volumes</v-list-item-title>
           </v-list-item>
-          <v-list-item link to="/jobs">
+          <v-list-item link to="/services">
             <v-list-item-icon>
-              <v-icon>mdi-rocket-launch</v-icon>
+              <v-icon>mdi-access-point-network</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Jobs</v-list-item-title>
+            <v-list-item-title>Services</v-list-item-title>
           </v-list-item>
-          <v-divider></v-divider>
+        <v-divider></v-divider>
 
           <template v-if="user.role === 'admin'">
             <v-list-item link to="/admin/users">
