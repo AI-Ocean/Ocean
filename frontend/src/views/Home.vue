@@ -4,6 +4,7 @@
       <v-col md="6">
         <!-- <notice-card/> -->
         HOME!!!!!!!!!!!!!!!!!!!!!!
+        <indicator></indicator>
       </v-col>
       <v-col md="6">
         <!-- <schedules-card/> -->
@@ -13,10 +14,12 @@
 </template>
 
 <script>
+import Indicator from '../components/dashboard/Indicator.vue'
 // import NoticeCard from '@/components/home/notice'
 // import SchedulesCard from '@/components/home/schedules'
 
 export default {
+  components: { Indicator },
   name: 'home',
   data: () => ({
   })
