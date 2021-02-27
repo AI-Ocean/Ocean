@@ -20,6 +20,7 @@ module.exports.get_jobs_list = async (req, res) => {
   for ( const job of data.items ) {
     const limits = job.spec.template.spec.containers[0].resources.limits
     const requests = job.spec.template.spec.containers[0].resources.requests
+    const image = job.spec.template.spec.containers[0].image
     const command = job.spec.template.spec.containers[0].command
     const { name, labels } = job.metadata
 
@@ -32,9 +33,11 @@ module.exports.get_jobs_list = async (req, res) => {
       name,
       labels,
       status,
+      accelerator: labels.accelerator,
       limits,
       requests,
       volumes: job.spec.template.spec.volumes.filter(i => i.persistentVolumeClaim !== undefined), // filter only pvc
+      image,
       command,
       startTime: job.status.startTime,
       completionTime: job.status.completionTime

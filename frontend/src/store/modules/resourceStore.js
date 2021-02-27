@@ -207,14 +207,16 @@ const resourceStore = {
       const { data } = await Vue.prototype.$axios.get('/api/jobs')
       // update instances
       data.jobs.forEach(element => {
-        const { name, status, limits, volumes, command, startTime, completionTime } = element
+        const { name, status, accelerator, limits, volumes, image, command, startTime, completionTime } = element
         const job = {
           name,
           status,
+          accelerator,
           cpus: limits.cpu,
           memory: limits.memory.slice(0, -2),
           gpus: limits['nvidia.com/gpu'],
           volumes: [],
+          image,
           command,
           startTime,
           completionTime

@@ -13,6 +13,7 @@
             :options.sync="options"
             :footerProps="footerProps"
             :loading="isLoading"
+            :copyItemPreprocess="[ copyItemPreprocess ]"
             @create="createItem"
             @delete="deleteItem"
             @close="close"
@@ -35,7 +36,7 @@
             <v-icon :class="item.status">{{ getStatusIcon(item.status) }}</v-icon>
           </template>
           <template v-slot:gpus="{ item }">
-            <v-chip class="ma-1">{{ convertGpuToJobType(Number(item.gpus)) }}</v-chip>
+            <v-chip class="ma-1">{{ convertGpuToJobType(item.accelerator, Number(item.gpus)) }}</v-chip>
           </template>
           <template v-slot:volumes="{ item }">
             <v-chip class="ma-1" v-for="v in item.volumes" :key="v">{{ v }}</v-chip>
@@ -240,7 +241,7 @@ export default {
     nameRules () {
       return [
         v => (v && v.length >= 1) || 'Name is required',
-        v => (v && v.length <= 30) || 'Name must be less then 30 characters',
+        v => (v && v.length <= 40) || 'Name must be less then 30 characters',
         v => /^[a-z0-9]([-a-z0-9]*[a-z0-9])$/.test(this.$store.getters.namePrefix + v) || 'Name only can containing lowercase alphabet, number and -'
       ]
     },
@@ -359,25 +360,48 @@ export default {
       return result
     },
 
-    // converter TODO
-    convertGpuToJobType (gpu) {
-      let type
-      if (gpu === 1) {
-        return 'g2.small'
-      } else if (gpu === 2) {
-        return 'g2.medium'
-      } else if (gpu === 4) {
-        return 'g2.large'
-      } else if (gpu === 8) {
-        return 'g2.xlarge'
+    // converter
+    convertGpuToJobType (type, gpus) {
+      let jobType
+      if (type === 'nvidia-gtx-1080ti') {
+        jobType = 'g1'
+      } else if (type === 'nvidia-rtx-2080ti') {
+        jobType = 'g2'
+      } else if (type === 'nvidia-rtx-3090') {
+        jobType = 'g3'
+      } else if (type === 'nvidia-tesla-v100') {
+        jobType = 'v100'
       }
-      return type
+
+      if (gpus === 1) {
+        jobType += '.small'
+      } else if (gpus === 2) {
+        jobType += '.medium'
+      } else if (gpus === 4) {
+        jobType += '.large'
+      } else if (gpus === 8) {
+        jobType += '.xlarge'
+      }
+      return jobType
+    },
+
+    copyItemPreprocess (item) {
+      let newItem = Object.assign({}, item)
+      newItem.name = item.name.split('-').slice(2, -1).join('-')
+      newItem.repeat = 1
+      newItem.jobType = this.jobsList.find(
+        v => v.text === this.convertGpuToJobType(item.accelerator, Number(item.gpus))).value
+      newItem.volume = item.volumes[0]
+      newItem.command = item.command.join(' ')
+      return newItem
     },
 
     // hint
     jobTypeHint (item) {
       if (item.jobType) {
-        return `CPU: ${item.jobType.cpus}, Memory: ${item.jobType.memory}, GPU: ${item.jobType.gpuType} x ${item.jobType.gpus}`
+        return `CPU: ${item.jobType.cpus},
+                Memory: ${item.jobType.memory},
+                GPU: ${item.jobType.gpuType} x ${item.jobType.gpus}`
       } else {
         return ''
       }

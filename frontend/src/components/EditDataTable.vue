@@ -38,7 +38,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-btn v-if="defaultOptions.copy" dark icon @click="editItem(selected[0])" :disabled="selected.length !== 1">
+        <v-btn v-if="defaultOptions.copy" dark icon @click="copyItem(selected[0])" :disabled="selected.length !== 1">
           <v-icon>mdi-content-copy</v-icon>
         </v-btn>
         <v-dialog v-model="deleteDialog" max-width="500px">
@@ -109,6 +109,8 @@ export default {
     data: Array,
     showSelect: Boolean,
 
+    copyItemPreprocess: Array,
+
     title: String,
     defaultItem: Object
   },
@@ -145,6 +147,13 @@ export default {
     editItem (item) {
       this.editedIndex = this.data.indexOf(item)
       this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
+
+    copyItem (item) {
+      let newItem = this.copyItemPreprocess[0](item)
+      this.editedIndex = -1
+      this.editedItem = Object.assign({}, newItem)
       this.dialog = true
     },
 
