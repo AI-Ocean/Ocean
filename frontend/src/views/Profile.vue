@@ -15,10 +15,12 @@
                 <v-icon small right text--secondary v-if="!isEditName" @click="editName">mdi-pencil-outline</v-icon>
                 <v-icon small right text--secondary v-if="isEditName" @click="saveName">mdi-check-circle</v-icon>
                 <v-icon small right text--secondary v-if="isEditName" @click="cancleName">mdi-close-circle</v-icon>
+                <v-spacer></v-spacer>
+                <span v-if="!user.activated">Not Activated. Request to Admin.</span>
               </v-card-title>
               <v-card-subtitle>
                 {{ user.email }}<br />
-                {{ user.role }}
+                {{ user.role }}<br/>
               </v-card-subtitle>
               <v-card-text>
                 <v-divider class="mb-4"></v-divider>
@@ -39,7 +41,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-btn color="lightgray" @click="changePassword">change password</v-btn>
-                <v-btn color="lightgray" @click="requestQuota">request quota</v-btn>
+                <v-btn color="lightgray" @click="requestQuota" :disabled="!user.activated">request quota</v-btn>
               </v-card-actions>
             <!-- </div>
           </div> -->

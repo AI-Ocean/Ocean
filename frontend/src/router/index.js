@@ -18,6 +18,10 @@ const roleCheck = (to, from, next) => {
   if (!store.state.userStore.user) {
     if (to.path !== '/sign') return next('/sign')
   }
+  // activation check
+  if (!store.state.userStore.user.activated) {
+    if (to.path !== '/profile') return next('/profile')
+  }
   // admin check
   if (to.path.substring(0, 7) === '/admin' && !store.userStore.getters.isAdmin) {
     throw Error('Only allow to Admin.')

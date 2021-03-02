@@ -12,7 +12,7 @@
               :options.sync="options"
               :footerProps="footerProps"
               :loading="loading"
-              @change="save"
+              @update="save"
               @delete="deleteItem"
             >
               <template v-slot:activated="{ item }">

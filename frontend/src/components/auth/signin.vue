@@ -15,6 +15,7 @@
           label="E-mail"
           :rules="emailRules"
           required
+          @keyup.enter="siginIn"
         ></v-text-field>
         <v-text-field
           v-model="password"
