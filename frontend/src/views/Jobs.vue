@@ -143,7 +143,7 @@
             :loading="logLoading"
             :logs="logs"
             @load="loadLog"
-            @close="() => {logDialog = false}"
+            @close="() => {logs= [], logDialog = false}"
           ></log-viewer>
         </v-dialog>
         </v-card>
@@ -177,7 +177,8 @@ export default {
     imagesList: [
       { header: 'Select an option or type other images' },
       'mlvclab/pytorch:1.5-cuda10.1-cudnn7-devel',
-      'mlvclab/pytorch:1.6.0-cuda10.1-cudnn7-devel'
+      'mlvclab/pytorch:1.6.0-cuda10.1-cudnn7-devel',
+      'mlvclab/pytorch:1.7.1-cuda11.0-cudnn8-devel'
     ],
 
     jobsList: [
@@ -331,17 +332,26 @@ export default {
       this.logDialog = true
       await this.loadLog(name)
     },
-    async loadLog () {
+    async loadLog (order = false) {
       this.logLoading = true
       this.getAllWorkloads()
       const { data } = await this.$axios.get('/api/jobs/' + this.logPodName + '/log')
       if (data.logs.length >= 1) {
-        this.logs = data.logs.split('\n').map(v => {
-          let row = v.split('Z')
-          return { timestamp: row[0], message: row.slice(1).join('Z') }
-        })
+        let reg = /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]+Z/g // 2021-03-02T02:47:31.167606435Z
+        let messages = data.logs.split(reg).slice(1)
+        let time = data.logs.match(reg)
+
+        this.logs = []
+        for (let i = 0; i < time.length; i++) {
+          messages[i].split('\r').forEach(m => {
+            this.logs.push({ timestamp: time[i], message: m })
+          })
+        }
       }
       this.logs.splice(-1, 1)
+      if (order === true) {
+        this.logs.reverse()
+      }
       this.logLoading = false
     },
 

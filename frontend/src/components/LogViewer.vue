@@ -4,13 +4,19 @@
       Job Logs
       <v-spacer></v-spacer>
       <v-switch
+        v-model="order"
+        label="Recent First"
+        class="pr-3"
+        @change="reorderLog"
+      ></v-switch>
+      <v-switch
         v-model="reload"
         label="Auto-reload"
       ></v-switch>
     </v-card-title>
 
     <v-card-text>
-      <!-- <v-skeleton-loader
+      <v-skeleton-loader
         v-if="loading"
         type="article,article,article,article"
       ></v-skeleton-loader>
@@ -22,14 +28,20 @@
         height="70vh"
       >
         <template v-slot="{ item, index }">
-          <tr :key="index">
-            <td>
-              <span>{{timestampToReadable(item.timestamp)}}</span><span>{{item.message}}</span>
-            </td>
-          </tr>
+          <v-list-item :key="index">
+            <v-list-item-action>
+                {{timestampToReadable(item.timestamp)}}
+              </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>
+                {{item.message}}
+              </v-list-item-title>
+              <v-divider></v-divider>
+            </v-list-item-content>
+          </v-list-item>
         </template>
-      </v-virtual-scroll> -->
-      <v-data-table
+      </v-virtual-scroll>
+      <!-- <v-data-table
         :headers="headers"
         :items="logs"
         :options="options"
@@ -42,7 +54,7 @@
         <template v-slot:[`item.timestamp`]="{ item }">
           {{ timestampToReadable(item.timestamp) }}
         </template>
-      </v-data-table>
+      </v-data-table> -->
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
@@ -69,7 +81,8 @@ export default {
       itemsPerPage: -1,
       sortBy: ['timestamp']
     },
-    reload: false
+    reload: false,
+    order: false
   }),
 
   methods: {
@@ -80,9 +93,21 @@ export default {
     },
     timestampToReadable (timestamp) {
       if (!timestamp) return ''
-      let ts = timestamp.split('T')
-      let time = ts[1].split('.')[0]
-      return ts[0] + ' ' + time
+
+      var offset = new Date().getTimezoneOffset() * 60 * 1000
+      timestamp = Date.parse(timestamp) - offset
+      timestamp = new Date(timestamp)
+      var date = timestamp.getFullYear() + '/' + this.zeroPadding(timestamp.getMonth() + 1) + '/' + this.zeroPadding(timestamp.getDate()) + ' ' +
+                 this.zeroPadding(timestamp.getHours()) + ':' + this.zeroPadding(timestamp.getMinutes()) + ':' + this.zeroPadding(timestamp.getSeconds()) +
+                 '.' + this.zeroPadding(timestamp.getMilliseconds())
+      return date
+    },
+    zeroPadding (digit) {
+      return ('00' + digit).slice(-2)
+    },
+
+    reorderLog () {
+      this.logs.reverse()
     }
   },
 
@@ -92,13 +117,14 @@ export default {
       if (newReload) {
         iid = setInterval(() => {
           if (this.reload) {
-            this.$emit('load')
+            this.$emit('load', this.order)
           }
-        }, 30000)
+        }, 10000)
       } else {
         clearInterval(iid)
       }
     }
+
   }
 }
 </script>
