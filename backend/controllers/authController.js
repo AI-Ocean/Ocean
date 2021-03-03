@@ -17,7 +17,7 @@ module.exports.signup = async function (req, res, next) {
     return res.status(400).json({
       msg: "Same email already exist."
     });
-  }
+  } 
 
   // Create new user
   let newUser = new userDAO({
