@@ -18,7 +18,7 @@
     <v-card-text>
       <v-skeleton-loader
         v-if="loading"
-        type="article,article,article,article"
+        type="article,article,article,article,article,article"
       ></v-skeleton-loader>
       <v-virtual-scroll
         v-else
@@ -89,6 +89,7 @@ export default {
 
     close () {
       this.reload = false
+      this.order = false
       this.$emit('close')
     },
     timestampToReadable (timestamp) {
@@ -113,15 +114,14 @@ export default {
 
   watch: {
     reload: function (newReload) {
-      var iid
+      var delay = 30000
       if (newReload) {
-        iid = setInterval(() => {
+        setTimeout(function request () {
           if (this.reload) {
             this.$emit('load', this.order)
           }
-        }, 10000)
-      } else {
-        clearInterval(iid)
+          setTimeout(request.bind(this), delay)
+        }.bind(this), delay)
       }
     }
 
