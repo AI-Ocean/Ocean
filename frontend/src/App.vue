@@ -123,12 +123,12 @@
             </v-list-item-icon>
             <v-list-item-title>Volumes</v-list-item-title>
           </v-list-item>
-          <v-list-item link to="/services">
+          <!-- <v-list-item link to="/services">
             <v-list-item-icon>
               <v-icon>mdi-access-point-network</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Services</v-list-item-title>
-          </v-list-item>
+          </v-list-item> -->
         <v-divider></v-divider>
 
           <template v-if="user.role === 'admin'">

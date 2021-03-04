@@ -20,7 +20,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex'
-import Indicator from '../components/dashboard/Indicator.vue'
+import Indicator from '@/components/Indicator.vue'
 const resourceStore = 'resourceStore'
 
 export default {

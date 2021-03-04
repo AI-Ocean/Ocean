@@ -27,7 +27,7 @@
 
             <v-card-text>
               <v-form ma-4 ref="form" v-model="valid">
-                <slot name="dialog" :item="editedItem"></slot>
+                <slot name="dialog" :index="editedIndex" :item="editedItem"></slot>
               </v-form>
             </v-card-text>
 
@@ -53,7 +53,7 @@
             </v-card-title>
 
             <v-card-text>
-              <slot name="deleteDialog" :item="editedItem" :selected="selected">
+              <slot name="deleteDialog" :index="editedIndex" :item="editedItem" :selected="selected">
                 Are you sure to delete:
                 <template v-if="selected.length > 0">
                   <div v-for="(item) in selected" :key="item.name">

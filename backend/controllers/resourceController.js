@@ -36,8 +36,13 @@ module.exports.get_resources = async (req, res) => {
 
 module.exports.get_resource_request_quota = async (req, res, next) => {
   let requests
+  let { all } = req.query
   try {
-    requests = await RequestQuota.find({ user: mongoose.Types.ObjectId(req.user._id) })
+    let condition = { user: mongoose.Types.ObjectId(req.user._id) }
+    if (req.user.role === 'admin' && all === 'true'){
+      condition = {}
+    }
+    requests = await RequestQuota.find(condition)
   } catch (err) {
     next(err)
   }

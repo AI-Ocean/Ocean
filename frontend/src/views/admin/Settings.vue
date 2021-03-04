@@ -55,86 +55,10 @@
         </v-card>
       </v-col>
       <v-col>
-        <v-card>
-          <v-card-text>
-            <edit-data-table
-              title="Schedules"
-              :headers="schedulesHeaders"
-              :data="schedules"
-              :defaultItem="schedulesDefaultItem"
-              @add="addSchedules"
-              @change="changeSchedules"
-              @delete="deleteSchedules"
-            >
-            <template v-slot:dialog="{ item }">
-                <v-container>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field v-model="item.name" label="Name" prepend-icon="mdi-bell-outline"></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-menu
-                        v-model="menu"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on }">
-                          <v-text-field
-                            v-model="item.deadline"
-                            label="Deadline"
-                            prepend-icon="mdi-calendar-clock"
-                            readonly
-                            clearable
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker v-model="item.deadline" @input="menu = false"></v-date-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-menu
-                        v-model="date"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="290px"
-                      >
-                        <template v-slot:activator="{ on }">
-                          <v-text-field
-                            v-model="item.date"
-                            label="Date"
-                            prepend-icon="mdi-calendar-clock"
-                            readonly
-                            v-on="on"
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker v-model="item.date" range></v-date-picker>
-                      </v-menu>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field v-model="item.location" label="Location" prepend-icon="mdi-map-marker"></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field v-model="item.site" label="site" prepend-icon="mdi-link"></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </template>
-            </edit-data-table>
-          </v-card-text>
-        </v-card>
+        <quota-request
+          :displayAll="true"
+        >
+        </quota-request>
       </v-col>
     </v-row>
   </v-container>
@@ -142,10 +66,12 @@
 
 <script>
 import EditDataTable from '@/components/EditDataTable'
+import QuotaRequest from '../../components/QuotaRequest.vue'
 
 export default {
   components: {
-    EditDataTable
+    EditDataTable,
+    QuotaRequest
   },
 
   data: () => ({
@@ -183,15 +109,10 @@ export default {
     date: false
   }),
 
-  mounted () {
-    this.getNotice()
-    this.getSchedules()
-  },
-
   methods: {
     async getNotice () {
-      const { data } = await this.$axios.get('/api/notice?filter=all')
-      this.notice = data.items
+      // const { data } = await this.$axios.get('/api/notice?filter=all')
+      // this.notice = data.items
     },
 
     async addNotice (data) {
@@ -213,29 +134,44 @@ export default {
       this.$toasted.show('Notice deleted.')
     },
 
-    async getSchedules () {
-      const { data } = await this.$axios.get('/api/schedules?filter=all')
-      this.schedules = data.items
-    },
+    //   async getSchedules () {
+    //     // const { data } = await this.$axios.get('/api/schedules?filter=all')
+    //     // this.schedules = data.items
+    //   },
 
-    async addSchedules (data) {
-      delete data.uid
-      await this.$axios.post('/api/schedules/', data)
-      this.$toasted.show('Schedules added.')
-    },
+    //   async addSchedules (data) {
+    //     delete data.uid
+    //     await this.$axios.post('/api/schedules/', data)
+    //     this.$toasted.show('Schedules added.')
+    //   },
 
-    async changeSchedules (data) {
-      const { uid } = data
-      delete data.uid
-      await this.$axios.patch('/api/schedules/' + uid, data)
-      this.$toasted.show('Schedules changed.')
-    },
+    //   async changeSchedules (data) {
+    //     const { uid } = data
+    //     delete data.uid
+    //     await this.$axios.patch('/api/schedules/' + uid, data)
+    //     this.$toasted.show('Schedules changed.')
+    //   },
 
-    async deleteSchedules (data) {
-      const { uid } = data
-      await this.$axios.delete('/api/schedules/' + uid)
-      this.$toasted.show('Schedules deleted.')
+    //   async deleteSchedules (data) {
+    //     const { uid } = data
+    //     await this.$axios.delete('/api/schedules/' + uid)
+    //     this.$toasted.show('Schedules deleted.')
+    //   }
+    // },
+
+    async getRequests () {
+      this.requestLoading = true
+      let data = await this.$axios.get('/api/resources/request?all=true')
+      this.requests = data.data
+      this.requestLoading = false
     }
+
+  },
+
+  async mounted () {
+    // this.getNotice()
+    // this.getSchedules()
+    await this.getRequests()
   }
 }
 </script>
