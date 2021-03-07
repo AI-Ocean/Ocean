@@ -1,8 +1,9 @@
 {
   "name": "ocean-backend",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "main": "bin/www",
+  "author": "Eunseop Shin <kairos9603@gmail.com>",
   "scripts": {
     "tsdev": "cross-env NODE_ENV=development nodemon --exec ts-node ./bin/www",
     "dev": "cross-env NODE_ENV=development nodemon --exec node ./bin/www",
