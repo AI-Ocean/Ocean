@@ -1,4 +1,4 @@
-name: ocean-backend
+name: ocean-frontend
 
 on: 
   push:
@@ -9,7 +9,7 @@ on:
 env:
   USERNAME: ${{ github.actor }}
   PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
-  IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean-backend
+  IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean-frontend
   DEV_VERSION: a1
   STABLE_VERSION: v0.2.4
 
