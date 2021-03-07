@@ -1,2 +1,6 @@
 **/node_modules
 **/yarn-debug.log
+.env.local
+.github/
+.gitignore
+.configs/

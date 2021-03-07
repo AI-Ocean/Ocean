@@ -1,14 +1,13 @@
-FROM node:10
+FrOM node:lts-alpine
 
-ENV HOME /usr/src/
 ENV NODE_ENV production
 ENV PORT 3000
 
-WORKDIR $HOME
-
-COPY backend/package*.json ./
-RUN yarn
+WORKDIR /usr/src/app
+COPY package.json ./
+COPY yarn.lock ./
+RUN yarn install --production
 COPY . .
 
-EXPOSE 3000
+EXPOSE $PORT
 CMD ["yarn", "start"]
