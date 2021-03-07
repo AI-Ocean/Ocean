@@ -5,9 +5,9 @@ module.exports.get_instances_list = async (req, res) => {
   let podData, serviceData
   try {
     // get pods, services data
-    let pod = await kubeAPI.get('/namespaces/ml-instance/pods', getSelector(req.user, 'inst'))
+    let pod = await kubeAPI.get('/namespaces/ocean/pods', getSelector(req.user, 'inst'))
     podData = pod.data
-    let service = await kubeAPI.get('/namespaces/ml-instance/services', getSelector(req.user, 'inst'))
+    let service = await kubeAPI.get('/namespaces/ocean/services', getSelector(req.user, 'inst'))
     serviceData = service.data
   } catch (err) {
     res.status(503).json(err.response.data)
@@ -143,8 +143,8 @@ module.exports.create_instance = async (req, res) => {
 
   let pod, service
   try {
-    pod = await kubeAPI.post('/namespaces/ml-instance/pods', podData)
-    service = await kubeAPI.post('/namespaces/ml-instance/services', serviceData)
+    pod = await kubeAPI.post('/namespaces/ocean/pods', podData)
+    service = await kubeAPI.post('/namespaces/ocean/services', serviceData)
   } catch(err) {
     return res.status(503).json(err.response.data)
   }
@@ -162,8 +162,8 @@ module.exports.delete_instance = async (req, res) => {
 
   let pod, service
   try {
-    pod = await kubeAPI.delete('/namespaces/ml-instance/pods/' + podname)
-    service = await kubeAPI.delete('/namespaces/ml-instance/services/' + podname)
+    pod = await kubeAPI.delete('/namespaces/ocean/pods/' + podname)
+    service = await kubeAPI.delete('/namespaces/ocean/services/' + podname)
   } catch (err) {
     res.status(503).json(err.response.data)
   }

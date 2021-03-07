@@ -3,7 +3,7 @@ var { kubeAPI, getSelector, getUserID } = require('../utils')
 module.exports.get_volumes_list = async (req, res) => {
   let data
   try{
-    vol = await kubeAPI.get('/namespaces/ml-instance/persistentvolumeclaims', getSelector(req.user, 'vol'))
+    vol = await kubeAPI.get('/namespaces/ocean/persistentvolumeclaims', getSelector(req.user, 'vol'))
     data = vol.data
   } catch (err) {
     return res.status(503).json(err.response.data)
@@ -55,7 +55,7 @@ module.exports.create_volume = async (req, res) => {
 
   let data
   try {
-    const vol = await kubeAPI.post('/namespaces/ml-instance/persistentvolumeclaims', volumeData)
+    const vol = await kubeAPI.post('/namespaces/ocean/persistentvolumeclaims', volumeData)
     data = vol.data
   } catch (err) {
     console.error(err.response.data)
@@ -68,7 +68,7 @@ module.exports.delete_volume = async (req, res) => {
   const volumename = req.params.id
   let data
   try {
-    const vol = await kubeAPI.delete('/namespaces/ml-instance/persistentvolumeclaims/' + volumename)
+    const vol = await kubeAPI.delete('/namespaces/ocean/persistentvolumeclaims/' + volumename)
     data = vol.data
   } catch (err) {
     return res.status(503).json(err.response.data)

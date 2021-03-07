@@ -4,7 +4,7 @@ module.exports.get_jobs_list = async (req, res) => {
   let data
   // get jobs data
   try {
-    const job = await kubeJobAPI.get('/namespaces/ml-instance/jobs', getSelector(req.user, 'job'))
+    const job = await kubeJobAPI.get('/namespaces/ocean/jobs', getSelector(req.user, 'job'))
     data = job.data
   } catch (err) {
     return res.status(503).json(err.response.body)
@@ -25,7 +25,7 @@ module.exports.get_jobs_list = async (req, res) => {
     const { name, labels } = job.metadata
 
     // pod data
-    const podres = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + name)
+    const podres = await kubeAPI.get('/namespaces/ocean/pods?labelSelector=job-name=' + name)
     const status = (0 in podres.data.items) ? podres.data.items[0].status.phase : 'Failed'
 
     // job data
@@ -143,7 +143,7 @@ module.exports.create_job = async (req, res) => {
   }
   var job
   try {
-    job = await kubeJobAPI.post('/namespaces/ml-instance/jobs', jobData)
+    job = await kubeJobAPI.post('/namespaces/ocean/jobs', jobData)
   } catch(err) {
     return res.status(503).json(err.response.data)
   }
@@ -159,14 +159,14 @@ module.exports.delete_job = async (req, res) => {
   let pods, response
   try {
     // get job pod
-    pods = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + jobname)
+    pods = await kubeAPI.get('/namespaces/ocean/pods?labelSelector=job-name=' + jobname)
     // delete job
-    response = await kubeJobAPI.delete('/namespaces/ml-instance/jobs/' + jobname)
+    response = await kubeJobAPI.delete('/namespaces/ocean/jobs/' + jobname)
 
     // delete job pod
     for ( const pod of pods.data.items ) {
       const name = pod.metadata.name
-      await kubeAPI.delete('/namespaces/ml-instance/pods/'+ name)
+      await kubeAPI.delete('/namespaces/ocean/pods/'+ name)
     }
   } catch (err) {
     return res.status(503).json(err.response.data)
@@ -177,14 +177,14 @@ module.exports.delete_job = async (req, res) => {
 module.exports.get_job_log = async (req, res) => {
   // get pod for job
   try {
-    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods?labelSelector=job-name=' + req.params.id)
+    var { data } = await kubeAPI.get('/namespaces/ocean/pods?labelSelector=job-name=' + req.params.id)
     if (data.items.length <= 0) {
       return res.status(404).json('resource not found')
     }
     const podname = data.items[0].metadata.name
 
     // get jobs data
-    var { data } = await kubeAPI.get('/namespaces/ml-instance/pods/' + podname + '/log?timestamps=true') //&sinceTime=2021-02-24T01:50:00Z&limitBytes=204800
+    var { data } = await kubeAPI.get('/namespaces/ocean/pods/' + podname + '/log?timestamps=true') //&sinceTime=2021-02-24T01:50:00Z&limitBytes=204800
   } catch (err) {
     console.error(err)
     return res.status(503).json(err.response)
