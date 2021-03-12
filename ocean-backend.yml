@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocean-backend
+  namespace: ocean
+  labels:
+    app: ocean
+    tier: backend
+spec:
+  selector:
+    matchLabels:
+      app: ocean
+      tier: backend
+  replicas: 1
+  revisionHistoryLimit: 2
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ocean
+        tier: backend
+    spec:
+      containers:
+        - name: ocean
+          image: docker.pkg.github.com/kairos03/ocean/ocean-back
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 80
+          env:
+          - name: MONGOURI
+            valueFrom:
+              secretKeyRef:
+                name: ocean-secret
+                key: MONGOURI
+          - name: SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ocean-secret
+                key: SECRET
+          - name: KUBE_API_URL
+            valueFrom:
+              secretKeyRef:
+                name: ocean-secret
+                key: KUBE_API_URL
+          - name: KUBE_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: ocean-secret
+                key: KUBE_TOKEN
+          - name: KUBE_CA
+            value: "/pki/ca.crt"
+          volumeMounts:
+          - name: secret
+            mountPath: "/pki"
+            readOnly: true
+      volumes:
+      - name: secret
+        secret:
+          secretName: ocean-secret
+      imagePullSecrets:
+        - name: github-regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocean-backend-service
+  namespace: ocean
+  labels:
+    app: ocean
+    tier: backend
+spec:
+  selector:
+    app: ocean
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
