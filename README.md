@@ -1,5 +1,5 @@
 # Ocean
-GPU Instance management System
+GPU management System on Kubernetes For AI, Deep-Learning, Machine-Learning Researcher.
 
 ## Prerequest
 0. setup mongodb.
