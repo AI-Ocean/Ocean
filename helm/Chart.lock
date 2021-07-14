@@ -1,0 +1,6 @@
+dependencies:
+- name: mariadb
+  repository: file://subcharts/mariadb
+  version: 9.3.17
+digest: sha256:b4a3b79d261f1e564a1e91b10db2881b115b48c8a1df53d9267f02eeecb9d5cd
+generated: "2021-07-14T22:30:02.743168706+09:00"

@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: v0.1.0
+name: ocean-backend
+description: Ocean-Backend Helm chart for Kubernetes
+version: 0.1.0
+
+dependencies:
+- name: mariadb
+  version: 9.3.17
+  repository: file://subcharts/mariadb
+  condition: mariadb.enabled
+  alias: mariadb

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocean-backend-svc
+  labels:
+    app: ocean-backend-svc
+spec:
+  ports:
+    - name: backend-port
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: ocean-backend-deploy
+  type: {{ .Values.backend.service.type }}

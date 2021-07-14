@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocean-backend-deploy
+spec:
+  selector:
+    matchLabels:
+      app: ocean-backend-deploy
+  replicas: {{ .Values.backend.replicas }}
+  template:
+    metadata:
+      labels:
+        app: ocean-backend-deploy
+    spec:
+      serviceAccountName: ocean-backend-sa
+      containers:
+        - name: ocean-backend-con
+          image: {{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
+          command: ["python"]
+          args: ["ocean/manage.py", "runserver", "0.0.0.0:8000"]
+          imagePullPolicy: {{ .Values.backend.image.imagePullPolicy }}
+          ports:
+            - containerPort: 8000
+              name: backend-port
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mariadb
+                  key: mariadb-password
+          volumeMounts:
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/database.py"
+              subPath: "database.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/kubernetes.py"
+              subPath: "kubernetes.py"
+          resources:
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}
+      imagePullSecrets:
+        - name: {{ .Values.backend.image.imagePullSecret }}
+      volumes:
+        - name: config
+          configMap:
+            name: ocean-backend-configmap
+            items:
+            - key: "kubernetes.py"
+              path: "kubernetes.py"
+            - key: "database.py"
+              path: "database.py"
