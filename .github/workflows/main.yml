@@ -1,42 +1,35 @@
 name: Ocean
 
-on: 
-  push:
-    branches: ['master', 'develop']
+on:
   pull_request:
-    branches: ['stage', 'master', 'develop']
-
-env:
-  USERNAME: ${{ github.actor }}
-  PACKAGE_ACCESS_TOKEN: ${{ secrets.PACKAGE_ACCESS_TOKEN }}
-  IMAGE_NAME: docker.pkg.github.com/kairos03/ocean/ocean
-  DEV_VERSION: a3
-  STABLE_VERSION: v0.2.3
+  push:
+  workflow_dispatch:
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    
+  k8s-test:
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+      # GitHub Action reference: https://github.com/jupyterhub/action-k3s-helm
+      - name: Start k8s locally
+        uses: jupyterhub/action-k3s-helm@v1
+        with:
+          k3s-version: v1.20.0+k3s2 # releases:  https://github.com/k3s-io/k3s/tags
+          helm-version: v3.4.2 # releases:  https://github.com/helm/helm/tags
 
-    - name: login docker registry
-      run: docker login docker.pkg.github.com --username $USERNAME -p $PACKAGE_ACCESS_TOKEN
+      - name: Verify function of k8s, kubectl, and helm
+        run: |
+          echo "kubeconfig: $KUBECONFIG"
+          kubectl version
+          kubectl get pods --all-namespaces
 
-    - name: docker pull cache image
-      run: docker pull $IMAGE_NAME:latest
+          helm version
+          helm list
 
-    - name: docker build
-      run: docker build --cache-from $IMAGE_NAME:latest . -t $IMAGE_NAME:$STABLE_VERSION -t $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION -t $IMAGE_NAME:latest
+      - uses: actions/checkout@v2
 
-    - name: docker push latest
-      if: github.ref == 'refs/heads/develop'
-      run: docker push $IMAGE_NAME:latest
-    
-    - name: docker push dev version
-      if: github.ref == 'refs/heads/master'
-      run: docker push $IMAGE_NAME:$STABLE_VERSION$DEV_VERSION
+      - name: install helm
+        run: |
+          cd helm
+          helm dep update
+          helm install ocean .
 
-    - name: docker push stable version
-      if: github.ref == 'refs/heads/stage'
-      run: docker push $IMAGE_NAME:$STABLE_VERSION
