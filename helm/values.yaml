@@ -16,7 +16,7 @@ backend:
       memory: 1G
 
   service:
-    type: NodePort
+    type: ClusterIP
 
 frontend:
   replicas: 1
