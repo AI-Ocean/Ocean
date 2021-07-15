@@ -3,5 +3,5 @@
 ## Install
 ```
 $ helm dep update
-$ helm install ocean .
+$ helm install ocean -n ocean .
 ```
