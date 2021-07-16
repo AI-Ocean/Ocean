@@ -55,6 +55,7 @@ mariadb:
         memory: 1G
   auth:
     username: ocean
+    password: ocean
     database: ocean
   persistence:
     size: 8Gi
