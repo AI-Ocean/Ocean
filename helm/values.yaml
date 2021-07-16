@@ -37,6 +37,8 @@ frontend:
 
   service:
     type: NodePort
+    ports:
+      nodePort: 32080
 
 # ref. https://github.com/bitnami/charts/tree/master/bitnami/mariadb
 mariadb:

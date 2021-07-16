@@ -8,6 +8,9 @@ spec:
   ports:
     - name: frontend-port
       port: 80
+      {{- if .Values.frontend.service.ports.nodePort }}
+      nodePort: {{ .Values.frontend.service.ports.nodePort }}
+      {{- end }}
       targetPort: 80
       protocol: TCP
   selector:
