@@ -16,7 +16,7 @@ data:
         "default": {
             'ENGINE': "django.db.backends.mysql",
             'NAME': "{{ .Values.mariadb.auth.database }}",
-            'HOST': "{{ .Release.Name }}-mariadb.{{ .Release.Namespace }}.svc.cluster.local",
+            'HOST': "{{ include "mariadb.primary.host" . }}",
             'USER': "{{ .Values.mariadb.auth.username }}",
             'PASSWORD': os.environ['DATABASE_PASSWORD'],
             'PORT': "{{ .Values.mariadb.primary.service.port }}"

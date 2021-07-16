@@ -13,6 +13,37 @@ spec:
         app: ocean-backend-deploy
     spec:
       serviceAccountName: ocean-backend-sa
+      initContainers:
+        - name: ocean-backend-initcon
+          image: {{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
+          command: ["/bin/bash", "-c", "--"]
+          args: ["while ! mysqladmin ping -h\"$DB_HOST\" --silent; do sleep 10; done;"]
+          imagePullPolicy: {{ .Values.backend.image.imagePullPolicy }}
+          ports:
+            - containerPort: 8000
+              name: backend-port
+          env:
+            - name: DB_HOST
+              value: {{ include "mariadb.primary.host" . }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mariadb
+                  key: mariadb-password
+          volumeMounts:
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/database.py"
+              subPath: "database.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/kubernetes.py"
+              subPath: "kubernetes.py"
+          resources:
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}        
       containers:
         - name: ocean-backend-con
           image: {{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
