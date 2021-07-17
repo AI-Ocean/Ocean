@@ -17,6 +17,8 @@ backend:
 
   service:
     type: ClusterIP
+    ports:
+        nodePort: 32081
 
 frontend:
   replicas: 1

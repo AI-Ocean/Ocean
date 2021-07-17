@@ -8,7 +8,7 @@ spec:
   ports:
     - name: frontend-port
       port: 80
-      {{- if .Values.frontend.service.ports.nodePort }}
+      {{- if eq .Values.frontend.service.type "NodePort" }}
       nodePort: {{ .Values.frontend.service.ports.nodePort }}
       {{- end }}
       targetPort: 80
