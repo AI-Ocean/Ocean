@@ -8,6 +8,9 @@ spec:
   ports:
     - name: backend-port
       port: 8000
+      {{- if .Values.backend.service.ports.nodePort }}
+      nodePort: {{ .Values.backend.service.ports.nodePort }}
+      {{- end }}
       targetPort: 8000
       protocol: TCP
   selector:

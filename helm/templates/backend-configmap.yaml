@@ -3,7 +3,7 @@ data:
   kubernetes.py: |
     IS_LOCAL = False
     NAMESPACE = "{{ .Release.Namespace }}"
-    STORAGE_CLASS_NAME = "{{ .Values.storage.class }}"
+    STORAGE_CLASS_NAME = "{{ .Values.storage.classname }}"
     SUPPORT_GPU_LIST = [{{- range .Values.gpu.supports }}"{{ . }}", {{- end }}]
     ACCESS_MODES = "{{ .Values.storage.mode }}"
 
