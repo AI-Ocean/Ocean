@@ -24,8 +24,8 @@ frontend:
   replicas: 1
 
   image:
-    name: docker.pkg.github.com/ai-ocean/ocean/ocean-front
-    tag: v0.2.4a7
+    name: ghcr.io/ai-ocean/ocean-frontend
+    tag: main
     imagePullSecret: github-regcred
     imagePullPolicy: Always
 
