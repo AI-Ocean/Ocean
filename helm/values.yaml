@@ -75,11 +75,5 @@ storage:
   classname: nfs-client
   mode: ReadWriteMany
 
-gpu:
-  supports:
-    - nvidia-rtx-1080ti
-    - nvidia-rtx-2080ti
-    - nvidia-rtx-3090
-
 global:
   storageClass: nfs-client
