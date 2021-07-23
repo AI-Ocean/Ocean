@@ -10,3 +10,8 @@ dependencies:
   repository: file://subcharts/mariadb
   condition: mariadb.enabled
   alias: mariadb
+- name: ray
+  version: 0.1.0
+  repository: file://subcharts/ray
+  condition: ray.enabled
+  alias: ray

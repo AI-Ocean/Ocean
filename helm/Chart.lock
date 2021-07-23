@@ -2,5 +2,8 @@ dependencies:
 - name: mariadb
   repository: file://subcharts/mariadb
   version: 9.3.17
-digest: sha256:b4a3b79d261f1e564a1e91b10db2881b115b48c8a1df53d9267f02eeecb9d5cd
-generated: "2021-07-14T22:30:02.743168706+09:00"
+- name: ray
+  repository: file://subcharts/ray
+  version: 0.1.0
+digest: sha256:c169a203139cd7314343b7e7805b1d574cbe5f096159d5f6bd2761d64d60ab15
+generated: "2021-07-24T01:01:27.243837103+09:00"

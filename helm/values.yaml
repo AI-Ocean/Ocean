@@ -64,6 +64,13 @@ mariadb:
   persistence:
     size: 8Gi
 
+# ref. https://github.com/ray-project/ray/tree/master/deploy/charts/ray
+ray:
+  image: rayproject/ray:latest
+  operatorOnly: true
+  namespacedOperator: true
+  operatorImage: rayproject/ray:latest
+
 storage:
   classname: nfs-client
   mode: ReadWriteMany

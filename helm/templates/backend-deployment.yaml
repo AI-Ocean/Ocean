@@ -37,6 +37,9 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/kubernetes.py"
               subPath: "kubernetes.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/ray.py"
+              subPath: "ray.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
@@ -66,6 +69,9 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/kubernetes.py"
               subPath: "kubernetes.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/ray.py"
+              subPath: "ray.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
