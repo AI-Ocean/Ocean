@@ -90,3 +90,5 @@ spec:
               path: "kubernetes.py"
             - key: "database.py"
               path: "database.py"
+            - key: "ray.py"
+              path: "ray.py"
