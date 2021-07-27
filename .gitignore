@@ -9,3 +9,5 @@
 .env
 
 **/.firebaserc
+
+helm/charts
