@@ -44,6 +44,7 @@ frontend:
 
 # ref. https://github.com/bitnami/charts/tree/master/bitnami/mariadb
 mariadb:
+  enabled: true
   commonAnnotations:
     helm.sh/resource-policy: keep
   primary:
@@ -66,6 +67,7 @@ mariadb:
 
 # ref. https://github.com/ray-project/ray/tree/master/deploy/charts/ray
 ray:
+  enabled: true
   image: rayproject/ray:latest
   operatorOnly: true
   namespacedOperator: true
@@ -77,3 +79,41 @@ storage:
 
 global:
   storageClass: nfs-client
+
+# https://github.com/NVIDIA/gpu-operator/tree/master/deployments/gpu-operator
+gpuOperator:
+  driver:
+    enabled: false
+  toolkit:
+    enabled: false
+
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+prometheus:
+  enabled: true
+  serviceMonitorSelectorNilUsesHelmValues: false
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+      - job_name: gpu-metrics
+        scrape_interval: 1s
+        metrics_path: /metrics
+        scheme: http
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gpu-operator-resources
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: kubernetes_node
+    service:
+      type: ClusterIP
+  grafana:
+    defaultDashboardsEnabled: true
+    adminPassword: prom-operator
+    service:
+      type: NodePort
+      nodePort: 30091
+    annotations:
+      helm.sh/resource-policy: keep
