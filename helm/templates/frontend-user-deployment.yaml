@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocean-frontend-user-deploy
+spec:
+  selector:
+    matchLabels:
+      app: ocean-frontend-user-deploy
+  replicas: {{ .Values.frontend.user.replicas }}
+  template:
+    metadata:
+      labels:
+        app: ocean-frontend-user-deploy
+    spec:
+      containers:
+        - name: ocean-frontend-user-con
+          image: {{ .Values.frontend.user.image.name }}:{{ .Values.frontend.user.image.tag }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - "envsubst '${OCEAN_BACKEND}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+          imagePullPolicy: {{ .Values.frontend.user.image.imagePullPolicy }}
+          ports:
+            - containerPort: 80
+              name: user-port
+          env:
+          - name: OCEAN_BACKEND
+            value: ocean-backend-svc:8000
+          resources:
+            limits:
+              cpu: {{ .Values.frontend.user.resources.limits.cpu }}
+              memory: {{ .Values.frontend.user.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.frontend.user.resources.requests.cpu }}
+              memory: {{ .Values.frontend.user.resources.requests.memory }}
+      imagePullSecrets:
+        - name: {{ .Values.frontend.user.image.imagePullSecret }}

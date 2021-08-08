@@ -21,26 +21,43 @@ backend:
         nodePort: 32081
 
 frontend:
-  replicas: 1
+  admin:
+    replicas: 1
+    image:
+      name: ghcr.io/ai-ocean/ocean-frontend
+      tag: main
+      imagePullSecret: github-regcred
+      imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: 1
+        memory: 1G
+      limits:
+        cpu: 1
+        memory: 1G
+    service:
+      type: NodePort
+      ports:
+        nodePort: 32079
 
-  image:
-    name: ghcr.io/ai-ocean/ocean-frontend
-    tag: main
-    imagePullSecret: github-regcred
-    imagePullPolicy: Always
-
-  resources:
-    requests:
-      cpu: 1
-      memory: 1G
-    limits:
-      cpu: 1
-      memory: 1G
-
-  service:
-    type: NodePort
-    ports:
-      nodePort: 32080
+  user:
+    replicas: 1
+    image:
+      name: ghcr.io/ai-ocean/ocean-user
+      tag: main
+      imagePullSecret: github-regcred
+      imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: 1
+        memory: 1G
+      limits:
+        cpu: 1
+        memory: 1G
+    service:
+      type: NodePort
+      ports:
+        nodePort: 32080
 
 # ref. https://github.com/bitnami/charts/tree/master/bitnami/mariadb
 mariadb:
