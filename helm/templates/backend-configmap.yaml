@@ -25,6 +25,9 @@ data:
   ray.py: |
     RAY_IMAGE = "{{ .Values.ray.image }}"
 
+  images.py: |
+    IMAGE_REPOS = ["{{ .Values.repo }}"]
+
 kind: ConfigMap
 metadata:
   name: ocean-backend-configmap

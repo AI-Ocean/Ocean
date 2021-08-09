@@ -20,6 +20,8 @@ backend:
     ports:
         nodePort: 32081
 
+repo: myaiocean/pytorch
+
 frontend:
   admin:
     replicas: 1
