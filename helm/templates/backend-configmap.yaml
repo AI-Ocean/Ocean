@@ -28,6 +28,9 @@ data:
   images.py: |
     IMAGE_REPOS = ["{{ .Values.repo }}"]
 
+  prometheus.py: |
+    PROMETHEUS_URL = "{{ .Release.Name }}-prometheus-prometheus:9090"
+
 kind: ConfigMap
 metadata:
   name: ocean-backend-configmap
