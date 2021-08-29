@@ -139,5 +139,6 @@ prometheus:
     annotations:
       helm.sh/resource-policy: keep
   kube-state-metrics:
-    extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*]"]
-
+    image:
+      tag: v2.2.0
+    extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*]", "--metric-annotations-allowlist=nodes=[*]"]

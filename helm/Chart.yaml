@@ -16,7 +16,7 @@ dependencies:
   condition: ray.enabled
   alias: ray
 - name: kube-prometheus-stack
-  version: 17.0.3
+  version: 18.0.1
   repository: https://prometheus-community.github.io/helm-charts
   condition: prometheus.enabled
   alias: prometheus
