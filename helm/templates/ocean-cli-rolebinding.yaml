@@ -2,11 +2,10 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: ocean-cli-rolebinding
-  namespace: ocean
 subjects:
 - kind: ServiceAccount
   name: default
-  namespace: ocean
+  namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
   name: ocean-cli-role
