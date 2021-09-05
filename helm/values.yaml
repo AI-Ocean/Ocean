@@ -20,7 +20,7 @@ backend:
     ports:
         nodePort: 32081
 
-repo: myaiocean/pytorch
+repo: "[\"myaiocean/pytorch\", \"myaiocean/tensorflow\"]"
 
 frontend:
   admin:

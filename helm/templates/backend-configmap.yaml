@@ -26,7 +26,7 @@ data:
     RAY_IMAGE = "{{ .Values.ray.image }}"
 
   images.py: |
-    IMAGE_REPOS = ["{{ .Values.repo }}"]
+    IMAGE_REPOS = {{ .Values.repo }}
 
   prometheus.py: |
     PROMETHEUS_URL = "{{ .Release.Name }}-prometheus-prometheus:9090"
