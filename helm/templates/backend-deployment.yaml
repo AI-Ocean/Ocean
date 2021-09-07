@@ -30,6 +30,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mariadb
                   key: mariadb-password
+            - name: HARBOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.harbor.secret.name }}
+                  key:  {{ .Values.harbor.secret.key }}
           volumeMounts:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/database.py"
@@ -46,6 +51,12 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/prometheus.py"
               subPath: "prometheus.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/harbor.py"
+              subPath: "harbor.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/imagepush.py"
+              subPath: "imagepush.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
@@ -68,6 +79,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-mariadb
                   key: mariadb-password
+            - name: HARBOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.harbor.secret.name }}
+                  key:  {{ .Values.harbor.secret.key }}
           volumeMounts:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/database.py"
@@ -84,6 +100,12 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/prometheus.py"
               subPath: "prometheus.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/harbor.py"
+              subPath: "harbor.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/imagepush.py"
+              subPath: "imagepush.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
@@ -108,3 +130,8 @@ spec:
               path: "images.py"
             - key: "prometheus.py"
               path: "prometheus.py"
+            - key: "harbor.py"
+              path: "harbor.py"
+            - key: "imagepush.py"
+              path: "imagepush.py"
+
