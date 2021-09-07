@@ -15,3 +15,13 @@ dependencies:
   repository: file://subcharts/ray
   condition: ray.enabled
   alias: ray
+- name: kube-prometheus-stack
+  version: 18.0.1
+  repository: https://prometheus-community.github.io/helm-charts
+  condition: prometheus.enabled
+  alias: prometheus
+- name: gpu-operator
+  version: 1.7.1
+  repository: https://nvidia.github.io/gpu-operator
+  condition: gpuOperator.enabled
+  alias: gpuOperator

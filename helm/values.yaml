@@ -20,30 +20,50 @@ backend:
     ports:
         nodePort: 32081
 
+repo: "[\"myaiocean/pytorch\", \"myaiocean/tensorflow\"]"
+
 frontend:
-  replicas: 1
+  admin:
+    replicas: 1
+    image:
+      name: ghcr.io/ai-ocean/ocean-frontend
+      tag: main
+      imagePullSecret: github-regcred
+      imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: 1
+        memory: 1G
+      limits:
+        cpu: 1
+        memory: 1G
+    service:
+      type: NodePort
+      ports:
+        nodePort: 32079
 
-  image:
-    name: ghcr.io/ai-ocean/ocean-frontend
-    tag: main
-    imagePullSecret: github-regcred
-    imagePullPolicy: Always
-
-  resources:
-    requests:
-      cpu: 1
-      memory: 1G
-    limits:
-      cpu: 1
-      memory: 1G
-
-  service:
-    type: NodePort
-    ports:
-      nodePort: 32080
+  user:
+    replicas: 1
+    image:
+      name: ghcr.io/ai-ocean/ocean-user
+      tag: main
+      imagePullSecret: github-regcred
+      imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: 1
+        memory: 1G
+      limits:
+        cpu: 1
+        memory: 1G
+    service:
+      type: NodePort
+      ports:
+        nodePort: 32080
 
 # ref. https://github.com/bitnami/charts/tree/master/bitnami/mariadb
 mariadb:
+  enabled: true
   commonAnnotations:
     helm.sh/resource-policy: keep
   primary:
@@ -66,6 +86,7 @@ mariadb:
 
 # ref. https://github.com/ray-project/ray/tree/master/deploy/charts/ray
 ray:
+  enabled: true
   image: rayproject/ray:latest
   operatorOnly: true
   namespacedOperator: true
@@ -77,3 +98,47 @@ storage:
 
 global:
   storageClass: nfs-client
+
+# https://github.com/NVIDIA/gpu-operator/tree/master/deployments/gpu-operator
+gpuOperator:
+  operator:
+    defaultRuntime: containerd
+  driver:
+    enabled: false
+  toolkit:
+    enabled: true
+
+# https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+prometheus:
+  enabled: true
+  serviceMonitorSelectorNilUsesHelmValues: false
+  prometheus:
+    prometheusSpec:
+      additionalScrapeConfigs:
+      - job_name: gpu-metrics
+        scrape_interval: 1s
+        metrics_path: /metrics
+        scheme: http
+        kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+            - gpu-operator-resources
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: kubernetes_node
+    service:
+      type: ClusterIP
+  grafana:
+    defaultDashboardsEnabled: true
+    adminPassword: prom-operator
+    service:
+      type: NodePort
+      nodePort: 30091
+    annotations:
+      helm.sh/resource-policy: keep
+  kube-state-metrics:
+    image:
+      tag: v2.2.0
+    extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*]", "--metric-annotations-allowlist=nodes=[*]"]

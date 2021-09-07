@@ -40,6 +40,12 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/ray.py"
               subPath: "ray.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/images.py"
+              subPath: "images.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/prometheus.py"
+              subPath: "prometheus.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
@@ -72,6 +78,12 @@ spec:
             - name: config
               mountPath: "/ocean-backend/ocean/ocean/settings/components/ray.py"
               subPath: "ray.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/images.py"
+              subPath: "images.py"
+            - name: config
+              mountPath: "/ocean-backend/ocean/ocean/settings/components/prometheus.py"
+              subPath: "prometheus.py"
           resources:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu }}
@@ -92,3 +104,7 @@ spec:
               path: "database.py"
             - key: "ray.py"
               path: "ray.py"
+            - key: "images.py"
+              path: "images.py"
+            - key: "prometheus.py"
+              path: "prometheus.py"

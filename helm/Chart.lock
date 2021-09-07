@@ -5,5 +5,11 @@ dependencies:
 - name: ray
   repository: file://subcharts/ray
   version: 0.1.0
-digest: sha256:c169a203139cd7314343b7e7805b1d574cbe5f096159d5f6bd2761d64d60ab15
-generated: "2021-07-24T01:01:27.243837103+09:00"
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 18.0.1
+- name: gpu-operator
+  repository: https://nvidia.github.io/gpu-operator
+  version: v1.7.1
+digest: sha256:a6ef2b6464054836ff81572d164fb93b06f0d0e177dc4680f048e43fc5f6b470
+generated: "2021-08-29T16:15:02.209169352+09:00"
