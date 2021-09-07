@@ -11,3 +11,4 @@
 **/.firebaserc
 
 helm/charts
+_build/

@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: ocean
-          image: docker.pkg.github.com/kairos03/ocean/ocean-back
+          image: docker.pkg.github.com/ai-ocean/ocean/ocean-back
           imagePullPolicy: Always
           ports:
           - containerPort: 80
