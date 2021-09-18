@@ -33,11 +33,11 @@ data:
 
   harbor.py: |
     import os
-
+    
     HARBOR_ADDRESS="{{ .Values.harbor.address }}"
     HARBOR_ADDRESS_NO_PROTOCOL=HARBOR_ADDRESS.split("://")[-1]
     HARBOR_ID="{{ .Values.harbor.id }}"
-    HARBOR_PASSWORD="os.environ['HARBOR_PASSWORD']"
+    HARBOR_PASSWORD=os.environ['HARBOR_PASSWORD']
     HARBOR_IMAGEPULLSECRET="{{ .Values.harbor.imagePullSecret }}"
     HARBOR_PUBLIC_REPO="public"
 
