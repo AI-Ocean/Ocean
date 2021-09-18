@@ -61,8 +61,8 @@ frontend:
       ports:
         nodePort: 32080
 
-imagepush:
-  namespace: image-pusher-system
+#imagepush:
+#  namespace: image-pusher-system
 
 harbor:
   address: local-harbor
