@@ -26,6 +26,7 @@ spec:
       containers:
       - name: ocean-backend-migration-job-con
         image: {{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
+        imagePullPolicy: {{ .Values.backend.image.imagePullPolicy }}
         command: ["/bin/bash","migration.sh"]
         env:
           - name: DB_HOST
