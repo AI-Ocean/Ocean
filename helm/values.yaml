@@ -65,7 +65,7 @@ frontend:
 #  namespace: image-pusher-system
 
 harbor:
-  address: local-harbor
+  address: http://harbor.harbor.svc:80
   id: admin
   secret:
     name: harbor-core
