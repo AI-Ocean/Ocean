@@ -115,7 +115,7 @@ gpuOperator:
   operator:
     defaultRuntime: containerd
   driver:
-    enabled: false
+    enabled: true
   toolkit:
     enabled: true
 
@@ -152,4 +152,4 @@ prometheus:
   kube-state-metrics:
     image:
       tag: v2.2.0
-    extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*]", "--metric-annotations-allowlist=nodes=[*]"]
+    extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*],nodes=[*]", "--metric-annotations-allowlist=nodes=[*]"]
