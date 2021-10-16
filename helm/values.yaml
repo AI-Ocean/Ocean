@@ -1,3 +1,6 @@
+ocean:
+  repo: "[\"myaiocean\"]"
+
 backend:
   replicas: 1
 
@@ -19,8 +22,6 @@ backend:
     type: ClusterIP
     ports:
         nodePort: 32081
-
-repo: "[\"myaiocean/pytorch\", \"myaiocean/tensorflow\"]"
 
 frontend:
   admin:
