@@ -1,0 +1,21 @@
+github:
+  imageCredentials:
+    enabled: true
+    name: github-regcred
+    registry: ghcr.io
+    username: test
+    password: test
+    email: test@test.com
+    
+harbor:
+  imageCredentials:
+    enabled: true
+    name: harbor-regcred
+    registry: http://harbor.harbor.svc:80
+    username: test
+    password: test
+    email: test@test.com
+
+  core:
+    name: harbor-core
+    password: test

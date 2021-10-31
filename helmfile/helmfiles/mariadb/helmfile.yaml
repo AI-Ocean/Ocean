@@ -1,0 +1,13 @@
+helmDefaults:
+  createNamespace: true
+  wait: true
+
+releases:
+- name: {{ .Values.mariadb.name }}
+  namespace: {{ .Values.mariadb.namespace }}
+  version: 9.3.17
+  chart: ../../custom-charts/mariadb
+  condition: mariadb.enabled
+  values:
+  - values.yaml.gotmpl
+  - {{ toYaml .Values.mariadb.values | nindent 4 }}

@@ -1,0 +1,33 @@
+daemonset:
+  image:
+    name: ghcr.io/ai-ocean/image-push-daemonset
+    tag: main
+  imagePullSecret: ocean-github-regcred
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      cpu:
+      memory: 200Mi
+
+operator:
+  image:
+    name: ghcr.io/ai-ocean/image-push-operator
+    tag: main
+  imagePullSecret: ocean-github-regcred
+  resources:
+    requests:
+      cpu: 100m
+      memory: 20Mi
+    limits:
+      cpu: 100m
+      memory: 30Mi
+
+job:
+  image:
+    name: ghcr.io/ai-ocean/image-push-job
+    tag: main
+  imagePullSecret: ocean-github-regcred
+  harbor:
+    imagePullSecret: harbor-github-regcred

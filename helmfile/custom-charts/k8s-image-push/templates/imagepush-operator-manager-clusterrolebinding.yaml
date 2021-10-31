@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: imagepush-operator-manager-clusterrolebinding
+subjects:
+- kind: ServiceAccount
+  name: imagepush-controller-manager
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: imagepush-operator-manager-clusterrole
+  apiGroup: rbac.authorization.k8s.io

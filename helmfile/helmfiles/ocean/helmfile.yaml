@@ -1,0 +1,21 @@
+helmDefaults:
+  createNamespace: true
+  wait: true
+  recreatePods: true
+
+releases:
+- name: {{ .Values.ocean.name }}
+  namespace: {{ .Values.ocean.namespace }}
+  version: 0.1.1
+  chart: ../../custom-charts/ocean
+  condition: ocean.enabled
+  values:
+  - values.yaml.gotmpl
+  - {{ toYaml .Values.ocean.values | nindent 4 }}
+- name: shared-secret
+  namespace: {{ .Values.ocean.namespace }}
+  version: 0.1.0
+  chart: ../../custom-charts/shared-secret
+  condition: ocean.enabled
+  values:
+  - {{ toYaml .Values.sharedSecret.values | nindent 4 }}

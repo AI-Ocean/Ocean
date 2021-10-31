@@ -1,0 +1,50 @@
+apiVersion: v1
+data:
+  kubernetes.py: |
+    IS_LOCAL = False
+    NAMESPACE = "{{ .Release.Namespace }}"
+    STORAGE_CLASS_NAME = "{{ .Values.storage.classname }}"
+    ACCESS_MODES = "{{ .Values.storage.mode }}"
+
+  database.py: |
+    import pymysql
+    import os
+    pymysql.install_as_MySQLdb()
+
+    DATABASES = {
+        "default": {
+            'ENGINE': "django.db.backends.mysql",
+            'NAME': "{{ .Values.mariadb.auth.database }}",
+            'HOST': "{{ .Values.mariadb.host }}",
+            'USER': "{{ .Values.mariadb.auth.username }}",
+            'PASSWORD': os.environ['DATABASE_PASSWORD'],
+            'PORT': "{{ .Values.mariadb.primary.service.port }}"
+        }
+    }
+
+  ray.py: |
+    RAY_IMAGE = "{{ .Values.ray.image }}"
+
+  images.py: |
+    OCEAN_PROJ = {{ .Values.ocean.repo }}
+    VSCODE_LABEL = "vscode"
+
+  prometheus.py: |
+    PROMETHEUS_URL = "{{ .Values.prometheus.host }}"
+
+  harbor.py: |
+    import os
+    
+    HARBOR_ADDRESS="{{ .Values.harbor.address }}"
+    HARBOR_ADDRESS_NO_PROTOCOL=HARBOR_ADDRESS.split("://")[-1]
+    HARBOR_ID="{{ .Values.harbor.id }}"
+    HARBOR_PASSWORD=os.environ['HARBOR_PASSWORD']
+    HARBOR_IMAGEPULLSECRET="{{ .Values.harbor.imagePullSecret }}"
+    HARBOR_PUBLIC_REPO="public"
+
+  imagepush.py: |
+    IMAGEPUSH_NAMESPACE="{{ .Release.Namespace }}"
+
+kind: ConfigMap
+metadata:
+  name: ocean-backend-configmap

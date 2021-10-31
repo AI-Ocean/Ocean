@@ -1,0 +1,17 @@
+repositories:
+- name: nvidia
+  url: https://nvidia.github.io/gpu-operator
+
+helmDefaults:
+  createNamespace: true
+  wait: true
+
+releases:
+- name: gpu-operator
+  namespace: {{ .Values.gpuOperator.namespace }}
+  version: v1.7.1
+  chart: nvidia/gpu-operator
+  condition: gpuOperator.enabled
+  values:
+  - values.yaml.gotmpl
+  - {{ toYaml .Values.gpuOperator.values | nindent 4 }}

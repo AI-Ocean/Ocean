@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: imagepush-daemonset
+  labels:
+    app: imagepush-daemonset
+spec:
+  selector:
+    matchLabels:
+      name: imagepush-daemonset
+  template:
+    metadata:
+      labels:
+        name: imagepush-daemonset
+    spec:
+      tolerations:
+      # this toleration is to have the daemonset runnable on master nodes
+      # remove it if your masters can't run pods
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: {{ .Values.daemonset.image.name }}:{{ .Values.daemonset.image.tag }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          hostPort: 5000
+        #command: ["/bin/sh", "-c"]
+        #args: ["while true; do sleep 30; done;"]
+        command: ["python", "app.py"]
+        args: ["--incluster", "--logging-file-path", "/root/image-push.log", "--harbor-secret-path", "/etc/secret/config.json"]
+        resources:
+          limits:
+            {{- if .Values.daemonset.resources.limits.cpu }}
+            cpu: {{ .Values.daemonset.resources.limits.cpu }}
+            {{- end }}
+            memory: {{ .Values.daemonset.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.daemonset.resources.requests.cpu }}
+            memory: {{ .Values.daemonset.resources.requests.memory }}
+        volumeMounts:
+        - name: harbor-secret
+          mountPath: "/etc/secret"
+          readOnly: true
+        - name: nerdctl-sock
+          mountPath: /var/run/containerd
+          mountPropagation: HostToContainer
+      imagePullSecrets:
+      - name: {{ .Values.daemonset.imagePullSecret }}
+      serviceAccountName: imagepush-controller-viewer
+      volumes:
+      - name: harbor-secret
+        secret:
+          secretName: harbor-regcred
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+      - name: nerdctl-sock
+        hostPath:
+          path: /var/run/containerd
+          type: Directory

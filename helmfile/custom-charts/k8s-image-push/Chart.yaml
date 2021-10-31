@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: v0.1.0
+name: k8s-image-push
+description: k8s-image-push Helm chart for Kubernetes
+version: 0.1.0
