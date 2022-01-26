@@ -198,7 +198,7 @@ ocean:
         username: *mariadbUserName
         database: *mariadbDatabase
     prometheus:
-      host: prometheus-stack-kube-prom-prometheus.prometheus.svc
+      host: prometheus-stack-kube-prom-prometheus.prometheus.svc:9090
     ray:
       image: rayproject/ray:latest
     storage:
