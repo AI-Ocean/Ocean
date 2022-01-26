@@ -11,7 +11,7 @@ MINIO_SECRET_KEY=test
 
 ### 2. install helmfiles
 ```bash
-$ helmfile sync
+$ helmfile apply
 ```
 
 ### 3. set /etc/hosts in all nodes
