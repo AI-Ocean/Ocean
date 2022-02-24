@@ -7,6 +7,7 @@ $ vi env.template
 MINIO_ACCESS_KEY=test
 MINIO_SECRET_KEY=test
 ...
+$ source ./env.template
 ```
 
 ### 2. install helmfiles
@@ -30,5 +31,5 @@ $ vi /etc/hosts
 
 ## Update
 ```bash
-$ helmfile --environments=oceanUpdate sync
+$ helmfile --environment=oceanUpdate sync
 ```
