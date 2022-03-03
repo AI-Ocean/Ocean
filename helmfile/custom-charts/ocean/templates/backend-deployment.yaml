@@ -67,8 +67,8 @@ spec:
       containers:
         - name: ocean-backend-con
           image: {{ .Values.backend.image.name }}:{{ .Values.backend.image.tag }}
-          command: ["python"]
-          args: ["ocean/manage.py", "runserver", "0.0.0.0:8000"]
+          command: ["gunicorn"]
+          args: ["--bind", "0.0.0.0:8000", "--timeout", "0", "ocean.wsgi:application"]
           imagePullPolicy: {{ .Values.backend.image.imagePullPolicy }}
           ports:
             - containerPort: 8000
