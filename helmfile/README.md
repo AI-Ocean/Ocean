@@ -12,7 +12,7 @@ $ source ./env.template
 
 ### 2. install helmfiles
 ```bash
-$ helmfile apply
+$ helmfile sync
 ```
 
 ### 3. set /etc/hosts in all nodes
