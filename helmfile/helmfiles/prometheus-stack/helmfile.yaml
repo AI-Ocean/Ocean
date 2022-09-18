@@ -5,6 +5,7 @@ repositories:
 helmDefaults:
   createNamespace: true
   wait: true
+  timeout: 600
 
 releases:
 - name: prometheus-stack

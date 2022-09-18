@@ -9,7 +9,7 @@ helmDefaults:
 releases:
 - name: {{ .Values.mariadb.name }}
   namespace: {{ .Values.mariadb.namespace }}
-  version: 9.3.17
+  version: 10.5.1
   chart: ../../custom-charts/mariadb
   condition: mariadb.enabled
   values:

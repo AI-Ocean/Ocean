@@ -28,6 +28,7 @@ data:
   images.py: |
     OCEAN_PROJ = {{ .Values.ocean.repo }}
     VSCODE_LABEL = "vscode"
+    IMAGE_REPOS = ["myaiocean/pytorch", "myaiocean/tensorflow"]
 
   prometheus.py: |
     PROMETHEUS_URL = "{{ .Values.prometheus.host }}"

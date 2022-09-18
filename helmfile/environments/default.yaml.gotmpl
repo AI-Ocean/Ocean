@@ -6,6 +6,7 @@ gpuOperator:
       defaultRuntime: containerd
     driver:
       enabled: true
+      version: 470.129.06
     toolkit:
       enabled: true
 
@@ -46,7 +47,7 @@ prometheusStack:
       extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*],nodes=[*]", "--metric-annotations-allowlist=nodes=[*]"]
 
 minio:
-  enabled: true
+  enabled: false
   namespace: harbor
   values:
     accessKey: &minioAccessKey {{ requiredEnv "MINIO_ACCESS_KEY" | quote }}
@@ -56,7 +57,7 @@ minio:
       name: &minioBucketName registry
 
 harbor:
-  enabled: true
+  enabled: false
   namespace: harbor
   values:
     externalURL: &harborRegistry http://harbor.harbor.svc:80
@@ -113,7 +114,7 @@ sharedSecret:
         password: *harborAdminPassword
 
 imagePush:
-  enabled: true
+  enabled: false
   namespace: image-pusher-system
   values:
     daemonset:

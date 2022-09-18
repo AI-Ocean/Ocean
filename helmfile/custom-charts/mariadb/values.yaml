@@ -55,7 +55,7 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: bitnami/mariadb
-  tag: 10.5.11-debian-10-r0
+  tag: 10.5.15-debian-10-r51
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
