@@ -28,7 +28,23 @@ data:
   images.py: |
     OCEAN_PROJ = {{ .Values.ocean.repo }}
     VSCODE_LABEL = "vscode"
-    IMAGE_REPOS = ["myaiocean/pytorch", "myaiocean/tensorflow"]
+    IMAGE_LISTS = {
+      "pytorch": [
+        "myaiocean/pytorch:1.9.0-cuda11.1-cudnn8-runtime",
+        "myaiocean/pytorch:1.9.0-cuda10.2-cudnn7-runtime",
+        "myaiocean/pytorch:1.8.1-cuda11.1-cudnn8-runtime",
+        "myaiocean/pytorch:1.8.1-cuda10.2-cudnn7-runtime",
+        "myaiocean/pytorch:1.7.1-cuda11.0-cudnn8-runtime",
+        "myaiocean/pytorch:1.6.0-cuda10.1-cudnn7-runtime",
+        "myaiocean/pytorch:1.5.1-cuda10.1-cudnn7-runtime"
+      ],
+      "tensorflow": [
+        "myaiocean/tensorflow:2.2.3-gpu-py3",
+        "myaiocean/tensorflow:2.1.0rc2-gpu-py3",
+        "myaiocean/tensorflow:2.0.4-gpu-py3",
+        "myaiocean/tensorflow:1.15.5-gpu-py3"
+      ]
+    }
 
   prometheus.py: |
     PROMETHEUS_URL = "{{ .Values.prometheus.host }}"
