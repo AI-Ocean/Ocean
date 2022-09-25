@@ -5,7 +5,11 @@ data:
     NAMESPACE = "{{ .Release.Namespace }}"
     STORAGE_CLASS_NAME = "{{ .Values.storage.classname }}"
     ACCESS_MODES = "{{ .Values.storage.mode }}"
-    IS_AWS = {{ .Values.config.aws }}
+    {{- if .Values.config.aws }}
+    IS_AWS = True
+    {{- else }}
+    IS_AWS = False
+    {{- end }}
 
   database.py: |
     import pymysql
