@@ -1,9 +1,0 @@
-{{ if .Values.github.imageCredentials.enabled }}
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ .Values.harbor.core.name }}
-type: Opaque
-data:
-  HARBOR_ADMIN_PASSWORD: {{ template "harborCorePassword" . }}
-{{ end }}

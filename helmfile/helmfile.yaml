@@ -2,9 +2,6 @@ environments:
   default:
     values:
     - environments/default.yaml.gotmpl
-  oceanUpdate:
-    values:
-    - environments/ocean-update.yaml.gotmpl
 ---
 helmfiles:
 - path: helmfiles/gpu-operator/helmfile.yaml
@@ -15,27 +12,7 @@ helmfiles:
   values:
   - prometheusStack:
     {{ toYaml .Values.prometheusStack | nindent 6 }}
-- path: helmfiles/minio/helmfile.yaml
+- path: helmfiles/nfs-server/helmfile.yaml
   values:
-  - minio:
-    {{ toYaml .Values.minio | nindent 6 }}
-- path: helmfiles/harbor/helmfile.yaml
-  values:
-  - harbor:
-    {{ toYaml .Values.harbor | nindent 6 }}
-- path: helmfiles/k8s-image-push/helmfile.yaml
-  values:
-  - imagePush:
-    {{ toYaml .Values.imagePush | nindent 6 }}
-  - sharedSecret:
-    {{ toYaml .Values.sharedSecret | nindent 6 }}
-- path: helmfiles/mariadb/helmfile.yaml
-  values:
-  - mariadb:
-    {{ toYaml .Values.mariadb | nindent 6 }}
-- path: helmfiles/ocean/helmfile.yaml
-  values:
-  - ocean:
-    {{ toYaml .Values.ocean | nindent 6 }}
-  - sharedSecret:
-    {{ toYaml .Values.sharedSecret | nindent 6 }}
+  - nfsServer:
+    {{ toYaml .Values.nfsServer | nindent 6 }}
