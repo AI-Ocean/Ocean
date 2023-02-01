@@ -3,12 +3,12 @@ gpuOperator:
   namespace: gpu-operator-resources
   values:
     operator:
-      defaultRuntime: docker
+      defaultRuntime: containerd
     driver:
       enabled: false
       version: 525.60.13
     toolkit:
-      enabled: false
+      enabled: true
 
 prometheusStack:
   enabled: false
