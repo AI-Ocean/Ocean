@@ -5,7 +5,7 @@ helmDefaults:
 
 releases:
 - name: nfs-server
-  namespace: {{ .Values.ocean.namespace }}
+  namespace: {{ .Values.nfsServer.namespace }}
   version: 0.1.1
   chart: ../../custom-charts/nfs-server
   condition: nfsServer.enabled
