@@ -3,7 +3,7 @@ storageclass:
 
 volume:
   name: local-storage-pv
-  hostpath: /dev/sdb/nfs
+  hostpath: /mnt/sdb/nfs
   size: 5Ti
   nodeAffinity:
     required:
