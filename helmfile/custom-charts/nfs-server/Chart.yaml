@@ -8,5 +8,5 @@ dependencies:
   repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
   tags:
   - nfs-server-provisioner
-  version: 1.7.0 
+  version: 1.5.0
   condition: nfs-server-provisioner.enabled

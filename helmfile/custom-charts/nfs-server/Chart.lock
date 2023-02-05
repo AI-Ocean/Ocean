@@ -1,6 +1,6 @@
 dependencies:
 - name: nfs-server-provisioner
   repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
-  version: 1.7.0
-digest: sha256:7939a7f1707a11c584c712c4b0a338c3cb48ffb7d17bd557ee26b48c4c8dc28c
-generated: "2023-02-02T00:19:09.463268+09:00"
+  version: 1.5.0
+digest: sha256:e059c611fc701d6ed86e78c957d8f88f2df3fc93d709a6589cf375719254d520
+generated: "2023-02-06T01:20:15.826362+09:00"
