@@ -1,10 +1,10 @@
 storageclass:
-  name: &storageClassName local-storage
+  name: local-storage
 
 volume:
   name: local-storage-pv
   hostpath: /dev/sdb/nfs
-  size: &volumeSize 5Ti
+  size: 5Ti
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -14,10 +14,10 @@ volume:
           values:
           - ai
 
-nfsServerProvisioner:
+nfs-server-provisioner:
   enabled: true
 
   persistence:
     enabled: true
-    storageClass: *storageClassName
-    size: *volumeSize
+    storageClass: local-storage
+    size: 5Ti

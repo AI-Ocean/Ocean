@@ -9,4 +9,4 @@ dependencies:
   tags:
   - nfs-server-provisioner
   version: 1.7.0 
-  condition: nfsServerProvisioner.enabled
+  condition: nfs-server-provisioner.enabled
