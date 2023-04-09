@@ -9,7 +9,7 @@ helmDefaults:
 releases:
 - name: gpu-operator
   namespace: {{ .Values.gpuOperator.namespace }}
-  version: v1.9.1
+  version: v22.9.0
   chart: nvidia/gpu-operator
   condition: gpuOperator.enabled
   values:

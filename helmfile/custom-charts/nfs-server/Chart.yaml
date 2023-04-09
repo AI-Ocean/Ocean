@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: v0.0.1
+name: nfs-server
+description: NFS Server Helm chart for Kubernetes
+version: 0.0.1
+dependencies:
+- name: nfs-server-provisioner
+  repository: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
+  tags:
+  - nfs-server-provisioner
+  version: 1.5.0
+  condition: nfs-server-provisioner.enabled

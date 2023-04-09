@@ -1,0 +1,23 @@
+storageclass:
+  name: &storageClassName local-storage
+
+volume:
+  name: local-storage-pv
+  hostpath: /dev/sdb/nfs
+  size: &volumeSize 5Ti
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ai
+
+nfs-server-provisioner:
+  enabled: true
+
+  persistence:
+    enabled: true
+    storageClass: *storageClassName
+    size: *volumeSize

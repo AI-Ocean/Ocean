@@ -5,13 +5,13 @@ gpuOperator:
     operator:
       defaultRuntime: containerd
     driver:
-      enabled: true
-      version: 470.129.06
+      enabled: false
+      version: 525.60.13
     toolkit:
       enabled: true
 
 prometheusStack:
-  enabled: true
+  enabled: false
   namespace: prometheus
   values:
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -46,165 +46,30 @@ prometheusStack:
         tag: v2.2.0
       extraArgs: ["--metric-labels-allowlist=pods=[*],persistentvolumeclaims=[*],nodes=[*]", "--metric-annotations-allowlist=nodes=[*]"]
 
-minio:
-  enabled: false
-  namespace: harbor
+nfsServer:
+  enabled: true
+  namespace: nfs-server
   values:
-    accessKey: &minioAccessKey {{ requiredEnv "MINIO_ACCESS_KEY" | quote }}
-    secretKey: &minioSecretKey {{ requiredEnv "MINIO_SECRET_KEY" | quote }}
-    defaultBucket:
+    storageclass:
+      name: &storageClassName local-storage
+
+    volume:
+      name: local-storage-pv
+      hostpath: /mnt/sdb/nfs
+      size: &volumeSize 5Ti
+      nodeAffinity:
+        required:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+              - ai
+
+    nfsServerProvisioner:
       enabled: true
-      name: &minioBucketName registry
 
-harbor:
-  enabled: false
-  namespace: harbor
-  values:
-    externalURL: &harborRegistry http://harbor.harbor.svc:80
-    expose:
-      type: clusterIP
-      nodePort:
-        name: harbor
-        ports:
-          http:
-            port: 80
-      tls:
-        enabled: false
-    persistence:
-      enabled: true
-      resourcePolicy: "keep"
-      imageChartStorage:
-        disableredirect: true
-        type: s3
-        s3:
-          region: us-east-1
-          regionendpoint: http://minio:9000
-          bucket: *minioBucketName
-          accesskey: *minioAccessKey
-          secretkey: *minioSecretKey
-    database:
-      internal:
-        password: {{ requiredEnv "HARBOR_DATABASE_PASSWORD" | quote }}
-    harborAdminPassword: &harborAdminPassword {{ requiredEnv "HARBOR_ADMIN_PASSWORD" | quote }}
-    secretKey: {{ requiredEnv "HARBOR_SECRET_KEY" | quote }}
-
-sharedSecret:
-  enabled: true
-  values:
-    github:
-      imageCredentials:
+      persistence:
         enabled: true
-        name: &githubRegcredName github-regcred
-        registry: ghcr.io
-        username: {{ requiredEnv "GITHUB_USERNAME" }}
-        password: {{ requiredEnv "GITHUB_PASSWORD" }}
-        email:
-        
-    harbor:
-      imageCredentials:
-        enabled: true
-        name: &harborRegcredName harbor-regcred
-        registry: *harborRegistry
-        username: admin
-        password: *harborAdminPassword
-        email:
-
-      core:
-        name: &harborCoreName harbor-core
-        password: *harborAdminPassword
-
-imagePush:
-  enabled: false
-  namespace: image-pusher-system
-  values:
-    daemonset:
-      image:
-        name: ghcr.io/ai-ocean/image-push-daemonset
-        tag: main
-      imagePullSecret: *githubRegcredName
-    operator:
-      image:
-        name: ghcr.io/ai-ocean/image-push-operator
-        tag: main
-      imagePullSecret: *githubRegcredName
-    job:
-      image:
-        name: ghcr.io/ai-ocean/image-push-job
-        tag: main
-      imagePullSecret: *githubRegcredName
-      harbor:
-        imagePullSecret: *harborRegcredName
-
-mariadb:
-  name: ocean-mariadb
-  enabled: true
-  namespace: ocean
-  values:
-    auth:
-      username: &mariadbUserName ocean
-      password: {{ requiredEnv "MARIADB_PASSWORD" }}
-      database: &mariadbDatabase ocean
-      rootPassword: {{ requiredEnv "MARIADB_ROOT_PASSWORD" }}
-    persistence:
-      size: 8Gi
-
-ocean:
-  name: ocean
-  enabled: true
-  namespace: ocean
-  values:
-    config:
-      aws: true
-
-    backend:
-      image:
-        name: ghcr.io/ai-ocean/ocean-backend
-        tag: main
-        imagePullSecret: *githubRegcredName
-      service:
-        type: ClusterIP
-        ports:
-            nodePort: 32081
-    frontend:
-      admin:
-        image:
-          name: ghcr.io/ai-ocean/ocean-frontend
-          tag: main
-          imagePullSecret: *githubRegcredName
-        service:
-          type: NodePort
-          ports:
-            nodePort: 32079
-      user:
-        image:
-          name: ghcr.io/ai-ocean/ocean-user
-          tag: main
-          imagePullSecret: *githubRegcredName
-        service:
-          type: NodePort
-          ports:
-            nodePort: 32080
-    ocean:
-      repo: "[\"myaiocean\"]"
-    harbor:
-      address: http://harbor.harbor.svc:80
-      id: admin
-      secret:
-        name: *harborCoreName
-        key: HARBOR_ADMIN_PASSWORD
-      imagePullSecret: *harborRegcredName
-    mariadb:
-      host: ocean-mariadb.ocean.svc
-      secret: 
-        name: ocean-mariadb
-        key: mariadb-password
-      auth:
-        username: *mariadbUserName
-        database: *mariadbDatabase
-    prometheus:
-      host: prometheus-stack-kube-prom-prometheus.prometheus.svc:9090
-    ray:
-      image: rayproject/ray:latest
-    storage:
-      classname: nfs-client
-      mode: ReadWriteMany
+        storageClass: *storageClassName
+        size: *volumeSize

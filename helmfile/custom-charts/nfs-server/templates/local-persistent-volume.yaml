@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.volume.name }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  capacity:
+    storage: {{ .Values.volume.size }}
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: {{ .Values.storageclass.name }}
+  local:
+    path: {{ .Values.volume.hostpath }}
+  {{- if .Values.volume.nodeAffinity }}
+  nodeAffinity:
+    {{- .Values.volume.nodeAffinity | toYaml | nindent 4 }}
+  {{- end }}

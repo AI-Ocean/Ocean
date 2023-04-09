@@ -1,0 +1,14 @@
+helmDefaults:
+  createNamespace: true
+  wait: true
+  recreatePods: true
+
+releases:
+- name: nfs-server
+  namespace: {{ .Values.nfsServer.namespace }}
+  version: 0.1.1
+  chart: ../../custom-charts/nfs-server
+  condition: nfsServer.enabled
+  values:
+  - values.yaml.gotmpl
+  - {{ toYaml .Values.nfsServer.values | nindent 4 }}

@@ -1,8 +1,0 @@
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: imagepush-daemonset-clusterrole
-rules:
-- apiGroups: ["imagepush.ocean.ai"] # "" indicates the core API group
-  resources: ["imagepushes", "imagepushes/status"]
-  verbs: ["*"]
