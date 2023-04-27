@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app: {{ .Chart.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  replicas: {{ .Values.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      serviceAccountName: pod-reaper-sa
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        env:
+          - name: REMOTE_EXEC
+            value: "true"
+          - name: REAPER_NAMESPACES
+            value: {{ .Release.Namespace }}
+          - name: MAX_REAP_COUNT_PER_RUN
+            value: {{ .Values.maxReapCountPerRun | default 30 | quote }}
+          - name: REAP_EVICTED_PODS
+            value: {{ .Values.reapEvictedPods | default false | quote }}
+          - name: CRON_JOB
+            value: {{ .Values.cronJob | default false | quote }}
