@@ -73,3 +73,13 @@ nfsServer:
         enabled: true
         storageClass: *storageClassName
         size: *volumeSize
+
+podReaper:
+  enabled: true
+  namespace: default
+  values:
+    replicas: 1
+    image:
+      name: ghcr.io/ai-ocean/pod-reaper
+      tag: main
+    maxReapCountPerRun: 30

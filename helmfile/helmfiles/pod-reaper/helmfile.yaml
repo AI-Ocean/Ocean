@@ -1,0 +1,14 @@
+helmDefaults:
+  createNamespace: true
+  wait: true
+  recreatePods: true
+
+releases:
+- name: pod-reaper
+  namespace: {{ .Values.podReaper.namespace }}
+  version: 0.1.1
+  chart: ../../custom-charts/pod-reaper
+  condition: podReaper.enabled
+  values:
+  - values.yaml.gotmpl
+  - {{ toYaml .Values.podReaper.values | nindent 4 }}

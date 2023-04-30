@@ -16,3 +16,7 @@ helmfiles:
   values:
   - nfsServer:
     {{ toYaml .Values.nfsServer | nindent 6 }}
+- path: helmfiles/pod-reaper/helmfile.yaml
+  values:
+  - podReaper:
+    {{ toYaml .Values.podReaper | nindent 6 }}
