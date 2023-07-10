@@ -1,3 +1,7 @@
+repositories:
+- name: nfs-server-provisioner
+  url: https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner
+
 helmDefaults:
   createNamespace: true
   wait: true
