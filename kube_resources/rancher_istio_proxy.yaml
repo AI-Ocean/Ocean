@@ -1,0 +1,96 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: rancher-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingress # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    tls:
+      httpsRedirect: false
+    hosts:
+    - rancher.aiocean.click
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: PASSTHROUGH
+    hosts:
+    - rancher.aiocean.click
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rancher-proxy
+  namespace: istio-system
+spec:
+  hosts:
+  - rancher.aiocean.click
+  gateways:
+  - rancher-gateway
+  http:
+    - name: default
+      headers:
+        request:
+          set:
+            X-Forwarded-Host: rancher.aiocean.click
+            X-Forwarded-Proto: https
+            Host: rancher-internal.aiocean.click
+      route:
+      - destination:
+          host: rancher-internal.aiocean.click
+          port:
+            number: 443
+---
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: rancher-service-entry
+  namespace: istio-system
+spec:
+  hosts:
+  - rancher-internal.aiocean.click
+  ports:
+  - number: 80
+    name: http-port
+    protocol: HTTP
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+  location: MESH_EXTERNAL
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: rancher-destination-rule
+  namespace: istio-system
+spec:
+  host: rancher-internal.aiocean.click
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+      sni: rancher-internal.aiocean.click
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ingress-policy-rancher-allow
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: istio-ingressgateway
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        paths: ["/*"]
+        hosts: ["rancher.aiocean.click"]
